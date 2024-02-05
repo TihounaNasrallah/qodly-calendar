@@ -9,7 +9,6 @@ import {
   MdKeyboardDoubleArrowLeft,
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
-import React from 'react';
 import {
   startOfWeek,
   endOfWeek,
