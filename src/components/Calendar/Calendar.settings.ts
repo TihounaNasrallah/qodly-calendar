@@ -1,5 +1,6 @@
-import { ESetting, TSetting } from '@ws-ui/webform-editor';
+import { ESetting, TSetting, DEFAULT_ITERATOR } from '@ws-ui/webform-editor';
 import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
+import { validateServerSide } from '@ws-ui/shared';
 
 const commonSettings: TSetting[] = [
   {
@@ -23,6 +24,26 @@ const commonSettings: TSetting[] = [
   },
 ];
 
+const dataAccessSettings: TSetting[] = [
+  {
+    key: 'datasource',
+    label: 'Data Source',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  // {
+  //   key: 'attribute',
+  //   label: 'Filter By',
+  //   type: ESetting.DS_AUTO_SUGGEST,
+  // },
+  {
+    key: 'serverSideRef',
+    label: 'Server Side',
+    type: ESetting.TEXT_FIELD,
+    hasError: validateServerSide,
+    validateOnEnter: true,
+  },
+];
+
 const Settings: TSetting[] = [
   {
     key: 'properties',
@@ -30,7 +51,13 @@ const Settings: TSetting[] = [
     type: ESetting.GROUP,
     components: commonSettings,
   },
-  ...DEFAULT_SETTINGS,
+  {
+    key: 'dataAccess',
+    label: 'Data Access',
+    type: ESetting.GROUP,
+    components: dataAccessSettings,
+  },
+  ...load(DEFAULT_SETTINGS).filter('dataAccess'),
 ];
 
 export const BasicSettings: TSetting[] = [

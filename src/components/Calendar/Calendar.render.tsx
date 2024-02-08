@@ -1,8 +1,20 @@
-import { useRenderer, useSources } from '@ws-ui/webform-editor';
+import {
+  useRenderer,
+  useSources,
+  useEnhancedEditor,
+  selectResolver,
+  EntityProvider,
+  useDataLoader,
+  unsubscribeFromDatasource,
+} from '@ws-ui/webform-editor';
+
+import { Element } from '@ws-ui/craftjs-core';
 import cn from 'classnames';
 import { FC, useEffect, useState } from 'react';
 
-import './Calendar.css';
+import React from 'react';
+
+import { BsFillInfoCircleFill } from 'react-icons/bs';
 import {
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
@@ -25,6 +37,7 @@ import {
 import { ICalendarProps } from './Calendar.config';
 
 const Calendar: FC<ICalendarProps> = ({
+  iterator,
   name,
   rowHeight,
   color,
@@ -34,10 +47,18 @@ const Calendar: FC<ICalendarProps> = ({
   classNames = [],
 }) => {
   const { connect } = useRenderer();
+
+  const { resolver } = useEnhancedEditor(selectResolver);
+
   const [value, setValue] = useState(() => name);
+
   const {
-    sources: { datasource: ds },
+    sources: { datasource: ds, currentElement: currentDs },
   } = useSources();
+
+  const { fetchIndex } = useDataLoader({
+    source: ds,
+  });
 
   useEffect(() => {
     if (!ds) return;
@@ -69,44 +90,52 @@ const Calendar: FC<ICalendarProps> = ({
   const nextYear = () => setDate(addMonths(date, 12));
   const prevYear = () => setDate(subMonths(date, 12));
 
+  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="calendar-container">
-        <div className="calendar-header">
-          <button onClick={prevYear} style={{ display: yearNav ? 'block' : 'none' }}>
+      <div className="flex flex-col justify-center items-center gap-4 w-full h-full">
+        <div className="w-full flex justify-center gap-4 items-center">
+          <button
+            className="text-xl cursor-pointer"
+            onClick={prevYear}
+            style={{ display: yearNav ? 'block' : 'none' }}
+          >
             <MdKeyboardDoubleArrowLeft />
           </button>
-          <button onClick={prevMonth}>
+          <button className="text-xl cursor-pointer" onClick={prevMonth}>
             <MdKeyboardArrowLeft />
           </button>
-          <h2 className="title">{format(date, 'MMMM yyyy')}</h2>
-          <button onClick={nextMonth}>
+          <h2 className="w-36 text-center font-medium text-lg">{format(date, 'MMMM yyyy')}</h2>
+          <button className="text-xl cursor-pointer" onClick={nextMonth}>
             <MdKeyboardArrowRight />
           </button>
-          <button onClick={nextYear} style={{ display: yearNav ? 'block' : 'none' }}>
+          <button
+            className="text-xl cursor-pointer"
+            onClick={nextYear}
+            style={{ display: yearNav ? 'block' : 'none' }}
+          >
             <MdKeyboardDoubleArrowRight />
           </button>
         </div>
 
-        <div className="calendar-grid">
-          <div className="day-name ">Mon</div>
-          <div className="day-name ">Tue</div>
-          <div className="day-name ">Wed</div>
-          <div className="day-name ">Thu</div>
-          <div className="day-name ">Fri</div>
-          <div className="day-name ">Sat</div>
-          <div className="day-name ">Sun</div>
+        <div className="w-full grid justify-center grid-cols-7">
+          {weekdays.map((day) => (
+            <div key={day} className="flex justify-center items-center font-medium text-lg">
+              {day}
+            </div>
+          ))}
           {daysInMonth.map((day) => (
             <div
               key={day.toString()}
-              className="calendar-day"
+              className="flex flex-col justify-start items-start h-32 p-1 w-full border border-gray-200 hover:bg-gray-300 transition duration-100"
               style={{
                 color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
                 height: rowHeight,
               }}
             >
               <div
-                className="day-number"
+                className="px-2 py-1 font-medium rounded-full"
                 style={{
                   backgroundColor: isToday(day) ? color : '',
                   color: isToday(day) ? 'white' : '',

@@ -7,6 +7,10 @@ import CalendarSettings, { BasicSettings } from './Calendar.settings';
 export default {
   craft: {
     displayName: 'Calendar',
+    rules: {
+      canMoveIn: () => true,
+      canMoveOut: () => true,
+    },
     kind: EComponentKind.BASIC,
     props: {
       name: '',
@@ -52,7 +56,7 @@ export default {
       },
     ],
     datasources: {
-      accept: ['string'],
+      accept: ['entitysel'],
     },
   },
   defaultProps: {
