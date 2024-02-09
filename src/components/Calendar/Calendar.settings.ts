@@ -30,11 +30,6 @@ const dataAccessSettings: TSetting[] = [
     label: 'Data Source',
     type: ESetting.DS_AUTO_SUGGEST,
   },
-  // {
-  //   key: 'attribute',
-  //   label: 'Filter By',
-  //   type: ESetting.DS_AUTO_SUGGEST,
-  // },
   {
     key: 'serverSideRef',
     label: 'Server Side',

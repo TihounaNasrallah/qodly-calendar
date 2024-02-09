@@ -14,7 +14,6 @@ import { FC, useEffect, useState } from 'react';
 
 import React from 'react';
 
-import { BsFillInfoCircleFill } from 'react-icons/bs';
 import {
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
@@ -56,10 +55,6 @@ const Calendar: FC<ICalendarProps> = ({
     sources: { datasource: ds, currentElement: currentDs },
   } = useSources();
 
-  const { fetchIndex } = useDataLoader({
-    source: ds,
-  });
-
   useEffect(() => {
     if (!ds) return;
 
@@ -75,7 +70,7 @@ const Calendar: FC<ICalendarProps> = ({
     return () => {
       ds.removeListener('changed', listener);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
 
   const [date, setDate] = useState(new Date());
@@ -94,24 +89,24 @@ const Calendar: FC<ICalendarProps> = ({
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="flex flex-col justify-center items-center gap-4 w-full h-full">
-        <div className="w-full flex justify-center gap-4 items-center">
+      <div className="calendar-container flex flex-col justify-center items-center gap-4 w-full h-full">
+        <div className="calendar-header w-full flex justify-center gap-4 items-center">
           <button
-            className="text-xl cursor-pointer"
+            className="text-2xl cursor-pointer"
             onClick={prevYear}
             style={{ display: yearNav ? 'block' : 'none' }}
           >
             <MdKeyboardDoubleArrowLeft />
           </button>
-          <button className="text-xl cursor-pointer" onClick={prevMonth}>
+          <button className="text-2xl cursor-pointer" onClick={prevMonth}>
             <MdKeyboardArrowLeft />
           </button>
-          <h2 className="w-36 text-center font-medium text-lg">{format(date, 'MMMM yyyy')}</h2>
-          <button className="text-xl cursor-pointer" onClick={nextMonth}>
+          <h2 className="w-36 text-center font-medium text-xl">{format(date, 'MMMM yyyy')}</h2>
+          <button className="text-2xl cursor-pointer" onClick={nextMonth}>
             <MdKeyboardArrowRight />
           </button>
           <button
-            className="text-xl cursor-pointer"
+            className="text-2xl cursor-pointer"
             onClick={nextYear}
             style={{ display: yearNav ? 'block' : 'none' }}
           >
@@ -119,7 +114,7 @@ const Calendar: FC<ICalendarProps> = ({
           </button>
         </div>
 
-        <div className="w-full grid justify-center grid-cols-7">
+        <div className="calendar-grid w-full grid justify-center grid-cols-7">
           {weekdays.map((day) => (
             <div key={day} className="flex justify-center items-center font-medium text-lg">
               {day}
@@ -128,7 +123,7 @@ const Calendar: FC<ICalendarProps> = ({
           {daysInMonth.map((day) => (
             <div
               key={day.toString()}
-              className="flex flex-col justify-start items-start h-32 p-1 w-full border border-gray-200 hover:bg-gray-300 transition duration-100"
+              className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-100"
               style={{
                 color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
                 height: rowHeight,
@@ -142,6 +137,21 @@ const Calendar: FC<ICalendarProps> = ({
                 }}
               >
                 {format(day, 'd')}
+              </div>
+              <div className="date-content h-full w-full">
+                <EntityProvider
+                  index={day.getDate()}
+                  selection={ds}
+                  current={currentDs?.id}
+                  iterator={iterator}
+                >
+                  <Element
+                    id="calendar-content"
+                    className="h-full w-full"
+                    is={resolver.StyleBox}
+                    canvas
+                  />
+                </EntityProvider>
               </div>
             </div>
           ))}
