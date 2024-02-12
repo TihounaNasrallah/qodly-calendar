@@ -56,10 +56,10 @@ const Calendar: FC<ICalendarProps> = ({
     end: endOfWeek(endOfMonth(date), { weekStartsOn: 1 }),
   });
 
-  const prevMonth = () => setDate(subMonths(date, 1));
-  const nextMonth = () => setDate(addMonths(date, 1));
-  const nextYear = () => setDate(addMonths(date, 12));
-  const prevYear = () => setDate(subMonths(date, 12));
+  // const prevMonth = () => setDate(subMonths(date, 1));
+  // const nextMonth = () => setDate(addMonths(date, 1));
+  // const nextYear = () => setDate(addMonths(date, 12));
+  // const prevYear = () => setDate(subMonths(date, 12));
 
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -78,7 +78,7 @@ const Calendar: FC<ICalendarProps> = ({
               <button className="text-2xl cursor-pointer">
                 <MdKeyboardArrowLeft />
               </button>
-              <h2 className="w-36 text-center font-medium text-xl">{format(date, 'MMMM yyyy')}</h2>
+              <h2 className="w-44 text-center font-medium text-xl">{format(date, 'MMMM yyyy')}</h2>
               <button className="text-2xl cursor-pointer">
                 <MdKeyboardArrowRight />
               </button>
@@ -89,7 +89,7 @@ const Calendar: FC<ICalendarProps> = ({
                 <MdKeyboardDoubleArrowRight />
               </button>
             </div>
-            <div className="calendar-grid w-full grid justify-center grid-cols-7">
+            <div className="calendar-grid w-full grid grid-cols-7 justify-center">
               {weekdays.map((day) => (
                 <div key={day} className="flex justify-center items-center font-medium text-lg">
                   {day}

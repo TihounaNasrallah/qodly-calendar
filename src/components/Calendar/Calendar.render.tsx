@@ -10,7 +10,7 @@ import {
 
 import { Element } from '@ws-ui/craftjs-core';
 import cn from 'classnames';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useMemo } from 'react';
 
 import React from 'react';
 
@@ -31,6 +31,7 @@ import {
   eachDayOfInterval,
   format,
   isSameMonth,
+  addDays,
 } from 'date-fns';
 
 import { ICalendarProps } from './Calendar.config';
@@ -49,7 +50,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   const { resolver } = useEnhancedEditor(selectResolver);
 
-  const [value, setValue] = useState(() => name);
+  const [value, setValue] = useState<Date>(new Date());
 
   const {
     sources: { datasource: ds, currentElement: currentDs },
@@ -59,7 +60,7 @@ const Calendar: FC<ICalendarProps> = ({
     if (!ds) return;
 
     const listener = async (/* event */) => {
-      const v = await ds.getValue<string>();
+      const v = await ds.getValue();
       setValue(v);
     };
 
@@ -101,7 +102,7 @@ const Calendar: FC<ICalendarProps> = ({
           <button className="text-2xl cursor-pointer" onClick={prevMonth}>
             <MdKeyboardArrowLeft />
           </button>
-          <h2 className="w-36 text-center font-medium text-xl">{format(date, 'MMMM yyyy')}</h2>
+          <h2 className="w-44 text-center font-medium text-xl">{format(date, 'MMMM yyyy')}</h2>
           <button className="text-2xl cursor-pointer" onClick={nextMonth}>
             <MdKeyboardArrowRight />
           </button>
