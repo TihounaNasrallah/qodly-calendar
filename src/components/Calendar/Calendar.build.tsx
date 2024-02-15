@@ -69,23 +69,17 @@ const Calendar: FC<ICalendarProps> = ({
         {datasource ? (
           <div className="flex flex-col justify-center items-center gap-4 w-full h-full">
             <div className="calendar-header w-full flex justify-center gap-4 items-center">
-              <button
-                className="text-2xl cursor-pointer"
-                style={{ display: yearNav ? 'block' : 'none' }}
-              >
+              <button className="text-2xl" style={{ display: yearNav ? 'block' : 'none' }}>
                 <MdKeyboardDoubleArrowLeft />
               </button>
-              <button className="text-2xl cursor-pointer">
+              <button className="text-2xl">
                 <MdKeyboardArrowLeft />
               </button>
               <h2 className="w-44 text-center font-medium text-xl">{format(date, 'MMMM yyyy')}</h2>
-              <button className="text-2xl cursor-pointer">
+              <button className="text-2xl">
                 <MdKeyboardArrowRight />
               </button>
-              <button
-                className="text-2xl cursor-pointer"
-                style={{ display: yearNav ? 'block' : 'none' }}
-              >
+              <button className="text-2xl" style={{ display: yearNav ? 'block' : 'none' }}>
                 <MdKeyboardDoubleArrowRight />
               </button>
             </div>
@@ -96,9 +90,9 @@ const Calendar: FC<ICalendarProps> = ({
                 </div>
               ))}
 
-              {daysInMonth.map((day) => (
+              {daysInMonth.map((day, index) => (
                 <div
-                  key={day.toString()}
+                  key={index}
                   className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-100"
                   style={{
                     color: isSameMonth(day, date) ? 'black' : '#C0C0C0',

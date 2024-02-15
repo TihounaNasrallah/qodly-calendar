@@ -56,6 +56,10 @@ const Calendar: FC<ICalendarProps> = ({
     sources: { datasource: ds, currentElement: currentDs },
   } = useSources();
 
+  // const { entities } = useDataLoader({
+  //   source: ds,
+  // });
+
   useEffect(() => {
     if (!ds) return;
 
@@ -121,7 +125,7 @@ const Calendar: FC<ICalendarProps> = ({
               {day}
             </div>
           ))}
-          {daysInMonth.map((day) => (
+          {daysInMonth.map((day, index) => (
             <div
               key={day.toString()}
               className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-100"
@@ -141,7 +145,7 @@ const Calendar: FC<ICalendarProps> = ({
               </div>
               <div className="date-content h-full w-full">
                 <EntityProvider
-                  index={day.getDate()}
+                  index={index}
                   selection={ds}
                   current={currentDs?.id}
                   iterator={iterator}
