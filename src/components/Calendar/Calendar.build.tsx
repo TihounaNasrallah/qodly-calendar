@@ -6,9 +6,7 @@ import {
 } from '@ws-ui/webform-editor';
 import { Element } from '@ws-ui/craftjs-core';
 import cn from 'classnames';
-import { FC, useState } from 'react';
-
-import React from 'react';
+import { FC } from 'react';
 
 import {
   MdKeyboardArrowLeft,
@@ -25,8 +23,6 @@ import {
   endOfMonth,
   isToday,
   startOfMonth,
-  addMonths,
-  subMonths,
   eachDayOfInterval,
   format,
   isSameMonth,
@@ -49,7 +45,7 @@ const Calendar: FC<ICalendarProps> = ({
     connectors: { connect },
   } = useEnhancedNode();
 
-  const [date, setDate] = useState(new Date());
+  const date = new Date();
 
   const daysInMonth = eachDayOfInterval({
     start: startOfWeek(startOfMonth(date), { weekStartsOn: 1 }),
