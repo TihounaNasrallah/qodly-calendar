@@ -1,8 +1,19 @@
-import { useRenderer, useSources } from '@ws-ui/webform-editor';
-import cn from 'classnames';
-import { FC, useEffect, useState } from 'react';
+import {
+  useRenderer,
+  useSources,
+  useEnhancedEditor,
+  selectResolver,
+  EntityProvider,
+  useDataLoader,
+  unsubscribeFromDatasource,
+} from '@ws-ui/webform-editor';
 
-import './Calendar.css';
+import { Element } from '@ws-ui/craftjs-core';
+import cn from 'classnames';
+import { FC, useEffect, useState, useMemo } from 'react';
+
+import React from 'react';
+
 import {
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
@@ -20,11 +31,13 @@ import {
   eachDayOfInterval,
   format,
   isSameMonth,
+  addDays,
 } from 'date-fns';
 
 import { ICalendarProps } from './Calendar.config';
 
 const Calendar: FC<ICalendarProps> = ({
+  iterator,
   name,
   rowHeight,
   color,
@@ -34,16 +47,24 @@ const Calendar: FC<ICalendarProps> = ({
   classNames = [],
 }) => {
   const { connect } = useRenderer();
-  const [value, setValue] = useState(() => name);
+
+  const { resolver } = useEnhancedEditor(selectResolver);
+
+  const [value, setValue] = useState<Date>(new Date());
+
   const {
-    sources: { datasource: ds },
+    sources: { datasource: ds, currentElement: currentDs },
   } = useSources();
+
+  // const { entities } = useDataLoader({
+  //   source: ds,
+  // });
 
   useEffect(() => {
     if (!ds) return;
 
     const listener = async (/* event */) => {
-      const v = await ds.getValue<string>();
+      const v = await ds.getValue();
       setValue(v);
     };
 
@@ -54,7 +75,7 @@ const Calendar: FC<ICalendarProps> = ({
     return () => {
       ds.removeListener('changed', listener);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
 
   const [date, setDate] = useState(new Date());
@@ -69,50 +90,73 @@ const Calendar: FC<ICalendarProps> = ({
   const nextYear = () => setDate(addMonths(date, 12));
   const prevYear = () => setDate(subMonths(date, 12));
 
+  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="calendar-container">
-        <div className="calendar-header">
-          <button onClick={prevYear} style={{ display: yearNav ? 'block' : 'none' }}>
+      <div className="calendar-container flex flex-col justify-center items-center gap-4 w-full h-full">
+        <div className="calendar-header w-full flex justify-center gap-4 items-center">
+          <button
+            className="text-2xl cursor-pointer"
+            onClick={prevYear}
+            style={{ display: yearNav ? 'block' : 'none' }}
+          >
             <MdKeyboardDoubleArrowLeft />
           </button>
-          <button onClick={prevMonth}>
+          <button className="text-2xl cursor-pointer" onClick={prevMonth}>
             <MdKeyboardArrowLeft />
           </button>
-          <h2 className="title">{format(date, 'MMMM yyyy')}</h2>
-          <button onClick={nextMonth}>
+          <h2 className="w-44 text-center font-medium text-xl">{format(date, 'MMMM yyyy')}</h2>
+          <button className="text-2xl cursor-pointer" onClick={nextMonth}>
             <MdKeyboardArrowRight />
           </button>
-          <button onClick={nextYear} style={{ display: yearNav ? 'block' : 'none' }}>
+          <button
+            className="text-2xl cursor-pointer"
+            onClick={nextYear}
+            style={{ display: yearNav ? 'block' : 'none' }}
+          >
             <MdKeyboardDoubleArrowRight />
           </button>
         </div>
 
-        <div className="calendar-grid">
-          <div className="day-name ">Mon</div>
-          <div className="day-name ">Tue</div>
-          <div className="day-name ">Wed</div>
-          <div className="day-name ">Thu</div>
-          <div className="day-name ">Fri</div>
-          <div className="day-name ">Sat</div>
-          <div className="day-name ">Sun</div>
-          {daysInMonth.map((day) => (
+        <div className="calendar-grid w-full grid justify-center grid-cols-7">
+          {weekdays.map((day) => (
+            <div key={day} className="flex justify-center items-center font-medium text-lg">
+              {day}
+            </div>
+          ))}
+          {daysInMonth.map((day, index) => (
             <div
               key={day.toString()}
-              className="calendar-day"
+              className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-100"
               style={{
                 color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
                 height: rowHeight,
               }}
             >
               <div
-                className="day-number"
+                className="px-2 py-1 font-medium rounded-full"
                 style={{
                   backgroundColor: isToday(day) ? color : '',
                   color: isToday(day) ? 'white' : '',
                 }}
               >
                 {format(day, 'd')}
+              </div>
+              <div className="date-content h-full w-full">
+                <EntityProvider
+                  index={index}
+                  selection={ds}
+                  current={currentDs?.id}
+                  iterator={iterator}
+                >
+                  <Element
+                    id="calendar-content"
+                    className="h-full w-full"
+                    is={resolver.StyleBox}
+                    canvas
+                  />
+                </EntityProvider>
               </div>
             </div>
           ))}
