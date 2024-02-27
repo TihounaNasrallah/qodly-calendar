@@ -21,6 +21,7 @@ import {
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 import {
+  differenceInDays,
   parseISO,
   startOfWeek,
   endOfWeek,
@@ -51,15 +52,9 @@ const Calendar: FC<ICalendarProps> = ({
 
   const { resolver } = useEnhancedEditor(selectResolver);
 
-  //const [value, setValue] = useState<Date>(new Date());
-
   const {
     sources: { datasource: ds, currentElement: currentDs },
   } = useSources();
-
-  // const { entities } = useDataLoader({
-  //   source: ds,
-  // });
 
   useEffect(() => {
     if (!ds) return;
@@ -105,6 +100,8 @@ const Calendar: FC<ICalendarProps> = ({
       return acc;
     }, {});
   }, [data]);
+
+  console.log(congesByDate);
 
   const [date, setDate] = useState(new Date());
 
@@ -181,7 +178,10 @@ const Calendar: FC<ICalendarProps> = ({
                       <div className="conge-container ">
                         <div
                           key={index}
-                          className="conge-title text-sm text-white bg-indigo-600 px-2 py-1 rounded-md"
+                          className="conge-title text-sm text-white px-2 py-1"
+                          style={{
+                            backgroundColor: isSameMonth(day, date) ? 'rgb(15 118 110)' : '#C0C0C0',
+                          }}
                         >
                           {conge?.title}
                         </div>
