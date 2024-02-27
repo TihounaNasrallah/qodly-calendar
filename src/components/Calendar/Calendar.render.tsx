@@ -125,41 +125,43 @@ const Calendar: FC<ICalendarProps> = ({
               {day}
             </div>
           ))}
-          {daysInMonth.map((day, index) => (
-            <div
-              key={day.toString()}
-              className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-100"
-              style={{
-                color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
-                height: rowHeight,
-              }}
-            >
+          {daysInMonth.map((day, index) => {
+            return (
               <div
-                className="px-2 py-1 font-medium rounded-full"
+                key={day.toString()}
+                className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-100"
                 style={{
-                  backgroundColor: isToday(day) ? color : '',
-                  color: isToday(day) ? 'white' : '',
+                  color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
+                  height: rowHeight,
                 }}
               >
-                {format(day, 'd')}
-              </div>
-              <div className="date-content h-full w-full">
-                <EntityProvider
-                  index={index}
-                  selection={ds}
-                  current={currentDs?.id}
-                  iterator={iterator}
+                <div
+                  className="px-2 py-1 font-medium rounded-full"
+                  style={{
+                    backgroundColor: isToday(day) ? color : '',
+                    color: isToday(day) ? 'white' : '',
+                  }}
                 >
-                  <Element
-                    id="calendar-content"
-                    className="h-full w-full"
-                    is={resolver.StyleBox}
-                    canvas
-                  />
-                </EntityProvider>
+                  {format(day, 'd')}
+                </div>
+                <div className="date-content h-full w-full">
+                  <EntityProvider
+                    index={index}
+                    selection={ds}
+                    current={currentDs?.id}
+                    iterator={iterator}
+                  >
+                    <Element
+                      id="calendar-content"
+                      className="h-full w-full"
+                      is={resolver.StyleBox}
+                      canvas
+                    />
+                  </EntityProvider>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
