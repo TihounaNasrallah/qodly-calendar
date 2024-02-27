@@ -65,7 +65,7 @@ const Calendar: FC<ICalendarProps> = ({
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
 
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
 
   const getList = async () => {
     const v = await ds?.getValue();
@@ -74,7 +74,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   useEffect(() => {
     getList()
-      .then((array) => {
+      .then((array: any[]) => {
         setData(array);
       })
       .catch((error) => {
@@ -83,7 +83,7 @@ const Calendar: FC<ICalendarProps> = ({
   }, [ds]);
 
   const congesByDate = useMemo(() => {
-    return data.reduce((acc: { [key: string]: [] }, conge) => {
+    return data.reduce((acc: { [key: string]: any[] }, conge) => {
       const dateKey = format(parseISO(conge?.startDate), 'yyyy-MM-dd');
       if (!acc[dateKey]) {
         acc[dateKey] = [];
@@ -92,6 +92,8 @@ const Calendar: FC<ICalendarProps> = ({
       return acc;
     }, {});
   }, [data]);
+
+  console.log(data);
 
   const [date, setDate] = useState(new Date());
 
@@ -163,7 +165,7 @@ const Calendar: FC<ICalendarProps> = ({
                   {format(day, 'd')}
                 </div>
                 <div className="date-content h-full w-full">
-                  {todaysConges.map((conge, index) => {
+                  {todaysConges.map((conge: { title: string }, index) => {
                     return (
                       <div className="conge-container ">
                         <div
@@ -173,7 +175,7 @@ const Calendar: FC<ICalendarProps> = ({
                             backgroundColor: isSameMonth(day, date) ? 'rgb(15 118 110)' : '#C0C0C0',
                           }}
                         >
-                          {conge?.title}
+                          {conge.title}
                         </div>
                       </div>
                     );
