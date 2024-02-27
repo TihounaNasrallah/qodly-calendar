@@ -121,16 +121,17 @@ const Calendar: FC<ICalendarProps> = ({
 
         <div className="calendar-grid w-full grid justify-center grid-cols-7">
           {weekdays.map((day) => (
-            <div key={day} className="flex justify-center items-center font-medium text-lg">
+            <div key={day} className="font-medium text-lg text-center">
               {day}
             </div>
           ))}
           {daysInMonth.map((day, index) => (
             <div
               key={day.toString()}
-              className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-100"
+              className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-200"
               style={{
                 color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
+                backgroundColor: isSameMonth(day, date) ? '' : '#F3F4F6',
                 height: rowHeight,
               }}
             >
