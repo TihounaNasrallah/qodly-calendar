@@ -170,7 +170,7 @@ const Calendar: FC<ICalendarProps> = ({
                       <div className="conge-container ">
                         <div
                           key={index}
-                          className="conge-title text-sm text-white px-2 py-1"
+                          className="conge-title text-sm text-white px-2 py-1 rounded-md"
                           style={{
                             backgroundColor: isSameMonth(day, date) ? 'rgb(15 118 110)' : '#C0C0C0',
                           }}
