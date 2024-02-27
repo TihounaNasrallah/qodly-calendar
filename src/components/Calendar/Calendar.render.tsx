@@ -62,14 +62,6 @@ const Calendar: FC<ICalendarProps> = ({
     const listener = async (/* event */) => {
       const v = await ds.getValue();
     };
-
-    listener();
-
-    ds.addListener('changed', listener);
-
-    return () => {
-      ds.removeListener('changed', listener);
-    };
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
 
@@ -100,8 +92,6 @@ const Calendar: FC<ICalendarProps> = ({
       return acc;
     }, {});
   }, [data]);
-
-  console.log(congesByDate);
 
   const [date, setDate] = useState(new Date());
 
