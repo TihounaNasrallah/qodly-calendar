@@ -21,6 +21,8 @@ import {
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 import {
+  differenceInDays,
+  parseISO,
   startOfWeek,
   endOfWeek,
   endOfMonth,
@@ -50,33 +52,46 @@ const Calendar: FC<ICalendarProps> = ({
 
   const { resolver } = useEnhancedEditor(selectResolver);
 
-  const [value, setValue] = useState<Date>(new Date());
-
   const {
     sources: { datasource: ds, currentElement: currentDs },
   } = useSources();
-
-  // const { entities } = useDataLoader({
-  //   source: ds,
-  // });
 
   useEffect(() => {
     if (!ds) return;
 
     const listener = async (/* event */) => {
       const v = await ds.getValue();
-      setValue(v);
-    };
-
-    listener();
-
-    ds.addListener('changed', listener);
-
-    return () => {
-      ds.removeListener('changed', listener);
     };
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
+
+  const [data, setData] = useState<any[]>([]);
+
+  const getList = async () => {
+    const v = await ds?.getValue();
+    return v;
+  };
+
+  useEffect(() => {
+    getList()
+      .then((array: any[]) => {
+        setData(array);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, [ds]);
+
+  const congesByDate = useMemo(() => {
+    return data.reduce((acc: { [key: string]: any[] }, conge) => {
+      const dateKey = format(parseISO(conge?.startDate), 'yyyy-MM-dd');
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(conge);
+      return acc;
+    }, {});
+  }, [data]);
 
   const [date, setDate] = useState(new Date());
 
@@ -121,17 +136,20 @@ const Calendar: FC<ICalendarProps> = ({
 
         <div className="calendar-grid w-full grid justify-center grid-cols-7">
           {weekdays.map((day) => (
-            <div key={day} className="flex justify-center items-center font-medium text-lg">
+            <div key={day} className="font-medium text-lg text-center">
               {day}
             </div>
           ))}
           {daysInMonth.map((day, index) => {
+            const dateKey = format(day, 'yyyy-MM-dd');
+            const todaysConges = congesByDate[dateKey] || [];
             return (
               <div
                 key={day.toString()}
-                className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-100"
+                className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-200"
                 style={{
                   color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
+                  backgroundColor: isSameMonth(day, date) ? '' : '#F3F4F6',
                   height: rowHeight,
                 }}
               >
@@ -145,19 +163,21 @@ const Calendar: FC<ICalendarProps> = ({
                   {format(day, 'd')}
                 </div>
                 <div className="date-content h-full w-full">
-                  <EntityProvider
-                    index={index}
-                    selection={ds}
-                    current={currentDs?.id}
-                    iterator={iterator}
-                  >
-                    <Element
-                      id="calendar-content"
-                      className="h-full w-full"
-                      is={resolver.StyleBox}
-                      canvas
-                    />
-                  </EntityProvider>
+                  {todaysConges.map((conge: { title: string }, index) => {
+                    return (
+                      <div className="conge-container ">
+                        <div
+                          key={index}
+                          className="conge-title text-sm text-white px-2 py-1 rounded-md"
+                          style={{
+                            backgroundColor: isSameMonth(day, date) ? 'rgb(15 118 110)' : '#C0C0C0',
+                          }}
+                        >
+                          {conge.title}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
