@@ -82,9 +82,22 @@ const Calendar: FC<ICalendarProps> = ({
       });
   }, [ds]);
 
+  let list: any[] = [];
+  for (let j = 0; j < data.length; j++) {
+    const conge = data[j];
+    const num = differenceInDays(parseISO(conge?.endDate), parseISO(conge?.startDate));
+    for (let i = 0; i <= num; i++) {
+      list.push({
+        title: conge.title,
+        startDate: addDays(parseISO(conge?.startDate), i),
+        endDate: addDays(parseISO(conge?.startDate), i),
+      });
+    }
+  }
+
   const congesByDate = useMemo(() => {
-    return data.reduce((acc: { [key: string]: any[] }, conge) => {
-      const dateKey = format(parseISO(conge?.startDate), 'yyyy-MM-dd');
+    return list.reduce((acc: { [key: string]: any[] }, conge) => {
+      const dateKey = format(conge?.startDate, 'yyyy-MM-dd');
       if (!acc[dateKey]) {
         acc[dateKey] = [];
       }
@@ -146,7 +159,7 @@ const Calendar: FC<ICalendarProps> = ({
             return (
               <div
                 key={day.toString()}
-                className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-200"
+                className="day-container flex flex-col justify-start items-start gap-1 py-1 w-full border border-gray-200"
                 style={{
                   color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
                   backgroundColor: isSameMonth(day, date) ? '' : '#F3F4F6',
@@ -162,13 +175,13 @@ const Calendar: FC<ICalendarProps> = ({
                 >
                   {format(day, 'd')}
                 </div>
-                <div className="date-content h-full w-full">
+                <div className="date-content w-full grid grid-cols-1 gap-1 overflow-auto">
                   {todaysConges.map((conge: { title: string }, index) => {
                     return (
                       <div className="conge-container ">
                         <div
                           key={index}
-                          className="conge-title text-sm text-white px-2 py-1 rounded-md"
+                          className="conge-title text-sm text-white px-2 py-1"
                           style={{
                             backgroundColor: isSameMonth(day, date) ? 'rgb(15 118 110)' : '#C0C0C0',
                           }}
