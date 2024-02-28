@@ -175,7 +175,7 @@ const Calendar: FC<ICalendarProps> = ({
                 >
                   {format(day, 'd')}
                 </div>
-                <div className="date-content w-full grid grid-cols-1 gap-1 overflow-auto">
+                <div className="date-content px-1 w-full grid grid-cols-1 gap-1 overflow-auto">
                   {todaysConges.map((conge: { title: string }, index) => {
                     return (
                       <div className="conge-container ">
