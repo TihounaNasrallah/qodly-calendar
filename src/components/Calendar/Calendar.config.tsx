@@ -56,7 +56,7 @@ export default {
       },
     ],
     datasources: {
-      accept: ['entitysel'],
+      accept: ['scalar'],
     },
   },
   defaultProps: {
