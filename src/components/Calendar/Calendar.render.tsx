@@ -93,8 +93,6 @@ const Calendar: FC<ICalendarProps> = ({
     }, {});
   }, [data]);
 
-  console.log(data);
-
   const [date, setDate] = useState(new Date());
 
   const daysInMonth = eachDayOfInterval({
