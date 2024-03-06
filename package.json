@@ -20,12 +20,12 @@
     "@ws-ui/craftjs-core": "^0.2.1-beta.3",
     "@ws-ui/craftjs-layers": "^0.2.1-beta.3",
     "@ws-ui/craftjs-utils": "^0.2.1-beta.3",
-    "@ws-ui/webform-editor": "0.1.13",
+    "@ws-ui/webform-editor": "0.1.27",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@qodly/cli": "^0.1.23",
+    "@qodly/cli": "^0.1.27",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
