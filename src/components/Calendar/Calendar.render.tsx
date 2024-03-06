@@ -1,18 +1,7 @@
-import {
-  useRenderer,
-  useSources,
-  useEnhancedEditor,
-  selectResolver,
-  EntityProvider,
-  useDataLoader,
-  unsubscribeFromDatasource,
-} from '@ws-ui/webform-editor';
+import { useRenderer, useSources } from '@ws-ui/webform-editor';
 
-import { Element } from '@ws-ui/craftjs-core';
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo } from 'react';
-
-import React from 'react';
 
 import {
   MdKeyboardArrowLeft,
@@ -39,8 +28,6 @@ import {
 import { ICalendarProps } from './Calendar.config';
 
 const Calendar: FC<ICalendarProps> = ({
-  iterator,
-  name,
   rowHeight,
   color,
   yearNav,
@@ -50,20 +37,9 @@ const Calendar: FC<ICalendarProps> = ({
 }) => {
   const { connect } = useRenderer();
 
-  const { resolver } = useEnhancedEditor(selectResolver);
-
   const {
-    sources: { datasource: ds, currentElement: currentDs },
+    sources: { datasource: ds },
   } = useSources();
-
-  useEffect(() => {
-    if (!ds) return;
-
-    const listener = async (/* event */) => {
-      const v = await ds.getValue();
-    };
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds]);
 
   const [data, setData] = useState<any[]>([]);
 
@@ -153,7 +129,7 @@ const Calendar: FC<ICalendarProps> = ({
               {day}
             </div>
           ))}
-          {daysInMonth.map((day, index) => {
+          {daysInMonth.map((day) => {
             const dateKey = format(day, 'yyyy-MM-dd');
             const todaysConges = congesByDate[dateKey] || [];
             return (
