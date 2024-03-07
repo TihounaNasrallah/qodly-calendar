@@ -1,6 +1,5 @@
 import { ESetting, TSetting, DEFAULT_ITERATOR } from '@ws-ui/webform-editor';
 import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
-import { validateServerSide } from '@ws-ui/shared';
 
 const commonSettings: TSetting[] = [
   {
@@ -34,7 +33,6 @@ const dataAccessSettings: TSetting[] = [
     key: 'serverSideRef',
     label: 'Server Side',
     type: ESetting.TEXT_FIELD,
-    hasError: validateServerSide,
     validateOnEnter: true,
   },
 ];
