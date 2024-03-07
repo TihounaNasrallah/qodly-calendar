@@ -4,9 +4,27 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 const commonSettings: TSetting[] = [
   {
     key: 'color',
-    label: 'Color',
+    label: 'Current Day Color',
     type: ESetting.COLOR_PICKER,
     defaultValue: '#4169E1',
+  },
+  {
+    key: 'color1',
+    label: 'Color 1',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#3f0081',
+  },
+  {
+    key: 'color2',
+    label: 'Color 2',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#6e61ab',
+  },
+  {
+    key: 'color3',
+    label: 'Color 3',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#7630ff',
   },
   {
     key: 'yearNav',
@@ -19,25 +37,22 @@ const commonSettings: TSetting[] = [
     label: 'Row Height',
     type: ESetting.UNITFIELD,
     placeholder: 'Row Height',
-    defaultValue: '150px',
+    defaultValue: '200px',
+  },
+];
+
+const attributesSettings: TSetting[] = [
+  {
+    key: 'att1',
+    label: 'Attribute 1',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
   },
   {
-    key: 'color1',
-    label: 'Color 1',
-    type: ESetting.COLOR_PICKER,
-    defaultValue: '#435585',
-  },
-  {
-    key: 'color2',
-    label: 'Color 2',
-    type: ESetting.COLOR_PICKER,
-    defaultValue: '#363062',
-  },
-  {
-    key: 'color3',
-    label: 'Color 3',
-    type: ESetting.COLOR_PICKER,
-    defaultValue: '#818FB4',
+    key: 'att2',
+    label: 'Attribute 2',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
   },
 ];
 
@@ -53,6 +68,12 @@ const dataAccessSettings: TSetting[] = [
     type: ESetting.TEXT_FIELD,
     validateOnEnter: true,
   },
+  {
+    key: 'property',
+    label: 'Property',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
+  },
 ];
 
 const Settings: TSetting[] = [
@@ -67,6 +88,12 @@ const Settings: TSetting[] = [
     label: 'Data Access',
     type: ESetting.GROUP,
     components: dataAccessSettings,
+  },
+  {
+    key: 'attributes',
+    label: 'Attributes to Display',
+    type: ESetting.GROUP,
+    components: attributesSettings,
   },
   ...load(DEFAULT_SETTINGS).filter('dataAccess'),
 ];
