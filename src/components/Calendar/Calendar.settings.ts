@@ -21,6 +21,24 @@ const commonSettings: TSetting[] = [
     placeholder: 'Row Height',
     defaultValue: '150px',
   },
+  {
+    key: 'color1',
+    label: 'Color 1',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#435585',
+  },
+  {
+    key: 'color2',
+    label: 'Color 2',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#363062',
+  },
+  {
+    key: 'color3',
+    label: 'Color 3',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#818FB4',
+  },
 ];
 
 const dataAccessSettings: TSetting[] = [

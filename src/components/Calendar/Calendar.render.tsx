@@ -30,6 +30,9 @@ import { ICalendarProps } from './Calendar.config';
 const Calendar: FC<ICalendarProps> = ({
   rowHeight,
   color,
+  color1,
+  color2,
+  color3,
   yearNav,
   style,
   className,
@@ -58,15 +61,22 @@ const Calendar: FC<ICalendarProps> = ({
       });
   }, [ds]);
 
+  //Add color to data
+  let newData = data.map((obj, index) => ({
+    ...obj,
+    color: index % 3 === 0 ? color1 : index % 3 === 1 ? color2 : color3,
+  }));
+
   let list: any[] = [];
-  for (let j = 0; j < data.length; j++) {
-    const conge = data[j];
+  for (let j = 0; j < newData.length; j++) {
+    const conge = newData[j];
     const num = differenceInDays(parseISO(conge?.endDate), parseISO(conge?.startDate));
     for (let i = 0; i <= num; i++) {
       list.push({
         title: conge.title,
         startDate: addDays(parseISO(conge?.startDate), i),
         endDate: addDays(parseISO(conge?.startDate), i),
+        color: conge.color,
       });
     }
   }
@@ -152,14 +162,14 @@ const Calendar: FC<ICalendarProps> = ({
                   {format(day, 'd')}
                 </div>
                 <div className="date-content px-1 w-full grid grid-cols-1 gap-1 overflow-auto">
-                  {todaysConges.map((conge: { title: string }, index) => {
+                  {todaysConges.map((conge: { title: string; color: string }, index) => {
                     return (
                       <div className="conge-container ">
                         <div
                           key={index}
                           className="conge-title text-sm text-white px-2 py-1"
                           style={{
-                            backgroundColor: isSameMonth(day, date) ? '#435585' : '#C0C0C0',
+                            backgroundColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
                           }}
                         >
                           {conge.title}
