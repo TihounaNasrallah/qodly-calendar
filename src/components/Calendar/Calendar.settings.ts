@@ -1,4 +1,4 @@
-import { ESetting, TSetting, DEFAULT_ITERATOR } from '@ws-ui/webform-editor';
+import { ESetting, TSetting } from '@ws-ui/webform-editor';
 import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
