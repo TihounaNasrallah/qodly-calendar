@@ -31,6 +31,8 @@ const Calendar: FC<ICalendarProps> = ({
   att1,
   att2,
   property,
+  startDate,
+  endDate,
   rowHeight,
   color,
   color1,
@@ -55,13 +57,23 @@ const Calendar: FC<ICalendarProps> = ({
   };
 
   useEffect(() => {
-    getList()
-      .then((array: any[]) => {
-        setData(array);
-      })
-      .catch((error) => {
+    let isMounted = true;
+    const fetchData = async () => {
+      try {
+        const array = await getList();
+        if (isMounted) {
+          setData(array);
+        }
+      } catch (error) {
         console.error('Error fetching data:', error);
-      });
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [ds]);
 
   //Add color to data
@@ -73,14 +85,14 @@ const Calendar: FC<ICalendarProps> = ({
   let list: any[] = [];
   for (let j = 0; j < newData.length; j++) {
     const conge = newData[j];
-    const num = differenceInDays(parseISO(conge?.endDate), parseISO(conge?.startDate));
+    const num = differenceInDays(parseISO(conge[endDate]), parseISO(conge[startDate]));
     for (let i = 0; i <= num; i++) {
       list.push({
         title: conge[property],
         att1: conge[att1],
         att2: conge[att2],
-        startDate: addDays(parseISO(conge?.startDate), i),
-        endDate: addDays(parseISO(conge?.startDate), i),
+        startDate: addDays(parseISO(conge[startDate]), i),
+        endDate: addDays(parseISO(conge[startDate]), i),
         color: conge.color,
       });
     }
@@ -166,7 +178,7 @@ const Calendar: FC<ICalendarProps> = ({
                 >
                   {format(day, 'd')}
                 </div>
-                <div className="date-content w-full grid grid-cols-1 gap-1 overflow-auto">
+                <div className="date-content w-full grid grid-cols-1 gap-1 overflow-y-auto">
                   {todaysConges.map(
                     (
                       conge: {
@@ -179,12 +191,12 @@ const Calendar: FC<ICalendarProps> = ({
                     ) => {
                       return (
                         <div
-                          className="conge-container px-2 py-1 flex flex-col gap-1 w-full overflow-hidden"
+                          className="conge-container px-2 py-1 flex flex-col gap-1 w-full"
                           style={{
                             backgroundColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
                           }}
                         >
-                          <p key={index} className="conge-title font-medium text-white">
+                          <p key={index} className="conge-title text-white">
                             {conge.title}
                           </p>
                           <div className="conge-detail grid grid-cols-2">

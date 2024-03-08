@@ -74,6 +74,18 @@ const dataAccessSettings: TSetting[] = [
     type: ESetting.TEXT_FIELD,
     defaultValue: '',
   },
+  {
+    key: 'startDate',
+    label: 'First Date',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
+  },
+  {
+    key: 'endDate',
+    label: 'Last Date',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
+  },
 ];
 
 const Settings: TSetting[] = [

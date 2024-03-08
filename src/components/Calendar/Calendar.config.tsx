@@ -63,6 +63,8 @@ export default {
     color: '#4169E1',
     yearNav: true,
     property: '',
+    startDate: '',
+    endDate: '',
     att1: '',
     att2: '',
     rowHeight: '200px',
@@ -76,6 +78,8 @@ export interface ICalendarProps extends webforms.ComponentProps {
   color: string;
   yearNav: boolean;
   property: string;
+  startDate: string;
+  endDate: string;
   att1: string;
   att2: string;
   rowHeight: string;
