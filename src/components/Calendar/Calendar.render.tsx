@@ -111,8 +111,6 @@ const Calendar: FC<ICalendarProps> = ({
 
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  const filterProperties = () => {};
-
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="calendar-container flex flex-col justify-center items-center gap-4 w-full h-full">
