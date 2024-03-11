@@ -54,30 +54,19 @@ const Calendar: FC<ICalendarProps> = ({
 
   const getList = async () => {
     const v = await ds?.getValue();
+    console.log('v', v);
     return v;
   };
 
   useEffect(() => {
-    let isMounted = true;
-    const fetchData = async () => {
-      try {
-        const array = await getList();
-        if (isMounted) {
-          setData(array);
-        }
-      } catch (error) {
+    getList()
+      .then((array: any[]) => {
+        setData(array);
+      })
+      .catch((error) => {
         console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
+      });
   }, [ds]);
-
-  console.log(data);
 
   //Add color to data
   let newData = data.map((obj, index) => ({
