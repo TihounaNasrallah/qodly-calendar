@@ -39,6 +39,7 @@ const Calendar: FC<ICalendarProps> = ({
   color2,
   color3,
   yearNav,
+  borderRadius,
   style,
   className,
   classNames = [],
@@ -108,6 +109,8 @@ const Calendar: FC<ICalendarProps> = ({
       return acc;
     }, {});
   }, [data]);
+
+  console.log(typeof borderRadius);
 
   const [showScrollbar, setShowScrollbar] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -199,9 +202,10 @@ const Calendar: FC<ICalendarProps> = ({
                       ) => {
                         return (
                           <div
-                            className="conge-container px-2 py-1 flex flex-col gap-1 w-full"
+                            className="conge-container px-2 py-1 mb-1 flex flex-col w-full"
                             style={{
                               backgroundColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
+                              borderRadius: borderRadius,
                             }}
                           >
                             <p key={index} className="conge-title text-white">

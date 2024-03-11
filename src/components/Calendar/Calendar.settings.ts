@@ -12,19 +12,19 @@ const commonSettings: TSetting[] = [
     key: 'color1',
     label: 'Color 1',
     type: ESetting.COLOR_PICKER,
-    defaultValue: '#3f0081',
+    defaultValue: '#3468C0',
   },
   {
     key: 'color2',
     label: 'Color 2',
     type: ESetting.COLOR_PICKER,
-    defaultValue: '#6e61ab',
+    defaultValue: '#86B6F6',
   },
   {
     key: 'color3',
     label: 'Color 3',
     type: ESetting.COLOR_PICKER,
-    defaultValue: '#7630ff',
+    defaultValue: '#B4D4FF',
   },
   {
     key: 'yearNav',
@@ -38,6 +38,13 @@ const commonSettings: TSetting[] = [
     type: ESetting.UNITFIELD,
     placeholder: 'Row Height',
     defaultValue: '200px',
+  },
+  {
+    key: 'borderRadius',
+    label: 'Border Radius',
+    type: ESetting.UNITFIELD,
+    placeholder: 'Border Radius',
+    defaultValue: '',
   },
 ];
 
