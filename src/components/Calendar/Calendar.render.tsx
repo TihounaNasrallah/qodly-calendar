@@ -77,6 +77,8 @@ const Calendar: FC<ICalendarProps> = ({
     };
   }, [ds]);
 
+  console.log(data);
+
   //Add color to data
   let newData = data.map((obj, index) => ({
     ...obj,
@@ -167,7 +169,7 @@ const Calendar: FC<ICalendarProps> = ({
                 className="day-container flex flex-col justify-start items-start gap-1 py-1 px-1 w-full border border-gray-200"
                 style={{
                   color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
-                  backgroundColor: isSameMonth(day, date) ? '' : '#F3F4F6',
+                  backgroundColor: isSameMonth(day, date) ? 'white' : '#F3F4F6',
                   height: rowHeight,
                 }}
               >
