@@ -105,7 +105,7 @@ const Calendar: FC<ICalendarProps> = ({
                   >
                     {format(day, 'd')}
                   </div>
-                  {isToday(day) ? (
+                  {/* {isToday(day) ? (
                     <IteratorProvider>
                       <Element
                         id="calendar-content"
@@ -115,7 +115,7 @@ const Calendar: FC<ICalendarProps> = ({
                         canvas
                       />
                     </IteratorProvider>
-                  ) : null}
+                  ) : null} */}
                 </div>
               ))}
             </div>

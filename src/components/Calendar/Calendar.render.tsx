@@ -28,9 +28,18 @@ import {
 import { ICalendarProps } from './Calendar.config';
 
 const Calendar: FC<ICalendarProps> = ({
+  att1,
+  att2,
+  property,
+  startDate,
+  endDate,
   rowHeight,
   color,
+  color1,
+  color2,
+  color3,
   yearNav,
+  borderRadius,
   style,
   className,
   classNames = [],
@@ -49,24 +58,43 @@ const Calendar: FC<ICalendarProps> = ({
   };
 
   useEffect(() => {
-    getList()
-      .then((array: any[]) => {
-        setData(array);
-      })
-      .catch((error) => {
+    let isMounted = true;
+    const fetchData = async () => {
+      try {
+        const array = await getList();
+        if (isMounted) {
+          setData(array);
+        }
+      } catch (error) {
         console.error('Error fetching data:', error);
-      });
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [ds]);
 
+  //Add color to data
+  let newData = data.map((obj, index) => ({
+    ...obj,
+    color: index % 3 === 0 ? color1 : index % 3 === 1 ? color2 : color3,
+  }));
+
   let list: any[] = [];
-  for (let j = 0; j < data.length; j++) {
-    const conge = data[j];
-    const num = differenceInDays(parseISO(conge?.endDate), parseISO(conge?.startDate));
+  for (let j = 0; j < newData.length; j++) {
+    const conge = newData[j];
+    const num = differenceInDays(parseISO(conge[endDate]), parseISO(conge[startDate]));
     for (let i = 0; i <= num; i++) {
       list.push({
-        title: conge.title,
-        startDate: addDays(parseISO(conge?.startDate), i),
-        endDate: addDays(parseISO(conge?.startDate), i),
+        title: conge[property],
+        att1: conge[att1],
+        att2: conge[att2],
+        startDate: addDays(parseISO(conge[startDate]), i),
+        endDate: addDays(parseISO(conge[startDate]), i),
+        color: conge.color,
       });
     }
   }
@@ -82,6 +110,9 @@ const Calendar: FC<ICalendarProps> = ({
     }, {});
   }, [data]);
 
+  console.log(typeof borderRadius);
+
+  const [showScrollbar, setShowScrollbar] = useState(false);
   const [date, setDate] = useState(new Date());
 
   const daysInMonth = eachDayOfInterval({
@@ -135,7 +166,7 @@ const Calendar: FC<ICalendarProps> = ({
             return (
               <div
                 key={day.toString()}
-                className="day-container flex flex-col justify-start items-start gap-1 py-1 w-full border border-gray-200"
+                className="day-container flex flex-col justify-start items-start gap-1 py-1 px-1 w-full border border-gray-200"
                 style={{
                   color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
                   backgroundColor: isSameMonth(day, date) ? '' : '#F3F4F6',
@@ -151,22 +182,44 @@ const Calendar: FC<ICalendarProps> = ({
                 >
                   {format(day, 'd')}
                 </div>
-                <div className="date-content px-1 w-full grid grid-cols-1 gap-1 overflow-auto">
-                  {todaysConges.map((conge: { title: string }, index) => {
-                    return (
-                      <div className="conge-container ">
-                        <div
-                          key={index}
-                          className="conge-title text-sm text-white px-2 py-1"
-                          style={{
-                            backgroundColor: isSameMonth(day, date) ? '#435585' : '#C0C0C0',
-                          }}
-                        >
-                          {conge.title}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div
+                  onMouseEnter={() => setShowScrollbar(true)}
+                  onMouseLeave={() => setShowScrollbar(false)}
+                  className="date-content w-full grid grid-cols-1 gap-1 overflow-y-auto"
+                >
+                  <div
+                    className={`content h-full overflow-hidden ${showScrollbar ? 'overflow-y-auto' : ''}`}
+                  >
+                    {todaysConges.map(
+                      (
+                        conge: {
+                          title: string;
+                          color: string;
+                          att1: string;
+                          att2: string;
+                        },
+                        index,
+                      ) => {
+                        return (
+                          <div
+                            className="conge-container px-2 py-1 mb-1 flex flex-col w-full"
+                            style={{
+                              backgroundColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
+                              borderRadius: borderRadius,
+                            }}
+                          >
+                            <p key={index} className="conge-title text-white">
+                              {conge.title}
+                            </p>
+                            <div className="conge-detail grid grid-cols-2">
+                              <p className="text-white text-sm">{conge.att1}</p>
+                              <p className="text-white text-sm">{conge.att2}</p>
+                            </div>
+                          </div>
+                        );
+                      },
+                    )}
+                  </div>
                 </div>
               </div>
             );

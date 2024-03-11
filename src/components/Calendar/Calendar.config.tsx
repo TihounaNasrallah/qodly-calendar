@@ -62,13 +62,30 @@ export default {
   defaultProps: {
     color: '#4169E1',
     yearNav: true,
-    rowHeight: '150px',
+    borderRadius: '0px',
+    property: '',
+    startDate: '',
+    endDate: '',
+    att1: '',
+    att2: '',
+    rowHeight: '200px',
+    color1: '#3468C0',
+    color2: '#86B6F6',
+    color3: '#B4D4FF',
   },
 } as T4DComponentConfig<ICalendarProps>;
 
 export interface ICalendarProps extends webforms.ComponentProps {
-  name?: string;
   color: string;
   yearNav: boolean;
+  borderRadius: string;
+  property: string;
+  startDate: string;
+  endDate: string;
+  att1: string;
+  att2: string;
   rowHeight: string;
+  color1: string;
+  color2: string;
+  color3: string;
 }
