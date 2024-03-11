@@ -56,7 +56,7 @@ export default {
       },
     ],
     datasources: {
-      accept: ['scalar'],
+      accept: ['array'],
     },
   },
   defaultProps: {

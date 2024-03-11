@@ -52,20 +52,22 @@ const Calendar: FC<ICalendarProps> = ({
 
   const [data, setData] = useState<any[]>([]);
 
-  const getList = async () => {
-    const v = await ds?.getValue();
-    console.log('v', v);
-    return v;
-  };
-
   useEffect(() => {
-    getList()
-      .then((array: any[]) => {
-        setData(array);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+    if (!ds) return;
+
+    const listener = async (/* event */) => {
+      const v = await ds.getValue<any>();
+      setData(v);
+    };
+
+    listener();
+
+    ds.addListener('changed', listener);
+
+    return () => {
+      ds.removeListener('changed', listener);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
 
   //Add color to data
