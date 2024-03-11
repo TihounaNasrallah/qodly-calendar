@@ -110,8 +110,6 @@ const Calendar: FC<ICalendarProps> = ({
     }, {});
   }, [data]);
 
-  console.log(typeof borderRadius);
-
   const [showScrollbar, setShowScrollbar] = useState(false);
   const [date, setDate] = useState(new Date());
 
@@ -185,41 +183,37 @@ const Calendar: FC<ICalendarProps> = ({
                 <div
                   onMouseEnter={() => setShowScrollbar(true)}
                   onMouseLeave={() => setShowScrollbar(false)}
-                  className="date-content w-full grid grid-cols-1 gap-1 overflow-y-auto"
+                  className={`date-content w-full grid grid-cols-1 gap-1 overflow-hidden ${showScrollbar ? 'overflow-y-auto' : ''}`}
                 >
-                  <div
-                    className={`content h-full overflow-hidden ${showScrollbar ? 'overflow-y-auto' : ''}`}
-                  >
-                    {todaysConges.map(
-                      (
-                        conge: {
-                          title: string;
-                          color: string;
-                          att1: string;
-                          att2: string;
-                        },
-                        index,
-                      ) => {
-                        return (
-                          <div
-                            className="conge-container px-2 py-1 mb-1 flex flex-col w-full"
-                            style={{
-                              backgroundColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
-                              borderRadius: borderRadius,
-                            }}
-                          >
-                            <p key={index} className="conge-title text-white">
-                              {conge.title}
-                            </p>
-                            <div className="conge-detail grid grid-cols-2">
-                              <p className="text-white text-sm">{conge.att1}</p>
-                              <p className="text-white text-sm">{conge.att2}</p>
-                            </div>
-                          </div>
-                        );
+                  {todaysConges.map(
+                    (
+                      conge: {
+                        title: string;
+                        color: string;
+                        att1: string;
+                        att2: string;
                       },
-                    )}
-                  </div>
+                      index,
+                    ) => {
+                      return (
+                        <div
+                          className={`conge-container px-2 py-1 flex flex-col w-full`}
+                          style={{
+                            backgroundColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
+                            borderRadius: borderRadius,
+                          }}
+                        >
+                          <p key={index} className="conge-title font-medium text-white">
+                            {conge.title}
+                          </p>
+                          <div className="conge-detail flex">
+                            <p className="text-white text-sm basis-1/2 text-start">{conge.att1}</p>
+                            <p className="text-white text-sm basis-1/2 text-end">{conge.att2}</p>
+                          </div>
+                        </div>
+                      );
+                    },
+                  )}
                 </div>
               </div>
             );
