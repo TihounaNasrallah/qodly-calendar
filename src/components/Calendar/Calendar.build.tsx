@@ -65,23 +65,31 @@ const Calendar: FC<ICalendarProps> = ({
         {datasource ? (
           <div className="flex flex-col justify-center items-center gap-4 w-full h-full">
             <div className="calendar-header w-full flex justify-center gap-4 items-center">
-              <button className="text-2xl" style={{ display: yearNav ? 'block' : 'none' }}>
+              <button
+                className="nav-button text-2xl"
+                style={{ display: yearNav ? 'block' : 'none' }}
+              >
                 <MdKeyboardDoubleArrowLeft />
               </button>
-              <button className="text-2xl">
+              <button className="nav-button text-2xl">
                 <MdKeyboardArrowLeft />
               </button>
-              <h2 className="w-44 text-center font-medium text-xl">{format(date, 'MMMM yyyy')}</h2>
-              <button className="text-2xl">
+              <h2 className="month-title w-44 text-center font-medium text-xl">
+                {format(date, 'MMMM yyyy')}
+              </h2>
+              <button className="nav-button text-2xl">
                 <MdKeyboardArrowRight />
               </button>
-              <button className="text-2xl" style={{ display: yearNav ? 'block' : 'none' }}>
+              <button
+                className="nav-button text-2xl"
+                style={{ display: yearNav ? 'block' : 'none' }}
+              >
                 <MdKeyboardDoubleArrowRight />
               </button>
             </div>
             <div className="calendar-grid w-full grid grid-cols-7 justify-center">
               {weekdays.map((day) => (
-                <div key={day} className="font-medium text-lg text-center">
+                <div key={day} className="weekday-title font-medium text-lg text-center">
                   {day}
                 </div>
               ))}
@@ -92,12 +100,12 @@ const Calendar: FC<ICalendarProps> = ({
                   className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-200"
                   style={{
                     color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
-                    backgroundColor: isSameMonth(day, date) ? '' : '#F3F4F6',
+                    backgroundColor: isSameMonth(day, date) ? 'white' : '#F3F4F6',
                     height: rowHeight,
                   }}
                 >
                   <div
-                    className="day-number px-2 py-1 font-medium rounded-full"
+                    className="day-number h-8 w-8 flex items-center justify-center font-medium rounded-full"
                     style={{
                       backgroundColor: isToday(day) ? color : '',
                       color: isToday(day) ? 'white' : '',
