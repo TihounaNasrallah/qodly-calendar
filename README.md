@@ -1,10 +1,10 @@
-# Overview
+## Overview
 
 This Calendar Component is a versatile tool designed to provide an intuitive and interactive calendar interface . It allows users to easily navigate between months, or years, show data related to every single day
 ## Calendar Component
-![The Calendar Component](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/2f767789-3470-415e-8c86-90f41f1aa24a)
+![The Calendar Component](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/8b094da7-d1bb-4765-85bb-1b62a87748d1)
 
-### Properties
+### Properties :
 
 | Name | Type | Default | Description |
 | -------- | ------- | -------- | ------- |
@@ -16,7 +16,7 @@ This Calendar Component is a versatile tool designed to provide an intuitive and
 | Row Height | string | 200px | Sets the Height of the calendar rows |
 | Border Radius | string | 0px | Sets the border redius of the displayed elements |
 
-### Data Access Props
+### Data Access Properties :
 
 | Name | Type | Required | Description |
 | -------- | ------- | -------- | ------- |
@@ -27,7 +27,12 @@ This Calendar Component is a versatile tool designed to provide an intuitive and
 |Attribute 1|string|No|will contain an additional property to be displayed|
 |Attribute 2|string|No|will contain an additional property to be displayed|
 
-###Custom CSS
+### Custom CSS :
+
+When customizing the appearance of the calendar, you have access to the following classes within the component :
+
+![Calendar Classes](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/8bed4358-ac3c-45f1-8e60-a666d6957b01)
+
 
 
 
