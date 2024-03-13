@@ -123,21 +123,23 @@ const Calendar: FC<ICalendarProps> = ({
       <div className="calendar-container flex flex-col justify-center items-center gap-4 w-full h-full">
         <div className="calendar-header w-full flex justify-center gap-4 items-center">
           <button
-            className="text-2xl cursor-pointer"
+            className="nav-button text-2xl cursor-pointer"
             onClick={prevYear}
             style={{ display: yearNav ? 'block' : 'none' }}
           >
             <MdKeyboardDoubleArrowLeft />
           </button>
-          <button className="text-2xl cursor-pointer" onClick={prevMonth}>
+          <button className="nav-button text-2xl cursor-pointer" onClick={prevMonth}>
             <MdKeyboardArrowLeft />
           </button>
-          <h2 className="w-44 text-center font-medium text-xl">{format(date, 'MMMM yyyy')}</h2>
-          <button className="text-2xl cursor-pointer" onClick={nextMonth}>
+          <h2 className="month-title w-44 text-center font-medium text-xl">
+            {format(date, 'MMMM yyyy')}
+          </h2>
+          <button className="nav-button text-2xl cursor-pointer" onClick={nextMonth}>
             <MdKeyboardArrowRight />
           </button>
           <button
-            className="text-2xl cursor-pointer"
+            className="nav-button text-2xl cursor-pointer"
             onClick={nextYear}
             style={{ display: yearNav ? 'block' : 'none' }}
           >
@@ -147,7 +149,7 @@ const Calendar: FC<ICalendarProps> = ({
 
         <div className="calendar-grid w-full grid justify-center grid-cols-7">
           {weekdays.map((day) => (
-            <div key={day} className="font-medium text-lg text-center">
+            <div key={day} className="weekday-title font-medium text-lg text-center">
               {day}
             </div>
           ))}
@@ -165,7 +167,7 @@ const Calendar: FC<ICalendarProps> = ({
                 }}
               >
                 <div
-                  className="px-2 py-1 font-medium rounded-full"
+                  className="day-number h-8 w-8 flex items-center justify-center font-medium rounded-full"
                   style={{
                     backgroundColor: isToday(day) ? color : '',
                     color: isToday(day) ? 'white' : '',
@@ -190,16 +192,16 @@ const Calendar: FC<ICalendarProps> = ({
                     ) => {
                       return (
                         <div
-                          className={`conge-container px-2 py-1 flex flex-col w-full`}
+                          className={`element-container px-2 py-1 flex flex-col w-full`}
                           style={{
                             backgroundColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
                             borderRadius: borderRadius,
                           }}
                         >
-                          <p key={index} className="conge-title font-medium text-white">
+                          <p key={index} className="element-title font-medium text-white">
                             {conge.title}
                           </p>
-                          <div className="conge-detail flex">
+                          <div className="element-detail flex">
                             <p className="text-white text-sm basis-1/2 text-start">{conge.att1}</p>
                             <p className="text-white text-sm basis-1/2 text-end">{conge.att2}</p>
                           </div>
