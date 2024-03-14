@@ -10,7 +10,7 @@ import {
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 
-import { generateColorPalette, colorToHex, randomColor } from '../shared/colorUtils';
+import { generateColorPalette, randomColor } from '../shared/colorUtils';
 
 import {
   differenceInDays,
