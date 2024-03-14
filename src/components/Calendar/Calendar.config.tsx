@@ -62,13 +62,13 @@ export default {
   defaultProps: {
     color: '#4169E1',
     yearNav: true,
-    borderRadius: '0px',
+    borderRadius: '6px',
     property: '',
     startDate: '',
     endDate: '',
     att1: '',
     att2: '',
-    rowHeight: '200px',
+    rowHeight: '150px',
   },
 } as T4DComponentConfig<ICalendarProps>;
 

@@ -51,14 +51,14 @@ const commonSettings: TSetting[] = [
     label: 'Row Height',
     type: ESetting.UNITFIELD,
     placeholder: 'Row Height',
-    defaultValue: '200px',
+    defaultValue: '150px',
   },
   {
     key: 'borderRadius',
     label: 'Border Radius',
     type: ESetting.UNITFIELD,
     placeholder: 'Border Radius',
-    defaultValue: '',
+    defaultValue: '6px',
   },
 ];
 

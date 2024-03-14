@@ -206,25 +206,26 @@ const Calendar: FC<ICalendarProps> = ({
                     ) => {
                       return (
                         <div
-                          className={`element-container px-2 py-1 flex flex-col w-full border-l-4`}
+                          className={`element-container px-2 py-1 flex flex-col w-full border-l-4 text-black`}
                           style={{
+                            color: isSameMonth(day, date) ? 'black' : '#969696',
                             backgroundColor: isSameMonth(day, date)
                               ? conge?.color + '50'
-                              : '#C0C0C0',
+                              : '#E3E3E3',
                             borderRadius: borderRadius,
-                            borderLeftColor: conge?.color,
+                            borderLeftColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
                           }}
                         >
                           <span
                             title={conge.title}
                             key={index}
-                            className="element-title font-medium"
+                            className="element-title font-medium "
                           >
                             {conge.title}
                           </span>
                           <div className="element-detail flex">
-                            <p className="text-sm basis-1/2 text-start">{conge.att1}</p>
-                            <p className="text-sm basis-1/2 text-end">{conge.att2}</p>
+                            <p className="text-sm basis-1/2 text-start ">{conge.att1}</p>
+                            <p className="text-sm basis-1/2 text-end ">{conge.att2}</p>
                           </div>
                         </div>
                       );
