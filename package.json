@@ -17,6 +17,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,jsx,html,css}\""
   },
   "dependencies": {
+    "@ctrl/tinycolor": "^4.0.3",
     "@ws-ui/craftjs-core": "^0.2.5",
     "@ws-ui/craftjs-layers": "^0.2.2",
     "@ws-ui/craftjs-utils": "^0.2.1",

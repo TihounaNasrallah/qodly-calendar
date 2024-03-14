@@ -9,23 +9,37 @@ const commonSettings: TSetting[] = [
     defaultValue: '#4169E1',
   },
   {
-    key: 'color1',
-    label: 'Color 1',
-    type: ESetting.COLOR_PICKER,
-    defaultValue: '#3468C0',
+    type: ESetting.DATAGRID,
+    key: 'colors',
+    name: 'Colors',
+    label: 'Color',
+    data: [
+      {
+        key: 'color',
+        label: 'Color',
+        type: ESetting.COLOR_PICKER,
+        defaultValue: '',
+      },
+    ],
   },
-  {
-    key: 'color2',
-    label: 'Color 2',
-    type: ESetting.COLOR_PICKER,
-    defaultValue: '#86B6F6',
-  },
-  {
-    key: 'color3',
-    label: 'Color 3',
-    type: ESetting.COLOR_PICKER,
-    defaultValue: '#B4D4FF',
-  },
+  // {
+  //   key: 'color1',
+  //   label: 'Color 1',
+  //   type: ESetting.COLOR_PICKER,
+  //   defaultValue: '#3468C0',
+  // },
+  // {
+  //   key: 'color2',
+  //   label: 'Color 2',
+  //   type: ESetting.COLOR_PICKER,
+  //   defaultValue: '#86B6F6',
+  // },
+  // {
+  //   key: 'color3',
+  //   label: 'Color 3',
+  //   type: ESetting.COLOR_PICKER,
+  //   defaultValue: '#B4D4FF',
+  // },
   {
     key: 'yearNav',
     label: 'Year Navigation',

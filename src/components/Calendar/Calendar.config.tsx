@@ -69,9 +69,6 @@ export default {
     att1: '',
     att2: '',
     rowHeight: '200px',
-    color1: '#3468C0',
-    color2: '#86B6F6',
-    color3: '#B4D4FF',
   },
 } as T4DComponentConfig<ICalendarProps>;
 
@@ -85,7 +82,9 @@ export interface ICalendarProps extends webforms.ComponentProps {
   att1: string;
   att2: string;
   rowHeight: string;
-  color1: string;
-  color2: string;
-  color3: string;
+  colors?: IColors[];
+}
+
+export interface IColors {
+  color?: string;
 }
