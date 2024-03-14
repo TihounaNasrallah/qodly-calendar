@@ -9,6 +9,9 @@ import {
   MdKeyboardDoubleArrowLeft,
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
+
+import { generateColorPalette, randomColor } from '../shared/colorUtils';
+
 import {
   differenceInDays,
   parseISO,
@@ -35,9 +38,7 @@ const Calendar: FC<ICalendarProps> = ({
   endDate,
   rowHeight,
   color,
-  color1,
-  color2,
-  color3,
+  colors = [],
   yearNav,
   borderRadius,
   style,
@@ -71,10 +72,21 @@ const Calendar: FC<ICalendarProps> = ({
   }, [ds]);
 
   //Add color to data
+  const colorgenerated = generateColorPalette(
+    data.length,
+    ...colors.map((e) => e.color || randomColor()),
+  );
+
+  //Test color
   let newData = data.map((obj, index) => ({
     ...obj,
-    color: index % 3 === 0 ? color1 : index % 3 === 1 ? color2 : color3,
+    color: colorgenerated[index],
   }));
+
+  // let newData = data.map((obj, index) => ({
+  //   ...obj,
+  //   color: index % 3 === 0 ? color1 : index % 3 === 1 ? color2 : color3,
+  // }));
 
   let list: any[] = [];
   for (let j = 0; j < newData.length; j++) {
@@ -120,7 +132,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="calendar-container flex flex-col justify-center items-center gap-4 w-full h-full">
+      <div className="calendar-container flex flex-col gap-4 w-full h-full">
         <div className="calendar-header w-full flex justify-center gap-4 items-center">
           <button
             className="nav-button text-2xl cursor-pointer"
@@ -166,14 +178,16 @@ const Calendar: FC<ICalendarProps> = ({
                   height: rowHeight,
                 }}
               >
-                <div
-                  className="day-number h-8 w-8 flex items-center justify-center font-medium rounded-full"
-                  style={{
-                    backgroundColor: isToday(day) ? color : '',
-                    color: isToday(day) ? 'white' : '',
-                  }}
-                >
-                  {format(day, 'd')}
+                <div className="h-fit w-full">
+                  <span
+                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full"
+                    style={{
+                      backgroundColor: isToday(day) ? color : '',
+                      color: isToday(day) ? 'white' : '',
+                    }}
+                  >
+                    {format(day, 'd')}
+                  </span>
                 </div>
                 <div
                   onMouseEnter={() => setShowScrollbar(true)}
@@ -192,18 +206,26 @@ const Calendar: FC<ICalendarProps> = ({
                     ) => {
                       return (
                         <div
-                          className={`element-container px-2 py-1 flex flex-col w-full`}
+                          className={`element-container px-2 py-1 flex flex-col w-full border-l-4 text-black`}
                           style={{
-                            backgroundColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
+                            color: isSameMonth(day, date) ? 'black' : '#969696',
+                            backgroundColor: isSameMonth(day, date)
+                              ? conge?.color + '50'
+                              : '#E3E3E3',
                             borderRadius: borderRadius,
+                            borderLeftColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
                           }}
                         >
-                          <p key={index} className="element-title font-medium text-white">
+                          <span
+                            title={conge.title}
+                            key={index}
+                            className="element-title font-medium "
+                          >
                             {conge.title}
-                          </p>
+                          </span>
                           <div className="element-detail flex">
-                            <p className="text-white text-sm basis-1/2 text-start">{conge.att1}</p>
-                            <p className="text-white text-sm basis-1/2 text-end">{conge.att2}</p>
+                            <p className="text-sm basis-1/2 text-start ">{conge.att1}</p>
+                            <p className="text-sm basis-1/2 text-end ">{conge.att2}</p>
                           </div>
                         </div>
                       );

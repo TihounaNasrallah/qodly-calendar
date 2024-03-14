@@ -63,7 +63,7 @@ const Calendar: FC<ICalendarProps> = ({
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="calendar-container">
         {datasource ? (
-          <div className="flex flex-col justify-center items-center gap-4 w-full h-full">
+          <div className="flex flex-col gap-4 w-full h-full">
             <div className="calendar-header w-full flex justify-center gap-4 items-center">
               <button
                 className="nav-button text-2xl"
@@ -104,14 +104,16 @@ const Calendar: FC<ICalendarProps> = ({
                     height: rowHeight,
                   }}
                 >
-                  <div
-                    className="day-number h-8 w-8 flex items-center justify-center font-medium rounded-full"
-                    style={{
-                      backgroundColor: isToday(day) ? color : '',
-                      color: isToday(day) ? 'white' : '',
-                    }}
-                  >
-                    {format(day, 'd')}
+                  <div className="h-fit w-full">
+                    <span
+                      className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full"
+                      style={{
+                        backgroundColor: isToday(day) ? color : '',
+                        color: isToday(day) ? 'white' : '',
+                      }}
+                    >
+                      {format(day, 'd')}
+                    </span>
                   </div>
                   {/* {isToday(day) ? (
                     <IteratorProvider>
