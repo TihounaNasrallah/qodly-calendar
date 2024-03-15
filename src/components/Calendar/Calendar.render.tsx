@@ -71,22 +71,15 @@ const Calendar: FC<ICalendarProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
 
-  //Add color to data
   const colorgenerated = generateColorPalette(
     data.length,
     ...colors.map((e) => e.color || randomColor()),
   );
 
-  //Test color
   let newData = data.map((obj, index) => ({
     ...obj,
     color: colorgenerated[index],
   }));
-
-  // let newData = data.map((obj, index) => ({
-  //   ...obj,
-  //   color: index % 3 === 0 ? color1 : index % 3 === 1 ? color2 : color3,
-  // }));
 
   let list: any[] = [];
   for (let j = 0; j < newData.length; j++) {
@@ -219,11 +212,11 @@ const Calendar: FC<ICalendarProps> = ({
                           <span
                             title={conge.title}
                             key={index}
-                            className="element-title font-medium "
+                            className="element-title font-medium line-clamp-2"
                           >
                             {conge.title}
                           </span>
-                          <div className="element-detail flex">
+                          <div className="element-detail flex flex-wrap">
                             <p className="text-sm basis-1/2 text-start ">{conge.att1}</p>
                             <p className="text-sm basis-1/2 text-end ">{conge.att2}</p>
                           </div>
