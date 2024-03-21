@@ -18,12 +18,12 @@ This Calendar Component is a versatile tool designed to provide an intuitive and
 
 | Name | Type | Required | Description |
 | -------- | ------- | -------- | ------- |
-| Data Source | Array of Objects | Yes | will contain an array of objects |
-| Property | string | Yes | will contain the property to be displayed |
-| First Date | string | Yes | will contain the attribute of the start date in our array |
-| Last Date | string | Yes | will contain the attribute of the end date in our array |
-| Attribute 1 | string | No | will contain an additional property to be displayed |
-| Attribute 2 | string | No | will contain an additional property to be displayed |
+| Data Source | Array of Objects | Yes | Will contain an array of objects |
+| Property | string | Yes | Will contain the property to be displayed |
+| First Date | string | Yes | Will contain the attribute of the start date in our array |
+| Last Date | string | Yes | Will contain the attribute of the end date in our array |
+| Attributes | Array of Strings | No | Sets the additional properties to be displayed |
+
 
 ### Custom CSS :
 
