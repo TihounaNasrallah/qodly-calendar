@@ -15,9 +15,13 @@ import {
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 
+import { randomColor } from '../shared/colorUtils';
+import { TinyColor } from '@ctrl/tinycolor';
+
 import { BsFillInfoCircleFill } from 'react-icons/bs';
 
 import {
+  isEqual,
   startOfWeek,
   endOfWeek,
   endOfMonth,
@@ -32,9 +36,13 @@ import { ICalendarProps } from './Calendar.config';
 
 const Calendar: FC<ICalendarProps> = ({
   datasource,
+  attributes,
+  property,
   rowHeight,
   color,
+  colors = [],
   yearNav,
+  borderRadius,
   style,
   className,
   classNames = [],
@@ -46,19 +54,14 @@ const Calendar: FC<ICalendarProps> = ({
   } = useEnhancedNode();
 
   const date = new Date();
+  const firstDayOfMonth = startOfMonth(date);
 
   const daysInMonth = eachDayOfInterval({
     start: startOfWeek(startOfMonth(date), { weekStartsOn: 1 }),
     end: endOfWeek(endOfMonth(date), { weekStartsOn: 1 }),
   });
 
-  // const prevMonth = () => setDate(subMonths(date, 1));
-  // const nextMonth = () => setDate(addMonths(date, 1));
-  // const nextYear = () => setDate(addMonths(date, 12));
-  // const prevYear = () => setDate(subMonths(date, 12));
-
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="calendar-container">
@@ -115,25 +118,49 @@ const Calendar: FC<ICalendarProps> = ({
                       {format(day, 'd')}
                     </span>
                   </div>
-                  {/* {isToday(day) ? (
-                    <IteratorProvider>
-                      <Element
-                        id="calendar-content"
-                        className="h-full w-full"
-                        is={resolver.StyleBox}
-                        deletable={false}
-                        canvas
-                      />
-                    </IteratorProvider>
-                  ) : null} */}
+                  {isEqual(day, firstDayOfMonth) ? (
+                    <div
+                      className="element-container px-2 py-1 flex flex-col w-full border-l-4"
+                      style={{
+                        borderRadius: borderRadius,
+                        backgroundColor: new TinyColor(colors[0]?.color).toHexString() + '50',
+                        borderLeftColor: new TinyColor(colors[0]?.color).toHexString(),
+                      }}
+                    >
+                      <span className="element-title font-medium line-clamp-2">
+                        {'{'}
+                        {property}
+                        {'}'}
+                      </span>
+
+                      <div className="element-detail flex flex-wrap">
+                        {attributes?.map((attribute, index) => (
+                          <span key={index} className="attribute text-sm basis-1/2 text-start">
+                            {'{'}
+                            {attribute.Attribute}
+                            {'}'}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : // <IteratorProvider>
+                  //   <Element
+                  //     id="calendar-content"
+                  //     className="h-full w-full"
+                  //     is={resolver.StyleBox}
+                  //     deletable={false}
+                  //     canvas
+                  //   />
+                  // </IteratorProvider>
+                  null}
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="no-ds flex h-full flex-col items-center justify-center rounded-lg border bg-purple-400 py-4 text-white">
-            <BsFillInfoCircleFill className="mb-1 h-8 w-8" />
-            <p>Please attach a datasource</p>
+          <div className="no-ds flex h-full flex-col items-center justify-center rounded-lg border bg-purple-500 py-4 text-white">
+            <BsFillInfoCircleFill className="mb-1 h-9 w-9" />
+            <p className=" text-lg">Please attach a datasource</p>
           </div>
         )}
       </div>

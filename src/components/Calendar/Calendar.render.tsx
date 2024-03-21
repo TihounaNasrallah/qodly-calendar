@@ -31,8 +31,7 @@ import {
 import { ICalendarProps } from './Calendar.config';
 
 const Calendar: FC<ICalendarProps> = ({
-  att1,
-  att2,
+  attributes,
   property,
   startDate,
   endDate,
@@ -81,6 +80,11 @@ const Calendar: FC<ICalendarProps> = ({
     color: colorgenerated[index],
   }));
 
+  let attributeList: any[] = [];
+  attributes?.forEach((e) => {
+    attributeList.push(e.Attribute);
+  });
+
   let list: any[] = [];
   for (let j = 0; j < newData.length; j++) {
     const conge = newData[j];
@@ -88,11 +92,13 @@ const Calendar: FC<ICalendarProps> = ({
     for (let i = 0; i <= num; i++) {
       list.push({
         title: conge[property],
-        att1: conge[att1],
-        att2: conge[att2],
         startDate: addDays(parseISO(conge[startDate]), i),
         endDate: addDays(parseISO(conge[startDate]), i),
         color: conge.color,
+        attributes: attributeList.reduce((acc: { [key: string]: any[] }, e) => {
+          acc[e] = conge[e];
+          return acc;
+        }, {}),
       });
     }
   }
@@ -191,9 +197,8 @@ const Calendar: FC<ICalendarProps> = ({
                     (
                       conge: {
                         title: string;
+                        attributes: { [key: string]: any[] };
                         color: string;
-                        att1: string;
-                        att2: string;
                       },
                       index,
                     ) => {
@@ -216,9 +221,15 @@ const Calendar: FC<ICalendarProps> = ({
                           >
                             {conge.title}
                           </span>
+
                           <div className="element-detail flex flex-wrap">
-                            <p className="text-sm basis-1/2 text-start ">{conge.att1}</p>
-                            <p className="text-sm basis-1/2 text-end ">{conge.att2}</p>
+                            {attributeList?.map((e) => {
+                              return (
+                                <p className="attribute text-sm basis-1/2 text-start">
+                                  {conge.attributes[e]}
+                                </p>
+                              );
+                            })}
                           </div>
                         </div>
                       );

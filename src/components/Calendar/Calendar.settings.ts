@@ -3,44 +3,6 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
-    key: 'color',
-    label: 'Current Day Color',
-    type: ESetting.COLOR_PICKER,
-    defaultValue: '#4169E1',
-  },
-  {
-    type: ESetting.DATAGRID,
-    key: 'colors',
-    name: 'Colors',
-    label: 'Color',
-    data: [
-      {
-        key: 'color',
-        label: 'Color',
-        type: ESetting.COLOR_PICKER,
-        defaultValue: '',
-      },
-    ],
-  },
-  // {
-  //   key: 'color1',
-  //   label: 'Color 1',
-  //   type: ESetting.COLOR_PICKER,
-  //   defaultValue: '#3468C0',
-  // },
-  // {
-  //   key: 'color2',
-  //   label: 'Color 2',
-  //   type: ESetting.COLOR_PICKER,
-  //   defaultValue: '#86B6F6',
-  // },
-  // {
-  //   key: 'color3',
-  //   label: 'Color 3',
-  //   type: ESetting.COLOR_PICKER,
-  //   defaultValue: '#B4D4FF',
-  // },
-  {
     key: 'yearNav',
     label: 'Year Navigation',
     type: ESetting.CHECKBOX,
@@ -50,30 +12,54 @@ const commonSettings: TSetting[] = [
     key: 'rowHeight',
     label: 'Row Height',
     type: ESetting.UNITFIELD,
-    placeholder: 'Row Height',
     defaultValue: '150px',
+    hasLabel: true,
   },
   {
     key: 'borderRadius',
     label: 'Border Radius',
     type: ESetting.UNITFIELD,
-    placeholder: 'Border Radius',
     defaultValue: '6px',
+    hasLabel: true,
+  },
+  {
+    key: 'color',
+    label: 'Current Day Color',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#4169E1',
+  },
+  {
+    type: ESetting.DATAGRID,
+    key: 'colors',
+    name: 'Colors',
+    label: 'Colors',
+    titleProperty: 'color',
+    data: [
+      {
+        key: 'color',
+        label: 'Color',
+        type: ESetting.COLOR_PICKER,
+        defaultValue: '',
+      },
+    ],
   },
 ];
 
 const attributesSettings: TSetting[] = [
   {
-    key: 'att1',
-    label: 'Attribute 1',
-    type: ESetting.TEXT_FIELD,
-    defaultValue: '',
-  },
-  {
-    key: 'att2',
-    label: 'Attribute 2',
-    type: ESetting.TEXT_FIELD,
-    defaultValue: '',
+    type: ESetting.DATAGRID,
+    key: 'attributes',
+    name: 'Attributes',
+    label: 'Attributes',
+    titleProperty: 'Attribute',
+    data: [
+      {
+        key: 'Attribute',
+        label: 'Attribute',
+        type: ESetting.TEXT_FIELD,
+        defaultValue: '',
+      },
+    ],
   },
 ];
 
