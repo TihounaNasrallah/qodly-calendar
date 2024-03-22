@@ -70,12 +70,6 @@ const dataAccessSettings: TSetting[] = [
     type: ESetting.DS_AUTO_SUGGEST,
   },
   {
-    key: 'serverSideRef',
-    label: 'Server Side',
-    type: ESetting.TEXT_FIELD,
-    validateOnEnter: true,
-  },
-  {
     key: 'property',
     label: 'Property',
     type: ESetting.TEXT_FIELD,
@@ -92,6 +86,12 @@ const dataAccessSettings: TSetting[] = [
     label: 'Last Date',
     type: ESetting.TEXT_FIELD,
     defaultValue: '',
+  },
+  {
+    key: 'serverSideRef',
+    label: 'Server Side',
+    type: ESetting.TEXT_FIELD,
+    validateOnEnter: true,
   },
 ];
 
