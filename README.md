@@ -1,221 +1,66 @@
-# Overview
+## Overview
 
-This project allows Qodly Studio Devs to create their own components using the Standalone editor. and leveraging the pwer of the React library,
-This document goal is to help developers learn about the API used to implement their first Qodly custom component
+This Calendar Component is a versatile tool designed to provide an intuitive and interactive calendar interface . It allows users to easily navigate between months, or years, show data related to every single day
 
-## Getting Started
+## Calendar Component
 
-### Prerequisites:
+![The Calendar Component](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/221a3ea5-c749-45b6-bd0a-1295825e4a46)
 
-- [Node.js](https://nodejs.org/en/) >= 20
-- npm >= 10
+### Properties :
 
-### Installing
+| Name              | Type             | Default        | Description                                              |
+| ----------------- | ---------------- | -------------- | -------------------------------------------------------- |
+| Current Day Color | string           | #4169E1        | Sets the background color of the current day number      |
+| Colors            | Array of Strings | Auto-generated | Sets the background color of the displayed elements      |
+| Year Navigation   | boolean          | true           | If false, the year navigation buttons won't be displayed |
+| Row Height        | string           | 150px          | Sets the Height of the calendar rows                     |
+| Border Radius     | string           | 6px            | Sets the border redius of the displayed elements         |
 
-```bash
-npm i
+### Data Access Properties :
+
+| Name        | Type             | Required | Description                                               |
+| ----------- | ---------------- | -------- | --------------------------------------------------------- |
+| Data Source | Array of Objects | Yes      | Will contain an array of objects                          |
+| Property    | string           | Yes      | Will contain the property to be displayed                 |
+| First Date  | string           | Yes      | Will contain the attribute of the start date in our array |
+| Last Date   | string           | Yes      | Will contain the attribute of the end date in our array   |
+| Attributes  | Array of Strings | No       | Sets the additional properties to be displayed            |
+
+### Custom CSS :
+
+The Calendar Componant is divided to two main parts, we can access each one through the "calendar-header" and "calendar-grid" css classes :
+
+![calendar-header](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/e01c75f2-e379-4d37-8d99-1a90e3363386)
+
+Here is a basic example :
+
+```css
+/* Make the header disappear */
+self .calendar-header {
+  display: none;
+}
+
+/* Style the navigation buttons */
+self .nav-button {
+  border: 1px solid blue;
+  border-radius: 50%;
+  color: blue;
+}
+
+/* Style the month title */
+self .month-title {
+  color: blue;
+  font-size: 26px;
+}
 ```
 
-### Running
+![calendar-grid](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/4229c329-0304-4a05-a3d4-9c36188d4a5a)
 
-```bash
-npm run dev
-```
+Here is a basic example :
 
-### Generating a new component
-
-In order to add a new component, you can simply run this command:
-
-```bash
-npm run generate:component
-```
-
-This will ask you to provide the name of the component and generate a new component in the `components` folder
-
-## Introduction
-
-The `components` folder is where the custom components live, to create your first component you have the freedom to implement it the way you like but we recomment using this component structure
-
-```
-   - components
-      - ExampleComponent
-         - ExampleComponent.build.tsx
-         - ExampleComponent.render.tsx
-         - ExampleComponent.settings.tsx
-         - ExampleComponent.config.tsx
-         - index.tsx
-```
-
-Now let's break this structure down, let's start by the `build` and `render` files:
-
-- `ExampleComponent.build.tsx`: is the component used during the development of the user's webform when the Edit mode is _Enabled_
-
-- `ExampleComponent.render.tsx`: is the component used during the rendering of the user's webform when the Edit mode is _Disabled_
-
-- `ExampleComponent.settings.tsx` is the file containing the settings for the component it's an array of objects the contains the structure of the properties components to customize the component during build mode, for style properties, `Datasources` or even simple properties like changing the a Button component's label
-
-- `ExampleComponent.config.tsx` is the file containing the general information for the component i.e Display Name, Component's icon, supported events, default props and so on.
-
-### API
-
-#### `useEnhancedNode`
-
-A Hook that provides methods and state information related to the corresponding Node that manages the current component.
-
-```javascript
-const { connectors, setProp, ...collected } = useNode(collector);
-```
-
-#### Parameters
-
-`collector`(node: Node) => Collected
-
-A function that collects relevant state information from the corresponding Node. The component will re-render when the values returned by this function changes.
-
-#### Returns
-
-- Object
-  - `id` NodeId
-    The corresponding Node's id
-  - `related` boolean
-    Identifies if the component is being used as related component
-  - `inNodeContext` boolean
-    This is useful if you are designing a User Component that you also wish to be used as an ordinary React Component; this property helps to differentiate whether the component is being used as a User Component or not
-  - `connectors` Object
-    - `connect` (dom: HTMLElement) => HTMLElement
-      Specifies the DOM that represents the User Component
-    - `drag` (dom: HTMLElement) => HTMLElement
-      Specifies the DOM that should be draggable
-  - `actions` Object
-    - `setProp` (props: Object, throttleRate?: number) => void
-      Manipulate the current component's props. Additionally, specify a throttleRate to throttle the changes recoded in history for undo/redo
-    - `setCustom` (custom: Object, throttleRate?: number) => void
-      Manipulate the current component's custom properties. Additionally, specify a throttleRate to throttle the changes recoded in history for undo/redo
-    - `setHidden` (bool: boolean) => void
-      Hide/unhide the current component
-    - `..collected` Collected
-      The collected values returned from the collector
-
-#### Example
-
-Collecting state information
-
-```tsx
-import cn from 'classnames';
-import { useEnhancedNode } from '@ws-ui/webform-editor';
-import { FC } from 'react';
-
-const Example: FC<ExampleProps> = () => {
-  const { isHovered, amIBeingDragged } = useEnhancedNode((node) => ({
-    isHovered: node.events.hovered,
-    amIBeingDragged: node.events.drag,
-  }));
-
-  return (
-    <div
-      className={cn({
-        hovering: isHovered,
-        dragged: amIBeingDragged,
-      })}
-    >
-      Hello World
-    </div>
-  );
-};
-```
-
-#### Connecting the component to be used within the editor
-
-To make the Editor recognize the component you need to connect it through the connect function, Connector must receive a HTML element which can be obtained via an element's `ref`.
-
-```tsx
-import { useEnhancedNode } from '@ws-ui/webform-editor';
-import cn from 'classnames';
-import { FC } from 'react';
-import { IExampleProps } from './Example.config';
-
-const Example: FC<IExampleProps> = ({ text = '', style, classNames = [] }) => {
-  const {
-    connectors: { connect },
-  } = useEnhancedNode();
-
-  return (
-    <div ref={connect} style={style} className={cn(classNames)}>
-      {text}
-    </div>
-  );
-};
-
-export default Example;
-```
-
-### DataSources
-
-#### hooks
-
-##### `useSources`
-
-A Hook that provides state information related to the datasouces bound with the current component.
-
-#### Returns
-
-- Object
-  - `sources` Object
-    - `datasource` datasources.DataSource
-      - `addListener` (method) datasources.DataSource.addListener(eventType: string, callback: Function): void
-      - `removeListener` (method) datasources.DataSource.addListener(eventType: string, callback: Function): void
-      - `getValue` (method) datasources.DataSource.getValue<string>(property?: string | number | undefined, settings?: any): Promise<string>
-      - `setValue` (method) datasources.DataSource.setValue<T = any>(property: string | null, value: T, doFireEvent?: boolean | undefined): Promise<void>
-    - `currentElement` datasources.DataSource
-
-#### Example
-
-```tsx
-import { useRenderer, useSources } from '@ws-ui/webform-editor';
-import cn from 'classnames';
-import { FC, useEffect, useState } from 'react';
-import { IIframeProps } from './Iframe.config';
-
-const Iframe: FC<IIframeProps> = ({
-  url = '',
-  style,
-  className = 'h-80 aspect-video',
-  classNames = [],
-}) => {
-  const { connect } = useRenderer();
-  const [value, setValue] = useState(() => url);
-  const {
-    sources: { datasource: ds },
-  } = useSources();
-
-  useEffect(() => {
-    if (!ds) return;
-
-    const listener = async (/* event */) => {
-      const v = await ds.getValue<string>();
-      setValue(v || url);
-    };
-
-    listener();
-
-    ds.addListener('changed', listener);
-
-    return () => {
-      ds.removeListener('changed', listener);
-    };
-  }, [ds]);
-
-  return (
-    <iframe
-      ref={connect}
-      style={style}
-      className={cn(className, classNames)}
-      src={value}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-    />
-  );
-};
-
-export default Iframe;
+```css
+/* When we hover a day container, its color change */
+self .day-container:hover {
+  background-color: #f0f0f0;
+}
 ```

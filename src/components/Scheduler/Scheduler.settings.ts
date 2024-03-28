@@ -3,30 +3,20 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
-    key: 'yearNav',
-    label: 'Year Navigation',
-    type: ESetting.CHECKBOX,
-    defaultValue: true,
-  },
-  {
-    key: 'rowHeight',
-    label: 'Row Height',
-    type: ESetting.UNITFIELD,
-    defaultValue: '150px',
-    hasLabel: true,
-  },
-  {
-    key: 'borderRadius',
-    label: 'Border Radius',
-    type: ESetting.UNITFIELD,
-    defaultValue: '6px',
-    hasLabel: true,
-  },
-  {
     key: 'color',
     label: 'Current Day Color',
     type: ESetting.COLOR_PICKER,
-    defaultValue: '#4169E1',
+    defaultValue: '#1a73e8',
+  },
+  {
+    key: 'timeFormat',
+    label: 'Time Format',
+    type: ESetting.SELECT,
+    options: [
+      { value: '12', label: '12 Hours' },
+      { value: '24', label: '24 Hours' },
+    ],
+    defaultValue: '12',
   },
   {
     type: ESetting.DATAGRID,
@@ -43,23 +33,15 @@ const commonSettings: TSetting[] = [
       },
     ],
   },
-];
-
-const attributesSettings: TSetting[] = [
   {
-    type: ESetting.DATAGRID,
-    key: 'attributes',
-    name: 'Attributes',
-    label: 'Attributes',
-    titleProperty: 'Attribute',
-    data: [
-      {
-        key: 'Attribute',
-        label: 'Attribute',
-        type: ESetting.TEXT_FIELD,
-        defaultValue: '',
-      },
+    key: 'headerPosition',
+    label: 'Header Display',
+    type: ESetting.SELECT,
+    options: [
+      { value: '', label: 'Auto' },
+      { value: 'sticky', label: 'Sticky' },
     ],
+    defaultValue: '',
   },
 ];
 
@@ -77,21 +59,21 @@ const dataAccessSettings: TSetting[] = [
   },
   {
     key: 'startDate',
-    label: 'First Date',
+    label: 'Date',
     type: ESetting.TEXT_FIELD,
     defaultValue: '',
   },
   {
-    key: 'endDate',
-    label: 'Last Date',
+    key: 'startTime',
+    label: 'Start Time',
     type: ESetting.TEXT_FIELD,
     defaultValue: '',
   },
   {
-    key: 'serverSideRef',
-    label: 'Server Side',
+    key: 'endTime',
+    label: 'End Time',
     type: ESetting.TEXT_FIELD,
-    validateOnEnter: true,
+    defaultValue: '',
   },
 ];
 
@@ -107,12 +89,6 @@ const Settings: TSetting[] = [
     label: 'Data Access',
     type: ESetting.GROUP,
     components: dataAccessSettings,
-  },
-  {
-    key: 'attributes',
-    label: 'Attributes to Display',
-    type: ESetting.GROUP,
-    components: attributesSettings,
   },
   ...load(DEFAULT_SETTINGS).filter('dataAccess'),
 ];

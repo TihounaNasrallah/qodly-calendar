@@ -1,12 +1,12 @@
 import { EComponentKind, T4DComponentConfig } from '@ws-ui/webform-editor';
 import { Settings } from '@ws-ui/webform-editor';
-import { MdOutlineCalendarMonth } from 'react-icons/md';
+import { MdCalendarViewWeek } from 'react-icons/md';
 
-import CalendarSettings, { BasicSettings } from './Calendar.settings';
+import SchedulerSettings, { BasicSettings } from './Scheduler.settings';
 
 export default {
   craft: {
-    displayName: 'Calendar',
+    displayName: 'Scheduler',
     rules: {
       canMoveIn: () => true,
       canMoveOut: () => true,
@@ -18,13 +18,13 @@ export default {
       events: [],
     },
     related: {
-      settings: Settings(CalendarSettings, BasicSettings),
+      settings: Settings(SchedulerSettings, BasicSettings),
     },
   },
   info: {
-    displayName: 'Calendar',
+    displayName: 'Scheduler',
     exposed: true,
-    icon: MdOutlineCalendarMonth,
+    icon: MdCalendarViewWeek,
     events: [
       {
         label: 'On Click',
@@ -60,29 +60,22 @@ export default {
     },
   },
   defaultProps: {
-    color: '#4169E1',
-    yearNav: true,
-    borderRadius: '6px',
-    rowHeight: '150px',
+    color: '#1a73e8',
+    timeFormat: '12',
   },
-} as T4DComponentConfig<ICalendarProps>;
+} as T4DComponentConfig<ISchedulerProps>;
 
-export interface ICalendarProps extends webforms.ComponentProps {
+export interface ISchedulerProps extends webforms.ComponentProps {
   color: string;
-  yearNav: boolean;
-  borderRadius: string;
+  timeFormat: '12' | '24';
+  headerPosition: 'sticky' | '';
   property: string;
   startDate: string;
-  endDate: string;
-  rowHeight: string;
+  startTime: string;
+  endTime: string;
   colors?: IColors[];
-  attributes?: IAttributes[];
 }
 
 export interface IColors {
   color?: string;
-}
-
-export interface IAttributes {
-  Attribute?: string;
 }
