@@ -60,12 +60,22 @@ export default {
     },
   },
   defaultProps: {
-    color: '#3b82f6',
+    color: '#1a73e8',
     timeFormat: '12',
   },
 } as T4DComponentConfig<ISchedulerProps>;
 
 export interface ISchedulerProps extends webforms.ComponentProps {
+  color: string;
+  timeFormat: '12' | '24';
+  headerPosition: 'sticky' | '';
+  property: string;
+  startDate: string;
+  startTime: string;
+  endTime: string;
+  colors?: IColors[];
+}
+
+export interface IColors {
   color?: string;
-  timeFormat?: '12' | '24';
 }

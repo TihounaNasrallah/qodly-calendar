@@ -6,20 +6,12 @@ import { useState } from 'react';
 import { ISchedulerProps } from './Scheduler.config';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 
-import {
-  isBefore,
-  format,
-  startOfWeek,
-  addDays,
-  getWeekOfMonth,
-  subWeeks,
-  addWeeks,
-  isToday,
-  setHours,
-} from 'date-fns';
+import { format, startOfWeek, addDays, getWeekOfMonth, isToday, setHours } from 'date-fns';
+import { colorToHex } from '../shared/colorUtils';
 
 const Scheduler: FC<ISchedulerProps> = ({
   timeFormat,
+  headerPosition,
   color,
   style,
   className,
@@ -40,45 +32,38 @@ const Scheduler: FC<ISchedulerProps> = ({
     return dates;
   };
 
+  const isCurrentHour = (hourIndex: number) => {
+    const currentHour = new Date().getHours();
+    return currentHour === hourIndex;
+  };
+
   const weekDates = getWeekDates(date);
-
-  const goToPreviousWeek = () => {
-    setDate(subWeeks(date, 1));
-  };
-
-  const goToNextWeek = () => {
-    setDate(addWeeks(date, 1));
-  };
-
-  console.log('Current time:', format(new Date(), 'HH:mm:ss'));
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="scheduler-container flex flex-col gap-4">
+      <div className="scheduler-container flex flex-col gap-4 h-full">
         <h2 className="title flex items-center justify-center gap-2">
           <span className="text-xl font-medium">{format(date, 'MMMM yyyy')}</span>
-          <span className="">({getWeekOfMonth(date)}th week)</span>
         </h2>
         <div className="scheduler-grid flex justify-center">
-          <table className="table-auto w-full border-collapse ">
+          <table className="table-fixed w-full border-collapse ">
             <thead className="scheduler-header">
               <tr>
-                <th className="w-32">
-                  <button
-                    className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
-                    onClick={goToPreviousWeek}
-                  >
+                <th
+                  className={`w-20 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white `}
+                >
+                  <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
                     <MdKeyboardArrowLeft />
                   </button>
-                  <button
-                    className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
-                    onClick={goToNextWeek}
-                  >
+                  <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
                     <MdKeyboardArrowRight />
                   </button>
                 </th>
                 {weekDates.map((day, index) => (
-                  <th key={index} className="w-40">
+                  <th
+                    key={index}
+                    className={`w-36 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white `}
+                  >
                     <div
                       key={index}
                       className="weekday-title flex flex-col items-center font-medium text-center"
@@ -101,20 +86,24 @@ const Scheduler: FC<ISchedulerProps> = ({
               </tr>
             </thead>
             <tbody className="scheduler-body">
-              {Array.from({ length: 24 }).map((_, index) => (
-                <tr key={index} className="h-14 w-32">
+              {Array.from({ length: 24 }).map((_, hourIndex) => (
+                <tr key={hourIndex} className="h-16 w-36">
                   <td className="timeline flex items-center justify-center">
-                    {timeFormat === '12'
-                      ? format(setHours(new Date(), index), 'h aaa')
-                      : format(setHours(new Date(), index), 'HH:00')}
+                    <span className=" text-gray-400 text-[12px] font-semibold">
+                      {timeFormat === '12'
+                        ? format(setHours(new Date(), hourIndex), 'K a')
+                        : format(setHours(new Date(), hourIndex), 'HH:00')}
+                    </span>
                   </td>
-                  {weekDates.map((day, index) => (
+                  {weekDates.map((day, dayIndex) => (
                     <td
-                      key={format(day, 'yyyy-MM-dd') + '-' + index}
+                      key={dayIndex + '-' + hourIndex}
                       className="border border-gray-200"
-                    >
-                      <div></div>
-                    </td>
+                      style={{
+                        backgroundColor:
+                          isToday(day) && isCurrentHour(hourIndex) ? colorToHex(color) + '30' : '',
+                      }}
+                    ></td>
                   ))}
                 </tr>
               ))}

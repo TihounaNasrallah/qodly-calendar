@@ -6,7 +6,7 @@ const commonSettings: TSetting[] = [
     key: 'color',
     label: 'Current Day Color',
     type: ESetting.COLOR_PICKER,
-    defaultValue: '#3b82f6',
+    defaultValue: '#1a73e8',
   },
   {
     key: 'timeFormat',
@@ -18,6 +18,63 @@ const commonSettings: TSetting[] = [
     ],
     defaultValue: '12',
   },
+  {
+    type: ESetting.DATAGRID,
+    key: 'colors',
+    name: 'Colors',
+    label: 'Colors',
+    titleProperty: 'color',
+    data: [
+      {
+        key: 'color',
+        label: 'Color',
+        type: ESetting.COLOR_PICKER,
+        defaultValue: '',
+      },
+    ],
+  },
+  {
+    key: 'headerPosition',
+    label: 'Header Display',
+    type: ESetting.SELECT,
+    options: [
+      { value: '', label: 'Auto' },
+      { value: 'sticky', label: 'Sticky' },
+    ],
+    defaultValue: '',
+  },
+];
+
+const dataAccessSettings: TSetting[] = [
+  {
+    key: 'datasource',
+    label: 'Data Source',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'property',
+    label: 'Property',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
+  },
+  {
+    key: 'startDate',
+    label: 'Date',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
+  },
+  {
+    key: 'startTime',
+    label: 'Start Time',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
+  },
+  {
+    key: 'endTime',
+    label: 'End Time',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
+  },
 ];
 
 const Settings: TSetting[] = [
@@ -27,7 +84,13 @@ const Settings: TSetting[] = [
     type: ESetting.GROUP,
     components: commonSettings,
   },
-  ...DEFAULT_SETTINGS,
+  {
+    key: 'dataAccess',
+    label: 'Data Access',
+    type: ESetting.GROUP,
+    components: dataAccessSettings,
+  },
+  ...load(DEFAULT_SETTINGS).filter('dataAccess'),
 ];
 
 export const BasicSettings: TSetting[] = [
