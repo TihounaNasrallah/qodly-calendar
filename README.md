@@ -20,13 +20,13 @@
 
 ### Data Access Properties :
 
-| Name        | Type             | Required | Description                                        |
-| ----------- | ---------------- | -------- | -------------------------------------------------- |
-| Data Source | Array of Objects | Yes      | Will contain an array of objects                   |
-| Property    | String           | Yes      | Will contain the property to be displayed          |
-| First Date  | String           | Yes      | Will contain the start date attribute in our array |
-| Last Date   | String           | Yes      | Will contain the end date attribute in our array   |
-| Attributes  | Array of Strings | No       | Sets the additional properties to be displayed     |
+| Name        | Type             | Required | Description                                        | Example |
+| ----------- | ---------------- | -------- | -------------------------------------------------- |---------|
+| Data Source | Array of Objects | Yes      | Will contain an array of objects.                  |[<br />{"name":"Employee 0","type":"Paternité","dateDebut":"2024-03-28","dateFin":"2024-04-03","team":"Team 3"},<br />{"name":"Employee 1","type":"Marriage","dateDebut":"2024-03-13","dateFin":"2024-03-18","team":"Team 2"} <br />]|
+| Property    | String           | Yes      | Will contain the property to be displayed          | name |
+| First Date  | String           | Yes      | Will contain the start date attribute in our array | dateDebut |
+| Last Date   | String           | Yes      | Will contain the end date attribute in our array   | dateFin|
+| Attributes  | Array of Strings | No       | Sets the additional properties to be displayed     |[team, type]|
 
 ### Custom CSS :
 
@@ -85,13 +85,13 @@ self .day-container:hover {
 
 ### Data Access Properties :
 
-| Name        | Type             | Required | Description                                               |
-| ----------- | ---------------- | -------- | --------------------------------------------------------- |
-| Data Source | Array of Objects | Yes      | Will contain an array of objects                          |
-| Property    | String           | Yes      | Will contain the property to be displayed                 |
-| Date        | String           | Yes      | Will contain the date attribute of the events             |
-| Start Time  | String           | Yes      | Will contain the attribute of the start time in our array |
-| End Time    | String           | Yes      | Will contain the attribute of the end time in our array   |
+| Name        | Type             | Required | Description                                               |Example|
+| ----------- | ---------------- | -------- | --------------------------------------------------------- |-------|
+| Data Source | Array of Objects | Yes      | Will contain an array of objects                          |[<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />]|
+| Property    | String           | Yes      | Will contain the property to be displayed                 | title |
+| Date        | String           | Yes      | Will contain the date attribute of the events             | date |
+| Start Time  | String           | Yes      | Will contain the attribute of the start time in our array | startTime |
+| End Time    | String           | Yes      | Will contain the attribute of the end time in our array   | endTime |
 
 ### Custom CSS
 
