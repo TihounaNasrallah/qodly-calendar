@@ -9,6 +9,16 @@ const commonSettings: TSetting[] = [
     defaultValue: '#1a73e8',
   },
   {
+    key: 'hours',
+    label: 'Hours',
+    type: ESetting.SELECT,
+    options: [
+      { value: 'work', label: 'Work Hours' },
+      { value: 'all', label: 'All' },
+    ],
+    defaultValue: 'all',
+  },
+  {
     key: 'timeFormat',
     label: 'Time Format',
     type: ESetting.SELECT,
@@ -42,6 +52,20 @@ const commonSettings: TSetting[] = [
       { value: 'sticky', label: 'Sticky' },
     ],
     defaultValue: '',
+  },
+  {
+    key: 'fontSize',
+    label: 'Element Font Size',
+    type: ESetting.UNITFIELD,
+    hasLabel: true,
+    defaultValue: '12px',
+  },
+  {
+    key: 'height',
+    label: 'Row Height',
+    type: ESetting.UNITFIELD,
+    hasLabel: true,
+    defaultValue: '64px',
   },
 ];
 

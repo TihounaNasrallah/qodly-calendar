@@ -1,8 +1,10 @@
-## Overview
+# Overview
 
-This Calendar Component is a versatile tool designed to provide an intuitive and interactive calendar interface . It allows users to easily navigate between months, or years, show data related to every single day
+**The Calendar Component** is a versatile tool designed to provide an intuitive and interactive calendar interface. It allows users to easily navigate between months or years, and also display data related to every single day.
 
-## Calendar Component
+**The Scheduler Component** offers a dynamic week view of your calendar, presenting a user-friendly interface to effortlessly navigate through events scheduled for each day of the week.
+
+# Calendar Component
 
 ![The Calendar Component](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/221a3ea5-c749-45b6-bd0a-1295825e4a46)
 
@@ -10,25 +12,25 @@ This Calendar Component is a versatile tool designed to provide an intuitive and
 
 | Name              | Type             | Default        | Description                                              |
 | ----------------- | ---------------- | -------------- | -------------------------------------------------------- |
-| Current Day Color | string           | #4169E1        | Sets the background color of the current day number      |
+| Current Day Color | String           | #4169E1        | Sets the background color of the current day number      |
 | Colors            | Array of Strings | Auto-generated | Sets the background color of the displayed elements      |
-| Year Navigation   | boolean          | true           | If false, the year navigation buttons won't be displayed |
-| Row Height        | string           | 150px          | Sets the Height of the calendar rows                     |
-| Border Radius     | string           | 6px            | Sets the border redius of the displayed elements         |
+| Year Navigation   | Boolean          | true           | If false, the year navigation buttons won't be displayed |
+| Row Height        | Number           | 150px          | Sets the Height of the calendar rows                     |
+| Border Radius     | Number           | 6px            | Sets the border redius of the displayed elements         |
 
 ### Data Access Properties :
 
-| Name        | Type             | Required | Description                                               |
-| ----------- | ---------------- | -------- | --------------------------------------------------------- |
-| Data Source | Array of Objects | Yes      | Will contain an array of objects                          |
-| Property    | string           | Yes      | Will contain the property to be displayed                 |
-| First Date  | string           | Yes      | Will contain the attribute of the start date in our array |
-| Last Date   | string           | Yes      | Will contain the attribute of the end date in our array   |
-| Attributes  | Array of Strings | No       | Sets the additional properties to be displayed            |
+| Name        | Type             | Required | Description                                        |
+| ----------- | ---------------- | -------- | -------------------------------------------------- |
+| Data Source | Array of Objects | Yes      | Will contain an array of objects                   |
+| Property    | String           | Yes      | Will contain the property to be displayed          |
+| First Date  | String           | Yes      | Will contain the start date attribute in our array |
+| Last Date   | String           | Yes      | Will contain the end date attribute in our array   |
+| Attributes  | Array of Strings | No       | Sets the additional properties to be displayed     |
 
 ### Custom CSS :
 
-The Calendar Componant is divided to two main parts, we can access each one through the "calendar-header" and "calendar-grid" css classes :
+The Calendar Componant is divided to two main parts, we can access each one through the **"calendar-header"** and **"calendar-grid"** css classes :
 
 ![calendar-header](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/e01c75f2-e379-4d37-8d99-1a90e3363386)
 
@@ -62,5 +64,59 @@ Here is a basic example :
 /* When we hover a day container, its color change */
 self .day-container:hover {
   background-color: #f0f0f0;
+}
+```
+
+# Scheduler Component
+
+![Scheduler Component](./public/week-view.png)
+
+### Properties :
+
+| Name              | Type             | Default        | Description                                                    |
+| ----------------- | ---------------- | -------------- | -------------------------------------------------------------- |
+| Current Day Color | String           | #1a73e8        | Sets the background color of the current day number            |
+| Hours             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed |
+| Time Format       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                           |
+| Colors            | Array of Strings | Auto-generated | Sets the background color of the displayed elements            |
+| Header Display    | String           | Auto           | If 'Sticky' is selected, the header position will be sticky    |
+| Element Font Size | Number           | 12px           | Sets the size of the displayed elements                        |
+| Row Height        | Number           | 64px           | Sets the height of the scheduler's rows                        |
+
+### Data Access Properties :
+
+| Name        | Type             | Required | Description                                               |
+| ----------- | ---------------- | -------- | --------------------------------------------------------- |
+| Data Source | Array of Objects | Yes      | Will contain an array of objects                          |
+| Property    | String           | Yes      | Will contain the property to be displayed                 |
+| Date        | String           | Yes      | Will contain the date attribute of the events             |
+| Start Time  | String           | Yes      | Will contain the attribute of the start time in our array |
+| End Time    | String           | Yes      | Will contain the attribute of the end time in our array   |
+
+### Custom CSS
+
+The Scheduler Componant is divided to two main parts, we can access each one through the **"scheduler-header"** and **"scheduler-body"** css classes :
+
+![Scheduler CSS](./public/week-view-css.png)
+
+Here is a basic example :
+
+```css
+/* Make the header disappear */
+self .scheduler-header {
+  display: none;
+}
+
+/* Style the navigation buttons */
+self .nav-button {
+  border: 1px solid blue;
+  border-radius: 50%;
+  color: blue;
+}
+
+/* Style the month title */
+self .month-title {
+  color: blue;
+  font-size: 26px;
 }
 ```
