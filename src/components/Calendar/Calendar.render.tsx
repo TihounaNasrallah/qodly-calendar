@@ -75,15 +75,15 @@ const Calendar: FC<ICalendarProps> = ({
     ...colors.map((e) => e.color || randomColor()),
   );
 
-  let newData = data.map((obj, index) => ({
-    ...obj,
-    color: colorgenerated[index],
-  }));
-
   let attributeList: any[] = [];
   attributes?.forEach((e) => {
     attributeList.push(e.Attribute);
   });
+
+  let newData = data.map((obj, index) => ({
+    ...obj,
+    color: colorgenerated[index],
+  }));
 
   let list: any[] = [];
   for (let j = 0; j < newData.length; j++) {
