@@ -83,29 +83,21 @@ const Calendar: FC<ICalendarProps> = ({
   let newData = data.map((obj, index) => ({
     ...obj,
     color: colorgenerated[index],
+    title: obj[property],
+    startDate: obj[startDate],
+    endDate: obj[endDate],
+    attributes: attributeList.reduce((acc: { [key: string]: any[] }, e) => {
+      acc[e] = obj[e];
+      return acc;
+    }, {}),
+    length: differenceInDays(parseISO(obj[endDate]), parseISO(obj[startDate])),
   }));
 
-  let list: any[] = [];
-  for (let j = 0; j < newData.length; j++) {
-    const conge = newData[j];
-    const num = differenceInDays(parseISO(conge[endDate]), parseISO(conge[startDate]));
-    for (let i = 0; i <= num; i++) {
-      list.push({
-        title: conge[property],
-        startDate: addDays(parseISO(conge[startDate]), i),
-        endDate: addDays(parseISO(conge[startDate]), i),
-        color: conge.color,
-        attributes: attributeList.reduce((acc: { [key: string]: any[] }, e) => {
-          acc[e] = conge[e];
-          return acc;
-        }, {}),
-      });
-    }
-  }
+  console.log(attributeList);
 
   const congesByDate = useMemo(() => {
-    return list.reduce((acc: { [key: string]: any[] }, conge) => {
-      const dateKey = format(conge?.startDate, 'yyyy-MM-dd');
+    return newData.reduce((acc: { [key: string]: any[] }, conge) => {
+      const dateKey = format(parseISO(conge[startDate]), 'yyyy-MM-dd');
       if (!acc[dateKey]) {
         acc[dateKey] = [];
       }
@@ -179,7 +171,7 @@ const Calendar: FC<ICalendarProps> = ({
               >
                 <div className="h-fit w-full">
                   <span
-                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full"
+                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full "
                     style={{
                       backgroundColor: isToday(day) ? color : '',
                       color: isToday(day) ? 'white' : '',
@@ -191,7 +183,7 @@ const Calendar: FC<ICalendarProps> = ({
                 <div
                   onMouseEnter={() => setShowScrollbar(true)}
                   onMouseLeave={() => setShowScrollbar(false)}
-                  className={`date-content w-full grid grid-cols-1 gap-1 overflow-hidden ${showScrollbar ? 'overflow-y-auto' : ''}`}
+                  className={`date-content w-full ${showScrollbar ? 'overflow-y-auto' : ''}`}
                 >
                   {todaysConges.map(
                     (
@@ -199,6 +191,7 @@ const Calendar: FC<ICalendarProps> = ({
                         title: string;
                         attributes: { [key: string]: any[] };
                         color: string;
+                        length: number;
                       },
                       index,
                     ) => {
@@ -222,7 +215,7 @@ const Calendar: FC<ICalendarProps> = ({
                             {conge.title}
                           </span>
 
-                          <div className="element-detail flex flex-wrap">
+                          {/* <div className="element-detail flex flex-wrap">
                             {attributeList?.map((e) => {
                               return (
                                 <p className="attribute text-sm basis-1/2 text-start">
@@ -230,7 +223,7 @@ const Calendar: FC<ICalendarProps> = ({
                                 </p>
                               );
                             })}
-                          </div>
+                          </div> */}
                         </div>
                       );
                     },
