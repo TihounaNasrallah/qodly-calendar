@@ -171,7 +171,7 @@ const Calendar: FC<ICalendarProps> = ({
               >
                 <div className="h-fit w-full">
                   <span
-                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full "
+                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full"
                     style={{
                       backgroundColor: isToday(day) ? color : '',
                       color: isToday(day) ? 'white' : '',
