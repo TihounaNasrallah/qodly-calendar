@@ -1,10 +1,4 @@
-import {
-  useEnhancedNode,
-  useEnhancedEditor,
-  selectResolver,
-  IteratorProvider,
-} from '@ws-ui/webform-editor';
-import { Element } from '@ws-ui/craftjs-core';
+import { useEnhancedNode } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC } from 'react';
 
@@ -32,7 +26,6 @@ import {
 import { ICalendarProps } from './Calendar.config';
 
 const Calendar: FC<ICalendarProps> = ({
-  datasource,
   attributes,
   property,
   rowHeight,
@@ -44,8 +37,6 @@ const Calendar: FC<ICalendarProps> = ({
   className,
   classNames = [],
 }) => {
-  const { resolver } = useEnhancedEditor(selectResolver);
-
   const {
     connectors: { connect },
   } = useEnhancedNode();
@@ -129,16 +120,7 @@ const Calendar: FC<ICalendarProps> = ({
                       ))}
                     </div>
                   </div>
-                ) : // <IteratorProvider>
-                //   <Element
-                //     id="calendar-content"
-                //     className="h-full w-full"
-                //     is={resolver.StyleBox}
-                //     deletable={false}
-                //     canvas
-                //   />
-                // </IteratorProvider>
-                null}
+                ) : null}
               </div>
             ))}
           </div>
