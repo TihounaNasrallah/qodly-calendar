@@ -1,5 +1,4 @@
 import { useRenderer, useSources } from '@ws-ui/webform-editor';
-
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo } from 'react';
 
@@ -10,10 +9,11 @@ import {
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 
-import { generateColorPalette, randomColor } from '../shared/colorUtils';
+import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
 
 import {
   differenceInDays,
+  isEqual,
   parseISO,
   startOfWeek,
   endOfWeek,
@@ -37,6 +37,7 @@ const Calendar: FC<ICalendarProps> = ({
   endDate,
   rowHeight,
   color,
+  selectedColor,
   colors = [],
   yearNav,
   borderRadius,
@@ -44,13 +45,15 @@ const Calendar: FC<ICalendarProps> = ({
   className,
   classNames = [],
 }) => {
-  const { connect } = useRenderer();
+  const { connect, emit } = useRenderer();
 
   const {
-    sources: { datasource: ds },
+    sources: { datasource: ds, currentElement: currentDate },
   } = useSources();
 
+  const [date, setDate] = useState(new Date());
   const [data, setData] = useState<any[]>([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     if (!ds) return;
@@ -68,7 +71,14 @@ const Calendar: FC<ICalendarProps> = ({
       ds.removeListener('changed', listener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds]);
+  }, [ds, currentDate]);
+
+  const handleDateClick = async (value: Date) => {
+    currentDate.setValue(null, value);
+    const ce = await currentDate.getValue<any>();
+    setSelectedDate(ce);
+    emit('onselect');
+  };
 
   const colorgenerated = generateColorPalette(
     data.length,
@@ -82,7 +92,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   let newData = data.map((obj, index) => ({
     ...obj,
-    color: colorgenerated[index],
+    color: obj['color'] || colorgenerated[index],
   }));
 
   let list: any[] = [];
@@ -115,7 +125,6 @@ const Calendar: FC<ICalendarProps> = ({
   }, [data]);
 
   const [showScrollbar, setShowScrollbar] = useState(false);
-  const [date, setDate] = useState(new Date());
 
   const daysInMonth = eachDayOfInterval({
     start: startOfWeek(startOfMonth(date), { weekStartsOn: 1 }),
@@ -127,7 +136,19 @@ const Calendar: FC<ICalendarProps> = ({
   const nextYear = () => setDate(addMonths(date, 12));
   const prevYear = () => setDate(subMonths(date, 12));
 
-  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const isSelected = (date: Date) => {
+    return isEqual(date, selectedDate);
+  };
+
+  const weekdays = [
+    { title: 'Mon', day: 'Monday' },
+    { title: 'Tue', day: 'Tuesday' },
+    { title: 'Wed', day: 'Wednesday' },
+    { title: 'Thu', day: 'Thursday' },
+    { title: 'Fri', day: 'Friday' },
+    { title: 'Sat', day: 'Saturday' },
+    { title: 'Sun', day: 'Sunday' },
+  ];
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
@@ -160,9 +181,13 @@ const Calendar: FC<ICalendarProps> = ({
 
         <div className="calendar-grid w-full grid justify-center grid-cols-7">
           {weekdays.map((day) => (
-            <div key={day} className="weekday-title font-medium text-lg text-center">
-              {day}
-            </div>
+            <span
+              key={day.title}
+              title={day.day}
+              className="weekday-title font-medium text-lg text-center"
+            >
+              {day.title}
+            </span>
           ))}
           {daysInMonth.map((day) => {
             const dateKey = format(day, 'yyyy-MM-dd');
@@ -177,13 +202,15 @@ const Calendar: FC<ICalendarProps> = ({
                   height: rowHeight,
                 }}
               >
-                <div className="h-fit w-full">
+                <div className="h-fit w-full cursor-pointer">
                   <span
-                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full"
+                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full cursor-pointer hover:bg-gray-300 duration-300"
                     style={{
+                      border: isSelected(day) ? `2px solid ${colorToHex(selectedColor)}` : '',
                       backgroundColor: isToday(day) ? color : '',
                       color: isToday(day) ? 'white' : '',
                     }}
+                    onClick={() => handleDateClick(day)}
                   >
                     {format(day, 'd')}
                   </span>
@@ -225,9 +252,12 @@ const Calendar: FC<ICalendarProps> = ({
                           <div className="element-detail flex flex-wrap">
                             {attributeList?.map((e) => {
                               return (
-                                <p className="attribute text-sm basis-1/2 text-start">
+                                <span
+                                  className="attribute text-sm basis-1/2 text-start"
+                                  title={conge.attributes[e].toString()}
+                                >
                                   {conge.attributes[e]}
-                                </p>
+                                </span>
                               );
                             })}
                           </div>

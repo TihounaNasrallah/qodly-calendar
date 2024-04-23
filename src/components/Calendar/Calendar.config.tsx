@@ -27,6 +27,10 @@ export default {
     icon: MdOutlineCalendarMonth,
     events: [
       {
+        label: 'On Select',
+        value: 'onselect',
+      },
+      {
         label: 'On Click',
         value: 'onclick',
       },
@@ -46,14 +50,6 @@ export default {
         label: 'On MouseLeave',
         value: 'onmouseleave',
       },
-      {
-        label: 'On KeyDown',
-        value: 'onkeydown',
-      },
-      {
-        label: 'On KeyUp',
-        value: 'onkeyup',
-      },
     ],
     datasources: {
       accept: ['array'],
@@ -61,6 +57,7 @@ export default {
   },
   defaultProps: {
     color: '#4169E1',
+    selectedColor: '#4169E1',
     yearNav: true,
     borderRadius: '6px',
     rowHeight: '150px',
@@ -69,6 +66,7 @@ export default {
 
 export interface ICalendarProps extends webforms.ComponentProps {
   color: string;
+  selectedColor: string;
   yearNav: boolean;
   borderRadius: string;
   property: string;

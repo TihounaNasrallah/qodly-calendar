@@ -29,6 +29,12 @@ const commonSettings: TSetting[] = [
     defaultValue: '#4169E1',
   },
   {
+    key: 'selectedColor',
+    label: 'Selected Day Color',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#4169E1',
+  },
+  {
     type: ESetting.DATAGRID,
     key: 'colors',
     name: 'Colors',
@@ -67,6 +73,11 @@ const dataAccessSettings: TSetting[] = [
   {
     key: 'datasource',
     label: 'Data Source',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'currentElement',
+    label: 'Selected Date',
     type: ESetting.DS_AUTO_SUGGEST,
   },
   {

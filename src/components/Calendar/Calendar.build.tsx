@@ -49,7 +49,15 @@ const Calendar: FC<ICalendarProps> = ({
     end: endOfWeek(endOfMonth(date), { weekStartsOn: 1 }),
   });
 
-  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weekdays = [
+    { title: 'Mon', day: 'Monday' },
+    { title: 'Tue', day: 'Tuesday' },
+    { title: 'Wed', day: 'Wednesday' },
+    { title: 'Thu', day: 'Thursday' },
+    { title: 'Fri', day: 'Friday' },
+    { title: 'Sat', day: 'Saturday' },
+    { title: 'Sun', day: 'Sunday' },
+  ];
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="calendar-container">
@@ -73,8 +81,12 @@ const Calendar: FC<ICalendarProps> = ({
           </div>
           <div className="calendar-grid w-full grid grid-cols-7 justify-center">
             {weekdays.map((day) => (
-              <div key={day} className="weekday-title font-medium text-lg text-center">
-                {day}
+              <div
+                key={day.title}
+                title={day.day}
+                className="weekday-title font-medium text-lg text-center"
+              >
+                {day.title}
               </div>
             ))}
 
