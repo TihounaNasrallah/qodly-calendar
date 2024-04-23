@@ -26,7 +26,7 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   const getWeekDates = (startDate: Date) => {
     const dates = [];
-    const startOfCurrentWeek = startOfWeek(startDate); // Get the start of the current week
+    const startOfCurrentWeek = startOfWeek(startDate, { weekStartsOn: 1 }); // Get the start of the current week
     for (let i = 0; i < 7; i++) {
       dates.push(addDays(startOfCurrentWeek, i)); // Add days to get the dates of the week
     }

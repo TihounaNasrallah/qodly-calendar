@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
   },
-  "include": ["src"],
+  "include": ["src","node_modules/@ws-ui/shared/dist/declarations/**/*.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }],
 }
