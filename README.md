@@ -13,6 +13,7 @@
 | Name              | Type             | Default        | Description                                              |
 | ----------------- | ---------------- | -------------- | -------------------------------------------------------- |
 | Current Day Color | String           | #4169E1        | Sets the background color of the current day number      |
+| Selected Day Color| String           | #4169E1        | Sets the border color of the selected day number         |
 | Colors            | Array of Strings | Auto-generated | Sets the background color of the displayed elements      |
 | Year Navigation   | Boolean          | true           | If false, the year navigation buttons won't be displayed |
 | Row Height        | Number           | 150px          | Sets the Height of the calendar rows                     |
@@ -23,10 +24,11 @@
 | Name        | Type             | Required | Description                                        | Example |
 | ----------- | ---------------- | -------- | -------------------------------------------------- |---------|
 | Data Source | Array of Objects | Yes      | Will contain an array of objects.                  |[<br />{"name":"Employee 0","type":"Paternité","dateDebut":"2024-03-28","dateFin":"2024-04-03","team":"Team 3"},<br />{"name":"Employee 1","type":"Marriage","dateDebut":"2024-03-13","dateFin":"2024-03-18","team":"Team 2"} <br />]|
-| Property    | String           | Yes      | Will contain the property to be displayed          | name |
-| First Date  | String           | Yes      | Will contain the start date attribute in our array | dateDebut |
-| Last Date   | String           | Yes      | Will contain the end date attribute in our array   | dateFin|
-| Attributes  | Array of Strings | No       | Sets the additional properties to be displayed     |[team, type]|
+| Selected Date    | String           | No      | Will contain the variable that will contain the selected Date          | `date` |
+| Property    | String           | Yes      | Will contain the property to be displayed          | `name` |
+| First Date  | String           | Yes      | Will contain the start date attribute in our array | `dateDebut` |
+| Last Date   | String           | Yes      | Will contain the end date attribute in our array   | `dateFin`  |
+| Attributes  | Array of Strings | No       | Sets the additional properties to be displayed     |[`team`, `type`]|
 
 ### Custom CSS :
 
