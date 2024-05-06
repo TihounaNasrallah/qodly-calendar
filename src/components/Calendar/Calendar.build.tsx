@@ -23,9 +23,12 @@ import {
   isSameMonth,
 } from 'date-fns';
 
+import { fr, es } from 'date-fns/locale';
+
 import { ICalendarProps } from './Calendar.config';
 
 const Calendar: FC<ICalendarProps> = ({
+  language,
   attributes,
   property,
   rowHeight,
@@ -49,7 +52,7 @@ const Calendar: FC<ICalendarProps> = ({
     end: endOfWeek(endOfMonth(date), { weekStartsOn: 1 }),
   });
 
-  const weekdays = [
+  const weekdaysEn = [
     { title: 'Mon', day: 'Monday' },
     { title: 'Tue', day: 'Tuesday' },
     { title: 'Wed', day: 'Wednesday' },
@@ -58,6 +61,37 @@ const Calendar: FC<ICalendarProps> = ({
     { title: 'Sat', day: 'Saturday' },
     { title: 'Sun', day: 'Sunday' },
   ];
+  const weekdaysFr = [
+    { title: 'Lun', day: 'Lundi' },
+    { title: 'Mar', day: 'Mardi' },
+    { title: 'Mer', day: 'Mercredi' },
+    { title: 'Jeu', day: 'Jeudi' },
+    { title: 'Ven', day: 'Vendredi' },
+    { title: 'Sam', day: 'Samedi' },
+    { title: 'Dim', day: 'Dimanche' },
+  ];
+
+  const weekdaysEs = [
+    { title: 'Lun', day: 'Lunes' },
+    { title: 'Mar', day: 'Martes' },
+    { title: 'Mie', day: 'Miercoles' },
+    { title: 'Jue', day: 'Jueves' },
+    { title: 'Vie', day: 'Viernes' },
+    { title: 'Sab', day: 'Sabado' },
+    { title: 'Dom', day: 'Domingo' },
+  ];
+
+  let weekdays = weekdaysEn;
+  let locale = {};
+
+  if (language === 'fr') {
+    weekdays = weekdaysFr;
+    locale = { locale: fr };
+  } else if (language === 'es') {
+    weekdays = weekdaysEs;
+    locale = { locale: es };
+  }
+
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="calendar-container">
@@ -70,7 +104,8 @@ const Calendar: FC<ICalendarProps> = ({
               <MdKeyboardArrowLeft />
             </button>
             <h2 className="month-title w-44 text-center font-medium text-xl">
-              {format(date, 'MMMM yyyy')}
+              {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
+                format(date, 'MMMM yyyy', locale).slice(1)}
             </h2>
             <button className="nav-button text-2xl">
               <MdKeyboardArrowRight />
