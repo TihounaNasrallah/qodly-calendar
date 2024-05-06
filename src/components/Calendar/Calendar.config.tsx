@@ -57,6 +57,7 @@ export default {
   },
   defaultProps: {
     color: '#4169E1',
+    language: 'en',
     selectedColor: '#4169E1',
     yearNav: true,
     borderRadius: '6px',
@@ -74,6 +75,7 @@ export interface ICalendarProps extends webforms.ComponentProps {
   endDate: string;
   rowHeight: string;
   colors?: IColors[];
+  language?: string;
   attributes?: IAttributes[];
 }
 

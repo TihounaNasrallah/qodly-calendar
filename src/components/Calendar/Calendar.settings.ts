@@ -3,6 +3,17 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
+    key: 'language',
+    label: 'Language',
+    type: ESetting.SELECT,
+    defaultValue: 'en',
+    options: [
+      { value: 'en', label: 'English' },
+      { value: 'fr', label: 'French' },
+      { value: 'es', label: 'Spanish' },
+    ],
+  },
+  {
     key: 'yearNav',
     label: 'Year Navigation',
     type: ESetting.CHECKBOX,
