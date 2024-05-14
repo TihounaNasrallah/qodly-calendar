@@ -14,6 +14,16 @@ const commonSettings: TSetting[] = [
     ],
   },
   {
+    key: 'type',
+    label: 'Week Days',
+    type: ESetting.SELECT,
+    defaultValue: 'full',
+    options: [
+      { value: 'full', label: 'All' },
+      { value: 'work', label: 'Business days' },
+    ],
+  },
+  {
     key: 'yearNav',
     label: 'Year Navigation',
     type: ESetting.CHECKBOX,
