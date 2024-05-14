@@ -13,6 +13,7 @@
 | Name                | Type             | Default        | Description                                                         |
 | ------------------- | ---------------- | -------------- | ------------------------------------------------------------------- |
 | `Language`          | String           | English        | Sets the language of the calendar (English, French or Spanish)      |
+| `Week Days`         | String           | All            | If 'Business Days' is selected, only the work days are displayed    |
 | `Current Day Color` | String           | #4169E1        | Sets the background color of the current day number                 |
 | `Selected Day Color`| String           | #4169E1        | Sets the border color of the selected day number                    |
 | `Colors`            | Array of Strings | Auto-generated | Sets the background color of the displayed elements                 |
@@ -30,6 +31,9 @@
 | `First Date`  | String           | Yes      | Will contain the start date attribute in our array | `dateDebut` |
 | `Last Date`   | String           | Yes      | Will contain the end date attribute in our array   | `dateFin`  |
 | `Attributes`  | Array of Strings | No       | Sets the additional properties to be displayed     |[`team`, `type`]|
+
+### Events :
+- **`On Date Click`** : Trigger an event (open modal, execute a function, standard action, ...) when a day number is clicked.
 
 ### Custom CSS :
 
@@ -78,23 +82,24 @@ self .day-container:hover {
 
 | Name              | Type             | Default        | Description                                                    |
 | ----------------- | ---------------- | -------------- | -------------------------------------------------------------- |
-| Current Day Color | String           | #1a73e8        | Sets the background color of the current day number            |
-| Hours             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed |
-| Time Format       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                           |
-| Colors            | Array of Strings | Auto-generated | Sets the background color of the displayed elements            |
-| Header Display    | String           | Auto           | If 'Sticky' is selected, the header position will be sticky    |
-| Element Font Size | Number           | 12px           | Sets the size of the displayed elements                        |
-| Row Height        | Number           | 64px           | Sets the height of the scheduler's rows                        |
+| `Current Day Color` | String           | #1a73e8        | Sets the background color of the current day number            |
+| `Hours`             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed |
+| `Week Days`       | String           | All            | If 'Business Days' is selected, only the work days are displayed    |
+| `Time Format`       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                           |
+| `Colors`            | Array of Strings | Auto-generated | Sets the background color of the displayed elements            |
+| `Header Display`    | String           | Auto           | If 'Sticky' is selected, the header position will be sticky    |
+| `Element Font Size` | Number           | 12px           | Sets the size of the displayed elements                        |
+| `Row Height`        | Number           | 64px           | Sets the height of the scheduler's rows                        |
 
 ### Data Access Properties :
 
 | Name        | Type             | Required | Description                                               |Example|
 | ----------- | ---------------- | -------- | --------------------------------------------------------- |-------|
-| Data Source | Array of Objects | Yes      | Will contain an array of objects                          |[<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />]|
-| Property    | String           | Yes      | Will contain the property to be displayed                 | title |
-| Date        | String           | Yes      | Will contain the date attribute of the events             | date |
-| Start Time  | String           | Yes      | Will contain the attribute of the start time in our array | startTime |
-| End Time    | String           | Yes      | Will contain the attribute of the end time in our array   | endTime |
+| `Data Source` | Array of Objects | Yes      | Will contain an array of objects                          |[<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />]|
+| `Property`    | String           | Yes      | Will contain the property to be displayed                 | title |
+| `Date`        | String           | Yes      | Will contain the date attribute of the events             | date |
+| `Start Time` | String           | Yes      | Will contain the attribute of the start time in our array | startTime |
+| `End Time`    | String           | Yes      | Will contain the attribute of the end time in our array   | endTime |
 
 ### Custom CSS
 
