@@ -9,6 +9,7 @@ import { format, startOfWeek, addDays, isToday, setHours } from 'date-fns';
 import { colorToHex } from '../shared/colorUtils';
 
 const Scheduler: FC<ISchedulerProps> = ({
+  days,
   hours,
   height,
   timeFormat,
@@ -38,7 +39,7 @@ const Scheduler: FC<ISchedulerProps> = ({
     return currentHour === hourIndex;
   };
 
-  const weekDates = getWeekDates(date);
+  let weekDates = getWeekDates(date);
 
   let hourList = Array.from({ length: 24 });
   let checkHours = (i: number) => {
@@ -47,6 +48,11 @@ const Scheduler: FC<ISchedulerProps> = ({
     }
     return i;
   };
+
+  if (days === 'work') {
+    weekDates = weekDates.slice(0, 5);
+  }
+
   if (hours === 'work') {
     hourList = Array.from({ length: 11 }, (_, index) => index + 8);
   }

@@ -3,20 +3,24 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
-    key: 'color',
-    label: 'Current Day Color',
-    type: ESetting.COLOR_PICKER,
-    defaultValue: '#1a73e8',
-  },
-  {
     key: 'hours',
-    label: 'Hours',
+    label: 'Day Hours',
     type: ESetting.SELECT,
     options: [
       { value: 'work', label: 'Work Hours' },
       { value: 'all', label: 'All' },
     ],
     defaultValue: 'all',
+  },
+  {
+    key: 'days',
+    label: 'Week Days',
+    type: ESetting.SELECT,
+    options: [
+      { value: 'full', label: 'All' },
+      { value: 'work', label: 'Business Days' },
+    ],
+    defaultValue: 'full',
   },
   {
     key: 'timeFormat',
@@ -27,6 +31,12 @@ const commonSettings: TSetting[] = [
       { value: '24', label: '24 Hours' },
     ],
     defaultValue: '12',
+  },
+  {
+    key: 'color',
+    label: 'Current Day Color',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#1a73e8',
   },
   {
     type: ESetting.DATAGRID,
