@@ -13,6 +13,7 @@ import { ISchedulerProps } from './Scheduler.config';
 
 const Scheduler: FC<ISchedulerProps> = ({
   hours,
+  days,
   fontSize,
   height,
   property,
@@ -79,7 +80,7 @@ const Scheduler: FC<ISchedulerProps> = ({
     return currentHour === hourIndex;
   };
 
-  const weekDates = getWeekDates(date);
+  let weekDates = getWeekDates(date);
 
   const goToPreviousWeek = () => {
     setDate(subWeeks(date, 1));
@@ -96,6 +97,11 @@ const Scheduler: FC<ISchedulerProps> = ({
     }
     return i;
   };
+
+  if (days === 'work') {
+    weekDates = weekDates.slice(0, 5);
+  }
+
   if (hours === 'work') {
     hourList = Array.from({ length: 11 }, (_, index) => index + 8);
   }

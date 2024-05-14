@@ -25,41 +25,13 @@ export default {
     displayName: 'Scheduler',
     exposed: true,
     icon: MdCalendarViewWeek,
-    events: [
-      {
-        label: 'On Click',
-        value: 'onclick',
-      },
-      {
-        label: 'On Blur',
-        value: 'onblur',
-      },
-      {
-        label: 'On Focus',
-        value: 'onfocus',
-      },
-      {
-        label: 'On MouseEnter',
-        value: 'onmouseenter',
-      },
-      {
-        label: 'On MouseLeave',
-        value: 'onmouseleave',
-      },
-      {
-        label: 'On KeyDown',
-        value: 'onkeydown',
-      },
-      {
-        label: 'On KeyUp',
-        value: 'onkeyup',
-      },
-    ],
+    events: [],
     datasources: {
       accept: ['array'],
     },
   },
   defaultProps: {
+    days: 'full',
     color: '#1a73e8',
     timeFormat: '12',
     fontSize: '12px',
@@ -79,6 +51,7 @@ export interface ISchedulerProps extends webforms.ComponentProps {
   endTime: string;
   colors?: IColors[];
   hours?: string;
+  days?: string;
 }
 
 export interface IColors {
