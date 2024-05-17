@@ -6,7 +6,7 @@ import SchedulerSettings, { BasicSettings } from './Scheduler.settings';
 
 export default {
   craft: {
-    displayName: 'Scheduler',
+    displayName: 'WeekView',
     rules: {
       canMoveIn: () => true,
       canMoveOut: () => true,
@@ -22,7 +22,7 @@ export default {
     },
   },
   info: {
-    displayName: 'Scheduler',
+    displayName: 'WeekView',
     exposed: true,
     icon: MdCalendarViewWeek,
     events: [],
@@ -36,6 +36,7 @@ export default {
     timeFormat: '12',
     fontSize: '12px',
     height: '64px',
+    todayButton: true,
   },
 } as T4DComponentConfig<ISchedulerProps>;
 
@@ -50,6 +51,7 @@ export interface ISchedulerProps extends webforms.ComponentProps {
   startTime: string;
   endTime: string;
   colors?: IColors[];
+  todayButton?: boolean;
   hours?: string;
   days?: string;
 }
