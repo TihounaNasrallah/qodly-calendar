@@ -33,16 +33,22 @@ const commonSettings: TSetting[] = [
     defaultValue: '12',
   },
   {
+    key: 'todayButton',
+    label: 'Today Button',
+    type: ESetting.CHECKBOX,
+    defaultValue: true,
+  },
+  {
     key: 'color',
     label: 'Current Day Color',
     type: ESetting.COLOR_PICKER,
     defaultValue: '#1a73e8',
   },
   {
-    type: ESetting.DATAGRID,
     key: 'colors',
     name: 'Colors',
     label: 'Colors',
+    type: ESetting.DATAGRID,
     titleProperty: 'color',
     data: [
       {

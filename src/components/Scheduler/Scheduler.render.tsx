@@ -2,16 +2,15 @@ import { useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState } from 'react';
 
-import { generateColorPalette, randomColor } from '../shared/colorUtils';
-
 import { format, startOfWeek, addDays, subWeeks, addWeeks, isToday, setHours } from 'date-fns';
-import { colorToHex } from '../shared/colorUtils';
+import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
 
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 
 import { ISchedulerProps } from './Scheduler.config';
 
 const Scheduler: FC<ISchedulerProps> = ({
+  todayButton,
   hours,
   days,
   fontSize,
@@ -68,9 +67,9 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   const getWeekDates = (startDate: Date) => {
     const dates = [];
-    const startOfCurrentWeek = startOfWeek(startDate, { weekStartsOn: 1 }); // Get the start of the current week
+    const startOfCurrentWeek = startOfWeek(startDate, { weekStartsOn: 1 });
     for (let i = 0; i < 7; i++) {
-      dates.push(addDays(startOfCurrentWeek, i)); // Add days to get the dates of the week
+      dates.push(addDays(startOfCurrentWeek, i));
     }
     return dates;
   };
@@ -116,20 +115,32 @@ const Scheduler: FC<ISchedulerProps> = ({
             <thead>
               <tr>
                 <th
-                  className={`scheduler-header w-16 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+                  className={`scheduler-header w-12 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
                 >
-                  <button
-                    className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
-                    onClick={goToPreviousWeek}
-                  >
-                    <MdKeyboardArrowLeft />
-                  </button>
-                  <button
-                    className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
-                    onClick={goToNextWeek}
-                  >
-                    <MdKeyboardArrowRight />
-                  </button>
+                  <div className="nav-buttons w-full flex items-center justify-center">
+                    <button
+                      className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                      onClick={goToPreviousWeek}
+                    >
+                      <MdKeyboardArrowLeft />
+                    </button>
+                    <button
+                      onClick={() => setDate(new Date())}
+                      className="today-button p-1 rounded-lg hover:bg-gray-300 duration-300"
+                      style={{ display: todayButton ? 'block' : 'none' }}
+                    >
+                      Today
+                    </button>
+                    <button
+                      className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                      onClick={goToNextWeek}
+                    >
+                      <MdKeyboardArrowRight />
+                    </button>
+                  </div>
+                  <span className="timezone font-medium text-xs text-gray-400">
+                    {format(date, 'OOOO')}
+                  </span>
                 </th>
                 {weekDates.map((day, index) => (
                   <th
@@ -197,19 +208,23 @@ const Scheduler: FC<ISchedulerProps> = ({
                               : '',
                         }}
                       >
-                        <div className="flex flex-col flex-wrap justify-start items-start w-full h-full gap-1 overflow-x-auto">
+                        <div className="flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
                           {event.map((event, index) => (
                             <div
-                              title={event[property]}
                               key={index}
-                              className="event p-1 w-1/2 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
+                              className="event p-1 w-full border-t-4 overflow-y-auto h-full flex flex-col gap-1"
                               style={{
                                 backgroundColor: event.color + '40',
                                 borderTopColor: event.color,
                                 fontSize: fontSize,
                               }}
                             >
-                              {event[property]}
+                              <span
+                                className="event-title text-base font-medium"
+                                title={event[property]}
+                              >
+                                {event[property]}
+                              </span>
                             </div>
                           ))}
                         </div>
