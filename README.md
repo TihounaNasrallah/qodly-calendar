@@ -10,23 +10,30 @@
 
 ### Properties :
 
-| Name              | Type             | Default        | Description                                              |
-| ----------------- | ---------------- | -------------- | -------------------------------------------------------- |
-| Current Day Color | String           | #4169E1        | Sets the background color of the current day number      |
-| Colors            | Array of Strings | Auto-generated | Sets the background color of the displayed elements      |
-| Year Navigation   | Boolean          | true           | If false, the year navigation buttons won't be displayed |
-| Row Height        | Number           | 150px          | Sets the Height of the calendar rows                     |
-| Border Radius     | Number           | 6px            | Sets the border redius of the displayed elements         |
+| Name                | Type             | Default        | Description                                                         |
+| ------------------- | ---------------- | -------------- | ------------------------------------------------------------------- |
+| `Language`          | String           | English        | Sets the language of the calendar (English, French or Spanish)      |
+| `Week Days`         | String           | All            | If 'Business Days' is selected, only the work days are displayed    |
+| `Current Day Color` | String           | #4169E1        | Sets the background color of the current day number                 |
+| `Selected Day Color`| String           | #4169E1        | Sets the border color of the selected day number                    |
+| `Colors`            | Array of Strings | Auto-generated | Sets the background color of the displayed elements                 |
+| `Year Navigation`   | Boolean          | true           | If false, the year navigation buttons won't be displayed            |
+| `Row Height`        | Number           | 150px          | Sets the Height of the calendar rows                                |
+| `Border Radius`     | Number           | 6px            | Sets the border redius of the displayed elements                    |
 
 ### Data Access Properties :
 
-| Name        | Type             | Required | Description                                        |
-| ----------- | ---------------- | -------- | -------------------------------------------------- |
-| Data Source | Array of Objects | Yes      | Will contain an array of objects                   |
-| Property    | String           | Yes      | Will contain the property to be displayed          |
-| First Date  | String           | Yes      | Will contain the start date attribute in our array |
-| Last Date   | String           | Yes      | Will contain the end date attribute in our array   |
-| Attributes  | Array of Strings | No       | Sets the additional properties to be displayed     |
+| Name        | Type             | Required | Description                                        | Example |
+| ----------- | ---------------- | -------- | -------------------------------------------------- |---------|
+| `Data Source` | Array of Objects | Yes      | Will contain an array of objects.                  |[<br />{"name":"Employee 0","type":"Paternité","dateDebut":"2024-03-28","dateFin":"2024-04-03","team":"Team 3"},<br />{"name":"Employee 1","type":"Marriage","dateDebut":"2024-03-13","dateFin":"2024-03-18","team":"Team 2"} <br />]|
+| `Selected Date`    | String           | No      | Will contain the variable that will contain the selected Date          | `date` |
+| `Property`    | String           | Yes      | Will contain the property to be displayed          | `name` |
+| `First Date`  | String           | Yes      | Will contain the start date attribute in our array | `dateDebut` |
+| `Last Date`   | String           | Yes      | Will contain the end date attribute in our array   | `dateFin`  |
+| `Attributes`  | Array of Strings | No       | Sets the additional properties to be displayed     |[`team`, `type`]|
+
+### Events :
+- **`On Date Click`** : Trigger an event (open modal, execute a function, standard action, ...) when a day number is clicked.
 
 ### Custom CSS :
 
@@ -75,23 +82,24 @@ self .day-container:hover {
 
 | Name              | Type             | Default        | Description                                                    |
 | ----------------- | ---------------- | -------------- | -------------------------------------------------------------- |
-| Current Day Color | String           | #1a73e8        | Sets the background color of the current day number            |
-| Hours             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed |
-| Time Format       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                           |
-| Colors            | Array of Strings | Auto-generated | Sets the background color of the displayed elements            |
-| Header Display    | String           | Auto           | If 'Sticky' is selected, the header position will be sticky    |
-| Element Font Size | Number           | 12px           | Sets the size of the displayed elements                        |
-| Row Height        | Number           | 64px           | Sets the height of the scheduler's rows                        |
+| `Current Day Color` | String           | #1a73e8        | Sets the background color of the current day number            |
+| `Hours`             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed |
+| `Week Days`       | String           | All            | If 'Business Days' is selected, only the work days are displayed    |
+| `Time Format`       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                           |
+| `Colors`            | Array of Strings | Auto-generated | Sets the background color of the displayed elements            |
+| `Header Display`    | String           | Auto           | If 'Sticky' is selected, the header position will be sticky    |
+| `Element Font Size` | Number           | 12px           | Sets the size of the displayed elements                        |
+| `Row Height`        | Number           | 64px           | Sets the height of the scheduler's rows                        |
 
 ### Data Access Properties :
 
-| Name        | Type             | Required | Description                                               |
-| ----------- | ---------------- | -------- | --------------------------------------------------------- |
-| Data Source | Array of Objects | Yes      | Will contain an array of objects                          |
-| Property    | String           | Yes      | Will contain the property to be displayed                 |
-| Date        | String           | Yes      | Will contain the date attribute of the events             |
-| Start Time  | String           | Yes      | Will contain the attribute of the start time in our array |
-| End Time    | String           | Yes      | Will contain the attribute of the end time in our array   |
+| Name        | Type             | Required | Description                                               |Example|
+| ----------- | ---------------- | -------- | --------------------------------------------------------- |-------|
+| `Data Source` | Array of Objects | Yes      | Will contain an array of objects                          |[<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />]|
+| `Property`    | String           | Yes      | Will contain the property to be displayed                 | title |
+| `Date`        | String           | Yes      | Will contain the date attribute of the events             | date |
+| `Start Time` | String           | Yes      | Will contain the attribute of the start time in our array | startTime |
+| `End Time`    | String           | Yes      | Will contain the attribute of the end time in our array   | endTime |
 
 ### Custom CSS
 

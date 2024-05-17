@@ -17,6 +17,7 @@ const DayView: FC<IDayViewProps> = ({
   className,
   classNames = [],
 }) => {
+
   const {
     connectors: { connect },
   } = useEnhancedNode();
