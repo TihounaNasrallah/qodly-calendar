@@ -9,6 +9,8 @@ import { format, startOfWeek, addDays, isToday, setHours } from 'date-fns';
 import { colorToHex } from '../shared/colorUtils';
 
 const Scheduler: FC<ISchedulerProps> = ({
+  todayButton,
+  days,
   hours,
   height,
   timeFormat,
@@ -26,9 +28,9 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   const getWeekDates = (startDate: Date) => {
     const dates = [];
-    const startOfCurrentWeek = startOfWeek(startDate); // Get the start of the current week
+    const startOfCurrentWeek = startOfWeek(startDate, { weekStartsOn: 1 });
     for (let i = 0; i < 7; i++) {
-      dates.push(addDays(startOfCurrentWeek, i)); // Add days to get the dates of the week
+      dates.push(addDays(startOfCurrentWeek, i));
     }
     return dates;
   };
@@ -38,7 +40,7 @@ const Scheduler: FC<ISchedulerProps> = ({
     return currentHour === hourIndex;
   };
 
-  const weekDates = getWeekDates(date);
+  let weekDates = getWeekDates(date);
 
   let hourList = Array.from({ length: 24 });
   let checkHours = (i: number) => {
@@ -47,6 +49,11 @@ const Scheduler: FC<ISchedulerProps> = ({
     }
     return i;
   };
+
+  if (days === 'work') {
+    weekDates = weekDates.slice(0, 5);
+  }
+
   if (hours === 'work') {
     hourList = Array.from({ length: 11 }, (_, index) => index + 8);
   }
@@ -62,14 +69,25 @@ const Scheduler: FC<ISchedulerProps> = ({
             <thead>
               <tr>
                 <th
-                  className={`scheduler-header w-16 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+                  className={`scheduler-header w-20 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
                 >
-                  <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
-                    <MdKeyboardArrowLeft />
-                  </button>
-                  <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
-                    <MdKeyboardArrowRight />
-                  </button>
+                  <div className="nav-buttons w-full flex items-center justify-center">
+                    <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
+                      <MdKeyboardArrowLeft />
+                    </button>
+                    <button
+                      className="today-button p-1 rounded-lg hover:bg-gray-300 duration-300"
+                      style={{ display: todayButton ? 'block' : 'none' }}
+                    >
+                      Today
+                    </button>
+                    <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
+                      <MdKeyboardArrowRight />
+                    </button>
+                  </div>
+                  <span className="current-month font-medium text-xs text-gray-400">
+                    {format(date, 'OOOO')}
+                  </span>
                 </th>
                 {weekDates.map((day, index) => (
                   <th

@@ -3,6 +3,27 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
+    key: 'language',
+    label: 'Language',
+    type: ESetting.SELECT,
+    defaultValue: 'en',
+    options: [
+      { value: 'en', label: 'English' },
+      { value: 'fr', label: 'French' },
+      { value: 'es', label: 'Spanish' },
+    ],
+  },
+  {
+    key: 'type',
+    label: 'Week Days',
+    type: ESetting.SELECT,
+    defaultValue: 'full',
+    options: [
+      { value: 'full', label: 'All' },
+      { value: 'work', label: 'Business days' },
+    ],
+  },
+  {
     key: 'yearNav',
     label: 'Year Navigation',
     type: ESetting.CHECKBOX,
@@ -25,6 +46,12 @@ const commonSettings: TSetting[] = [
   {
     key: 'color',
     label: 'Current Day Color',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#4169E1',
+  },
+  {
+    key: 'selectedColor',
+    label: 'Selected Day Color',
     type: ESetting.COLOR_PICKER,
     defaultValue: '#4169E1',
   },
@@ -67,6 +94,11 @@ const dataAccessSettings: TSetting[] = [
   {
     key: 'datasource',
     label: 'Data Source',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'currentElement',
+    label: 'Selected Date',
     type: ESetting.DS_AUTO_SUGGEST,
   },
   {

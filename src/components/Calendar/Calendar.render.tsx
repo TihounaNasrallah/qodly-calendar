@@ -1,5 +1,4 @@
 import { useRenderer, useSources } from '@ws-ui/webform-editor';
-
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo } from 'react';
 
@@ -10,10 +9,11 @@ import {
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 
-import { generateColorPalette, randomColor } from '../shared/colorUtils';
+import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
 
 import {
   differenceInDays,
+  isEqual,
   parseISO,
   startOfWeek,
   endOfWeek,
@@ -30,13 +30,18 @@ import {
 
 import { ICalendarProps } from './Calendar.config';
 
+import { fr, es } from 'date-fns/locale';
+
 const Calendar: FC<ICalendarProps> = ({
+  type,
+  language,
   attributes,
   property,
   startDate,
   endDate,
   rowHeight,
   color,
+  selectedColor,
   colors = [],
   yearNav,
   borderRadius,
@@ -44,13 +49,15 @@ const Calendar: FC<ICalendarProps> = ({
   className,
   classNames = [],
 }) => {
-  const { connect } = useRenderer();
+  const { connect, emit } = useRenderer();
 
   const {
-    sources: { datasource: ds },
+    sources: { datasource: ds, currentElement: currentDate },
   } = useSources();
 
+  const [date, setDate] = useState(new Date());
   const [data, setData] = useState<any[]>([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     if (!ds) return;
@@ -68,7 +75,14 @@ const Calendar: FC<ICalendarProps> = ({
       ds.removeListener('changed', listener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds]);
+  }, [ds, currentDate]);
+
+  const handleDateClick = async (value: Date) => {
+    currentDate.setValue(null, value);
+    const ce = await currentDate.getValue<any>();
+    setSelectedDate(ce);
+    emit('onDateClick', { day: value });
+  };
 
   const colorgenerated = generateColorPalette(
     data.length,
@@ -82,7 +96,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   let newData = data.map((obj, index) => ({
     ...obj,
-    color: colorgenerated[index],
+    color: obj['color'] || colorgenerated[index],
   }));
 
   let list: any[] = [];
@@ -115,7 +129,6 @@ const Calendar: FC<ICalendarProps> = ({
   }, [data]);
 
   const [showScrollbar, setShowScrollbar] = useState(false);
-  const [date, setDate] = useState(new Date());
 
   const daysInMonth = eachDayOfInterval({
     start: startOfWeek(startOfMonth(date), { weekStartsOn: 1 }),
@@ -127,30 +140,94 @@ const Calendar: FC<ICalendarProps> = ({
   const nextYear = () => setDate(addMonths(date, 12));
   const prevYear = () => setDate(subMonths(date, 12));
 
-  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const isSelected = (date: Date) => {
+    return isEqual(date, selectedDate);
+  };
+
+  console.log('selectedDate', selectedDate);
+
+  const languageList = {
+    en: [
+      { title: 'Mon', day: 'Monday' },
+      { title: 'Tue', day: 'Tuesday' },
+      { title: 'Wed', day: 'Wednesday' },
+      { title: 'Thu', day: 'Thursday' },
+      { title: 'Fri', day: 'Friday' },
+      { title: 'Sat', day: 'Saturday' },
+      { title: 'Sun', day: 'Sunday' },
+    ],
+    fr: [
+      { title: 'Lun', day: 'Lundi' },
+      { title: 'Mar', day: 'Mardi' },
+      { title: 'Mer', day: 'Mercredi' },
+      { title: 'Jeu', day: 'Jeudi' },
+      { title: 'Ven', day: 'Vendredi' },
+      { title: 'Sam', day: 'Samedi' },
+      { title: 'Dim', day: 'Dimanche' },
+    ],
+    es: [
+      { title: 'Lun', day: 'Lunes' },
+      { title: 'Mar', day: 'Martes' },
+      { title: 'Mie', day: 'Miercoles' },
+      { title: 'Jue', day: 'Jueves' },
+      { title: 'Vie', day: 'Viernes' },
+      { title: 'Sab', day: 'Sabado' },
+      { title: 'Dom', day: 'Domingo' },
+    ],
+  };
+
+  let weekdays = languageList.en;
+  let locale = {};
+
+  if (language === 'fr') {
+    weekdays = languageList.fr;
+    locale = { locale: fr };
+  } else if (language === 'es') {
+    weekdays = languageList.es;
+    locale = { locale: es };
+  }
+
+  if (type === 'work') {
+    weekdays = weekdays.slice(0, 5);
+  }
+
+  const filteredDays = daysInMonth.filter((day) => {
+    if (type === 'work') {
+      const dayOfWeek = new Date(day).getDay();
+      return dayOfWeek >= 1 && dayOfWeek <= 5; // Monday to Friday
+    }
+    return true;
+  });
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="calendar-container flex flex-col gap-4 w-full h-full">
-        <div className="calendar-header w-full flex justify-center gap-4 items-center">
+        <div className="calendar-header w-full flex justify-center gap-2 items-center">
           <button
-            className="nav-button text-2xl cursor-pointer"
+            className="nav-button text-2xl cursor-pointer rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={prevYear}
             style={{ display: yearNav ? 'block' : 'none' }}
           >
             <MdKeyboardDoubleArrowLeft />
           </button>
-          <button className="nav-button text-2xl cursor-pointer" onClick={prevMonth}>
+          <button
+            className="nav-button text-2xl cursor-pointer rounded-full p-1 hover:bg-gray-300 duration-300"
+            onClick={prevMonth}
+          >
             <MdKeyboardArrowLeft />
           </button>
           <h2 className="month-title w-44 text-center font-medium text-xl">
-            {format(date, 'MMMM yyyy')}
+            {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
+              format(date, 'MMMM yyyy', locale).slice(1)}
           </h2>
-          <button className="nav-button text-2xl cursor-pointer" onClick={nextMonth}>
+          <button
+            className="nav-button text-2xl cursor-pointer rounded-full p-1 hover:bg-gray-300 duration-300"
+            onClick={nextMonth}
+          >
             <MdKeyboardArrowRight />
           </button>
           <button
-            className="nav-button text-2xl cursor-pointer"
+            className="nav-button text-2xl cursor-pointer rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={nextYear}
             style={{ display: yearNav ? 'block' : 'none' }}
           >
@@ -158,13 +235,22 @@ const Calendar: FC<ICalendarProps> = ({
           </button>
         </div>
 
-        <div className="calendar-grid w-full grid justify-center grid-cols-7">
+        <div
+          className="calendar-grid w-full grid justify-center"
+          style={{
+            gridTemplateColumns: `repeat(${weekdays.length}, minmax(0, 1fr))`,
+          }}
+        >
           {weekdays.map((day) => (
-            <div key={day} className="weekday-title font-medium text-lg text-center">
-              {day}
-            </div>
+            <span
+              key={day.title}
+              title={day.day}
+              className="weekday-title font-medium text-lg text-center"
+            >
+              {day.title}
+            </span>
           ))}
-          {daysInMonth.map((day) => {
+          {filteredDays.map((day) => {
             const dateKey = format(day, 'yyyy-MM-dd');
             const todaysConges = congesByDate[dateKey] || [];
             return (
@@ -177,13 +263,15 @@ const Calendar: FC<ICalendarProps> = ({
                   height: rowHeight,
                 }}
               >
-                <div className="h-fit w-full">
+                <div className="h-fit w-full cursor-pointer">
                   <span
-                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full"
+                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full cursor-pointer hover:bg-gray-300 duration-300"
                     style={{
+                      border: isSelected(day) ? `2px solid ${colorToHex(selectedColor)}` : '',
                       backgroundColor: isToday(day) ? color : '',
                       color: isToday(day) ? 'white' : '',
                     }}
+                    onClick={() => handleDateClick(day)}
                   >
                     {format(day, 'd')}
                   </span>
@@ -193,48 +281,41 @@ const Calendar: FC<ICalendarProps> = ({
                   onMouseLeave={() => setShowScrollbar(false)}
                   className={`date-content w-full grid grid-cols-1 gap-1 overflow-hidden ${showScrollbar ? 'overflow-y-auto' : ''}`}
                 >
-                  {todaysConges.map(
-                    (
-                      conge: {
-                        title: string;
-                        attributes: { [key: string]: any[] };
-                        color: string;
-                      },
-                      index,
-                    ) => {
-                      return (
-                        <div
-                          className={`element-container px-2 py-1 flex flex-col w-full border-l-4 text-black`}
-                          style={{
-                            color: isSameMonth(day, date) ? 'black' : '#969696',
-                            backgroundColor: isSameMonth(day, date)
-                              ? conge?.color + '50'
-                              : '#E3E3E3',
-                            borderRadius: borderRadius,
-                            borderLeftColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
-                          }}
+                  {todaysConges.map((conge, index) => {
+                    return (
+                      <div
+                        key={`${conge.title}-${conge.startDate}`}
+                        className={`element-container px-2 py-1 flex flex-col w-full border-l-4 text-black`}
+                        style={{
+                          color: isSameMonth(day, date) ? 'black' : '#969696',
+                          backgroundColor: isSameMonth(day, date) ? conge?.color + '50' : '#E3E3E3',
+                          borderRadius: borderRadius,
+                          borderLeftColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
+                        }}
+                      >
+                        <span
+                          title={conge.title}
+                          key={index}
+                          className="element-title font-medium line-clamp-2"
                         >
-                          <span
-                            title={conge.title}
-                            key={index}
-                            className="element-title font-medium line-clamp-2"
-                          >
-                            {conge.title}
-                          </span>
+                          {conge.title}
+                        </span>
 
-                          <div className="element-detail flex flex-wrap">
-                            {attributeList?.map((e) => {
-                              return (
-                                <p className="attribute text-sm basis-1/2 text-start">
-                                  {conge.attributes[e]}
-                                </p>
-                              );
-                            })}
-                          </div>
+                        <div className="element-detail flex flex-wrap">
+                          {attributeList?.map((e) => {
+                            return (
+                              <span
+                                className="attribute text-sm basis-1/2 text-start"
+                                title={conge.attributes[e].toString()}
+                              >
+                                {conge.attributes[e]}
+                              </span>
+                            );
+                          })}
                         </div>
-                      );
-                    },
-                  )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );

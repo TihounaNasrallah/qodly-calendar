@@ -7,20 +7,10 @@ const commonSettings: TSetting[] = [
     label: 'Day Hours',
     type: ESetting.SELECT,
     options: [
-      { value: 'work', label: 'Work Hours' },
       { value: 'all', label: 'All' },
+      { value: 'work', label: 'Work Hours' },
     ],
     defaultValue: 'all',
-  },
-  {
-    key: 'days',
-    label: 'Week Days',
-    type: ESetting.SELECT,
-    options: [
-      { value: 'full', label: 'All' },
-      { value: 'work', label: 'Business Days' },
-    ],
-    defaultValue: 'full',
   },
   {
     key: 'timeFormat',
@@ -59,30 +49,6 @@ const commonSettings: TSetting[] = [
       },
     ],
   },
-  {
-    key: 'headerPosition',
-    label: 'Header Display',
-    type: ESetting.SELECT,
-    options: [
-      { value: '', label: 'Auto' },
-      { value: 'sticky', label: 'Sticky' },
-    ],
-    defaultValue: '',
-  },
-  {
-    key: 'fontSize',
-    label: 'Element Font Size',
-    type: ESetting.UNITFIELD,
-    hasLabel: true,
-    defaultValue: '12px',
-  },
-  {
-    key: 'height',
-    label: 'Row Height',
-    type: ESetting.UNITFIELD,
-    hasLabel: true,
-    defaultValue: '64px',
-  },
 ];
 
 const dataAccessSettings: TSetting[] = [
@@ -98,7 +64,7 @@ const dataAccessSettings: TSetting[] = [
     defaultValue: '',
   },
   {
-    key: 'startDate',
+    key: 'eventDate',
     label: 'Date',
     type: ESetting.TEXT_FIELD,
     defaultValue: '',

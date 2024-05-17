@@ -1,30 +1,31 @@
 import { EComponentKind, T4DComponentConfig } from '@ws-ui/webform-editor';
 import { Settings } from '@ws-ui/webform-editor';
-import { MdCalendarViewWeek } from 'react-icons/md';
+import { MdCalendarViewDay } from 'react-icons/md';
 
-import SchedulerSettings, { BasicSettings } from './Scheduler.settings';
+
+import DayViewSettings, { BasicSettings } from './DayView.settings';
 
 export default {
   craft: {
-    displayName: 'WeekView',
+    displayName: 'DayView',
     rules: {
       canMoveIn: () => true,
       canMoveOut: () => true,
     },
     kind: EComponentKind.BASIC,
     props: {
-      name: '',
+
       classNames: [],
       events: [],
     },
     related: {
-      settings: Settings(SchedulerSettings, BasicSettings),
+      settings: Settings(DayViewSettings, BasicSettings),
     },
   },
   info: {
-    displayName: 'WeekView',
+    displayName: 'DayView',
     exposed: true,
-    icon: MdCalendarViewWeek,
+    icon: MdCalendarViewDay,
     events: [],
     datasources: {
       accept: ['array'],
@@ -34,26 +35,21 @@ export default {
     days: 'full',
     color: '#1a73e8',
     timeFormat: '12',
-    fontSize: '12px',
-    height: '64px',
     todayButton: true,
-  },
-} as T4DComponentConfig<ISchedulerProps>;
 
-export interface ISchedulerProps extends webforms.ComponentProps {
-  color: string;
-  timeFormat: '12' | '24';
-  headerPosition: 'sticky' | '';
-  fontSize?: string;
-  height?: string;
+  },
+} as T4DComponentConfig<IDayViewProps>;
+
+export interface IDayViewProps extends webforms.ComponentProps {
   property: string;
-  startDate: string;
+  eventDate: string;
   startTime: string;
   endTime: string;
-  colors?: IColors[];
-  todayButton?: boolean;
+  color: string;
+  timeFormat?: string;
   hours?: string;
-  days?: string;
+  todayButton?: boolean;
+  colors?: IColors[];
 }
 
 export interface IColors {

@@ -23,9 +23,13 @@ import {
   isSameMonth,
 } from 'date-fns';
 
+import { fr, es } from 'date-fns/locale';
+
 import { ICalendarProps } from './Calendar.config';
 
 const Calendar: FC<ICalendarProps> = ({
+  type,
+  language,
   attributes,
   property,
   rowHeight,
@@ -49,36 +53,103 @@ const Calendar: FC<ICalendarProps> = ({
     end: endOfWeek(endOfMonth(date), { weekStartsOn: 1 }),
   });
 
-  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weekdaysEn = [
+    { title: 'Mon', day: 'Monday' },
+    { title: 'Tue', day: 'Tuesday' },
+    { title: 'Wed', day: 'Wednesday' },
+    { title: 'Thu', day: 'Thursday' },
+    { title: 'Fri', day: 'Friday' },
+    { title: 'Sat', day: 'Saturday' },
+    { title: 'Sun', day: 'Sunday' },
+  ];
+  const weekdaysFr = [
+    { title: 'Lun', day: 'Lundi' },
+    { title: 'Mar', day: 'Mardi' },
+    { title: 'Mer', day: 'Mercredi' },
+    { title: 'Jeu', day: 'Jeudi' },
+    { title: 'Ven', day: 'Vendredi' },
+    { title: 'Sam', day: 'Samedi' },
+    { title: 'Dim', day: 'Dimanche' },
+  ];
+
+  const weekdaysEs = [
+    { title: 'Lun', day: 'Lunes' },
+    { title: 'Mar', day: 'Martes' },
+    { title: 'Mie', day: 'Miercoles' },
+    { title: 'Jue', day: 'Jueves' },
+    { title: 'Vie', day: 'Viernes' },
+    { title: 'Sab', day: 'Sabado' },
+    { title: 'Dom', day: 'Domingo' },
+  ];
+
+  let weekdays = weekdaysEn;
+  let locale = {};
+
+  if (language === 'fr') {
+    weekdays = weekdaysFr;
+    locale = { locale: fr };
+  } else if (language === 'es') {
+    weekdays = weekdaysEs;
+    locale = { locale: es };
+  }
+
+  if (type === 'work') {
+    weekdays = weekdays.slice(0, 5);
+  }
+
+  const filteredDays = daysInMonth.filter((day) => {
+    if (type === 'work') {
+      const dayOfWeek = new Date(day).getDay();
+      return dayOfWeek >= 1 && dayOfWeek <= 5; // Monday to Friday
+    }
+    return true;
+  });
+
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="calendar-container">
         <div className="flex flex-col gap-4 w-full h-full">
-          <div className="calendar-header w-full flex justify-center gap-4 items-center">
-            <button className="nav-button text-2xl" style={{ display: yearNav ? 'block' : 'none' }}>
+          <div className="calendar-header w-full flex justify-center gap-2 items-center">
+            <button
+              className="nav-button text-2xl rounded-full p-1 hover:bg-gray-300 duration-300"
+              style={{ display: yearNav ? 'block' : 'none' }}
+            >
               <MdKeyboardDoubleArrowLeft />
             </button>
-            <button className="nav-button text-2xl">
+            <button className="nav-button text-2xl rounded-full p-1 hover:bg-gray-300 duration-300">
               <MdKeyboardArrowLeft />
             </button>
             <h2 className="month-title w-44 text-center font-medium text-xl">
-              {format(date, 'MMMM yyyy')}
+              {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
+                format(date, 'MMMM yyyy', locale).slice(1)}
             </h2>
-            <button className="nav-button text-2xl">
+            <button className="nav-button text-2xl rounded-full p-1 hover:bg-gray-300 duration-300">
               <MdKeyboardArrowRight />
             </button>
-            <button className="nav-button text-2xl" style={{ display: yearNav ? 'block' : 'none' }}>
+            <button
+              className="nav-button text-2xl rounded-full p-1 hover:bg-gray-300 duration-300"
+              style={{ display: yearNav ? 'block' : 'none' }}
+            >
               <MdKeyboardDoubleArrowRight />
             </button>
           </div>
-          <div className="calendar-grid w-full grid grid-cols-7 justify-center">
+          <div
+            className="calendar-grid w-full grid justify-center"
+            style={{
+              gridTemplateColumns: `repeat(${weekdays.length}, minmax(0, 1fr))`,
+            }}
+          >
             {weekdays.map((day) => (
-              <div key={day} className="weekday-title font-medium text-lg text-center">
-                {day}
+              <div
+                key={day.title}
+                title={day.day}
+                className="weekday-title font-medium text-lg text-center"
+              >
+                {day.title}
               </div>
             ))}
 
-            {daysInMonth.map((day, index) => (
+            {filteredDays.map((day, index) => (
               <div
                 key={index}
                 className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-200"
@@ -90,7 +161,7 @@ const Calendar: FC<ICalendarProps> = ({
               >
                 <div className="h-fit w-full">
                   <span
-                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full"
+                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full cursor-pointer hover:bg-gray-300 duration-300"
                     style={{
                       backgroundColor: isToday(day) ? color : '',
                       color: isToday(day) ? 'white' : '',
