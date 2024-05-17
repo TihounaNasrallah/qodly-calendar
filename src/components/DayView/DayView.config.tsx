@@ -35,6 +35,7 @@ export default {
     timeFormat: '12',
     todayButton: true,
     language: 'en',
+
   },
 } as T4DComponentConfig<IDayViewProps>;
 
