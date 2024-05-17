@@ -9,8 +9,11 @@ import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 
 import { ISchedulerProps } from './Scheduler.config';
 
+import { fr, es } from 'date-fns/locale';
+
 const Scheduler: FC<ISchedulerProps> = ({
   todayButton,
+  language,
   hours,
   days,
   fontSize,
@@ -104,18 +107,31 @@ const Scheduler: FC<ISchedulerProps> = ({
   if (hours === 'work') {
     hourList = Array.from({ length: 11 }, (_, index) => index + 8);
   }
+
+  let locale = {};
+  let today = 'Today';
+  if (language === 'fr') {
+    locale = { locale: fr };
+    today = "Aujourd'hui";
+  } else if (language === 'es') {
+    locale = { locale: es };
+    today = 'Hoy';
+  }
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="scheduler-container flex flex-col gap-4 h-full">
         <div className="flex items-center justify-center gap-2">
-          <span className="current-month text-xl font-medium">{format(date, 'MMMM yyyy')}</span>
+          <span className="current-month text-xl font-medium">
+            {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
+              format(date, 'MMMM yyyy', locale).slice(1)}
+          </span>
         </div>
         <div className="scheduler-grid w-full h-full flex justify-center">
           <table className="table-fixed w-full h-full border-collapse ">
             <thead>
               <tr>
                 <th
-                  className={`scheduler-header w-12 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+                  className={`scheduler-header w-24 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
                 >
                   <div className="nav-buttons w-full flex items-center justify-center">
                     <button
@@ -129,7 +145,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       className="today-button p-1 rounded-lg hover:bg-gray-300 duration-300"
                       style={{ display: todayButton ? 'block' : 'none' }}
                     >
-                      Today
+                      {today}
                     </button>
                     <button
                       className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
@@ -155,7 +171,8 @@ const Scheduler: FC<ISchedulerProps> = ({
                         className="weekday-day text-sm"
                         style={{ color: isToday(day) ? color : '' }}
                       >
-                        {format(day, 'EEE')}
+                        {format(day, 'EEE', locale).charAt(0).toUpperCase() +
+                          format(day, 'EEE', locale).slice(1)}
                       </span>
                       <span
                         className="weekday-number rounded-full text-xl mb-1 h-10 w-10 flex items-center justify-center font-medium"

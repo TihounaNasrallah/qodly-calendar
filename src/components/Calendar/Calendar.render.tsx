@@ -43,6 +43,7 @@ const Calendar: FC<ICalendarProps> = ({
   color,
   selectedColor,
   colors = [],
+  colorProp,
   yearNav,
   borderRadius,
   style,
@@ -96,7 +97,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   let newData = data.map((obj, index) => ({
     ...obj,
-    color: obj['color'] || colorgenerated[index],
+    color: obj[colorProp] || colorgenerated[index],
   }));
 
   let list: any[] = [];

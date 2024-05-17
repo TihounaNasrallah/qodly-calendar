@@ -8,7 +8,10 @@ import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUt
 
 import { IDayViewProps } from './DayView.config';
 
+import { fr, es } from 'date-fns/locale';
+
 const DayView: FC<IDayViewProps> = ({
+  language,
   todayButton,
   colors = [],
   property,
@@ -88,16 +91,26 @@ const DayView: FC<IDayViewProps> = ({
     color: colorgenerated[index],
   }));
 
+  let locale = {};
+  let today = 'Today';
+  if (language === 'fr') {
+    locale = { locale: fr };
+    today = "Aujourd'hui";
+  } else if (language === 'es') {
+    locale = { locale: es };
+    today = 'Hoy';
+  }
+
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="current-day text-center text-xl font-medium">
-        {format(date, 'dd MMMM yyyy')}
+        {format(date, 'dd MMMM yyyy', locale)}
       </div>
       <div className="day-view-container w-full h-full">
         <table className="table-fixed w-full h-full border-collapse">
           <thead>
             <tr className="day-view-header">
-              <th className="w-32 top-0 z-[1] bg-white">
+              <th className="w-40 top-0 z-[1] bg-white">
                 <div className="nav-buttons w-full flex items-center justify-center">
                   <button
                     onClick={handlePrevDay}
@@ -110,7 +123,7 @@ const DayView: FC<IDayViewProps> = ({
                     className="today-button p-1 rounded-lg hover:bg-gray-300 duration-300"
                     style={{ display: todayButton ? 'block' : 'none' }}
                   >
-                    Today
+                    {today}
                   </button>
                   <button
                     onClick={handleNextDay}
@@ -130,7 +143,8 @@ const DayView: FC<IDayViewProps> = ({
                       className="weekday-day text-sm"
                       style={{ color: isToday(date) ? color : '' }}
                     >
-                      {format(date, 'EEE')}
+                      {format(date, 'EEE', locale).charAt(0).toUpperCase() +
+                        format(date, 'EEE', locale).slice(1)}
                     </span>
                     <span
                       className="weekday-number rounded-full text-xl mb-1 h-10 w-10 flex items-center justify-center font-medium"

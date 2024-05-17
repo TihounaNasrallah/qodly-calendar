@@ -2,7 +2,6 @@ import { EComponentKind, T4DComponentConfig } from '@ws-ui/webform-editor';
 import { Settings } from '@ws-ui/webform-editor';
 import { MdCalendarViewDay } from 'react-icons/md';
 
-
 import DayViewSettings, { BasicSettings } from './DayView.settings';
 
 export default {
@@ -14,7 +13,6 @@ export default {
     },
     kind: EComponentKind.BASIC,
     props: {
-
       classNames: [],
       events: [],
     },
@@ -36,7 +34,7 @@ export default {
     color: '#1a73e8',
     timeFormat: '12',
     todayButton: true,
-
+    language: 'en',
   },
 } as T4DComponentConfig<IDayViewProps>;
 
@@ -48,6 +46,7 @@ export interface IDayViewProps extends webforms.ComponentProps {
   color: string;
   timeFormat?: string;
   hours?: string;
+  language: string;
   todayButton?: boolean;
   colors?: IColors[];
 }
