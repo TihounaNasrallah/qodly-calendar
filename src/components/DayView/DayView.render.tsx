@@ -90,8 +90,8 @@ const DayView: FC<IDayViewProps> = ({
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="month-header text-center">
-        <span className="current-month text-xl font-medium">{format(date, 'dd MMMM yyyy')}</span>
+      <div className="current-day text-center text-xl font-medium">
+        {format(date, 'dd MMMM yyyy')}
       </div>
       <div className="day-view-container w-full h-full">
         <table className="table-fixed w-full h-full border-collapse">
