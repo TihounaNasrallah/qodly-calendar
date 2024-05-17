@@ -3,6 +3,17 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
+    key: 'language',
+    label: 'Language',
+    type: ESetting.SELECT,
+    options: [
+      { value: 'en', label: 'English' },
+      { value: 'es', label: 'Spanish' },
+      { value: 'fr', label: 'French' },
+    ],
+    defaultValue: 'en',
+  },
+  {
     key: 'hours',
     label: 'Day Hours',
     type: ESetting.SELECT,

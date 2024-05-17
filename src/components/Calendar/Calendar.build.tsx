@@ -26,6 +26,7 @@ import {
 import { fr, es } from 'date-fns/locale';
 
 import { ICalendarProps } from './Calendar.config';
+import { generateColorPalette, randomColor } from '../shared/colorUtils';
 
 const Calendar: FC<ICalendarProps> = ({
   type,
@@ -105,6 +106,8 @@ const Calendar: FC<ICalendarProps> = ({
     return true;
   });
 
+  const colorgenerated = generateColorPalette(1, ...colors.map((e) => e.color || randomColor()));
+
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="calendar-container">
@@ -175,8 +178,12 @@ const Calendar: FC<ICalendarProps> = ({
                     className="element-container px-2 py-1 flex flex-col w-full border-l-4"
                     style={{
                       borderRadius: borderRadius,
-                      backgroundColor: new TinyColor(colors[0]?.color).toHexString() + '50',
-                      borderLeftColor: new TinyColor(colors[0]?.color).toHexString(),
+                      backgroundColor: property
+                        ? colorgenerated[0] + '50'
+                        : new TinyColor('#C084FC').toHexString() + '50',
+                      borderLeftColor: property
+                        ? colorgenerated[0]
+                        : new TinyColor('#C084FC').toHexString(),
                     }}
                   >
                     <span className="element-title font-medium line-clamp-2">

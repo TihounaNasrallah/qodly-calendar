@@ -55,21 +55,6 @@ const commonSettings: TSetting[] = [
     type: ESetting.COLOR_PICKER,
     defaultValue: '#4169E1',
   },
-  {
-    type: ESetting.DATAGRID,
-    key: 'colors',
-    name: 'Colors',
-    label: 'Colors',
-    titleProperty: 'color',
-    data: [
-      {
-        key: 'color',
-        label: 'Color',
-        type: ESetting.COLOR_PICKER,
-        defaultValue: '',
-      },
-    ],
-  },
 ];
 
 const attributesSettings: TSetting[] = [
@@ -118,6 +103,27 @@ const dataAccessSettings: TSetting[] = [
     label: 'Last Date',
     type: ESetting.TEXT_FIELD,
     defaultValue: '',
+  },
+  {
+    key: 'colorProp',
+    label: 'Color Property',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
+  },
+  {
+    type: ESetting.DATAGRID,
+    key: 'colors',
+    name: 'Colors',
+    label: 'Colors',
+    titleProperty: 'color',
+    data: [
+      {
+        key: 'color',
+        label: 'Color',
+        type: ESetting.COLOR_PICKER,
+        defaultValue: '',
+      },
+    ],
   },
   {
     key: 'serverSideRef',
