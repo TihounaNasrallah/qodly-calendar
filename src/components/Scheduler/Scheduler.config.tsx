@@ -35,7 +35,6 @@ export default {
     days: 'full',
     color: '#1a73e8',
     timeFormat: '12',
-    fontSize: '12px',
     height: '64px',
     todayButton: true,
   },
@@ -46,7 +45,6 @@ export interface ISchedulerProps extends webforms.ComponentProps {
   language: string;
   timeFormat: '12' | '24';
   headerPosition: 'sticky' | '';
-  fontSize?: string;
   height?: string;
   property: string;
   startDate: string;

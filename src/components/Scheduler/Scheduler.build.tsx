@@ -1,6 +1,6 @@
 import { useEnhancedNode } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 
 import { ISchedulerProps } from './Scheduler.config';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
@@ -43,9 +43,6 @@ const Scheduler: FC<ISchedulerProps> = ({
     return currentHour === hourIndex;
   };
 
-  let weekDates = getWeekDates(date);
-
-  let hourList = Array.from({ length: 24 });
   let checkHours = (i: number) => {
     if (hours === 'work') {
       return i + 8;
@@ -53,22 +50,29 @@ const Scheduler: FC<ISchedulerProps> = ({
     return i;
   };
 
-  if (days === 'work') {
-    weekDates = weekDates.slice(0, 5);
-  }
+  const weekDates = useMemo(() => {
+    let dates = getWeekDates(date);
+    if (days === 'work') dates = dates.slice(0, 5);
+    return dates;
+  }, [date, days, getWeekDates]);
 
-  if (hours === 'work') {
-    hourList = Array.from({ length: 11 }, (_, index) => index + 8);
-  }
-  let locale = {};
-  let today = 'Today';
-  if (language === 'fr') {
-    locale = { locale: fr };
-    today = "Aujourd'hui";
-  } else if (language === 'es') {
-    locale = { locale: es };
-    today = 'Hoy';
-  }
+  const hourList = useMemo(() => {
+    return hours === 'work'
+      ? Array.from({ length: 11 }, (_, index) => index + 8)
+      : Array.from({ length: 24 });
+  }, [hours]);
+
+  const locale = useMemo(() => {
+    if (language === 'fr') return { locale: fr };
+    if (language === 'es') return { locale: es };
+    return {};
+  }, [language]);
+
+  const todayLabel = useMemo(() => {
+    if (language === 'fr') return "Aujourd'hui";
+    if (language === 'es') return 'Hoy';
+    return 'Today';
+  }, [language]);
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
@@ -94,7 +98,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       className="today-button p-1 rounded-lg hover:bg-gray-300 duration-300"
                       style={{ display: todayButton ? 'block' : 'none' }}
                     >
-                      {today}
+                      {todayLabel}
                     </button>
                     <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
                       <MdKeyboardArrowRight />

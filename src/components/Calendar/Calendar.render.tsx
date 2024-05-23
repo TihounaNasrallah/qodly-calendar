@@ -2,6 +2,8 @@ import { useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo } from 'react';
 
+import { BsFillInfoCircleFill } from 'react-icons/bs';
+
 import {
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
@@ -56,10 +58,6 @@ const Calendar: FC<ICalendarProps> = ({
     sources: { datasource: ds, currentElement: currentDate },
   } = useSources();
 
-  const [date, setDate] = useState(new Date());
-  const [data, setData] = useState<any[]>([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-
   useEffect(() => {
     if (!ds) return;
 
@@ -78,6 +76,23 @@ const Calendar: FC<ICalendarProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds, currentDate]);
 
+  const [date, setDate] = useState(new Date());
+  const [data, setData] = useState<any[]>([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const checkParams = useMemo(() => {
+    if (!ds) {
+      return 'Please set a datasource';
+    } else if (!property) {
+      return 'Please set a property';
+    } else if (!startDate) {
+      return 'Please set the first date attribute';
+    } else if (!endDate) {
+      return 'Please set the end date attribute';
+    }
+    return '';
+  }, [ds, property, startDate, endDate]);
+
   const handleDateClick = async (value: Date) => {
     currentDate.setValue(null, value);
     const ce = await currentDate.getValue<any>();
@@ -85,9 +100,9 @@ const Calendar: FC<ICalendarProps> = ({
     emit('onDateClick', { day: value });
   };
 
-  const colorgenerated = generateColorPalette(
-    data.length,
-    ...colors.map((e) => e.color || randomColor()),
+  const colorgenerated = useMemo(
+    () => generateColorPalette(data.length, ...colors.map((e) => e.color || randomColor())),
+    [data.length, colors],
   );
 
   let attributeList: any[] = [];
@@ -95,28 +110,34 @@ const Calendar: FC<ICalendarProps> = ({
     attributeList.push(e.Attribute);
   });
 
-  let newData = data.map((obj, index) => ({
-    ...obj,
-    color: obj[colorProp] || colorgenerated[index],
-  }));
+  let newData = useMemo(
+    () =>
+      data.map((obj, index) => ({
+        ...obj,
+        color: obj[colorProp] || colorgenerated[index],
+      })),
+    [data, colorgenerated, colorProp],
+  );
 
-  let list: any[] = [];
-  for (let j = 0; j < newData.length; j++) {
-    const conge = newData[j];
-    const num = differenceInDays(parseISO(conge[endDate]), parseISO(conge[startDate]));
-    for (let i = 0; i <= num; i++) {
-      list.push({
-        title: conge[property],
-        startDate: addDays(parseISO(conge[startDate]), i),
-        endDate: addDays(parseISO(conge[startDate]), i),
-        color: conge.color,
-        attributes: attributeList.reduce((acc: { [key: string]: any[] }, e) => {
-          acc[e] = conge[e];
-          return acc;
-        }, {}),
-      });
-    }
-  }
+  const list = useMemo(() => {
+    const result: any[] = [];
+    newData.forEach((conge) => {
+      const num = differenceInDays(parseISO(conge[endDate]), parseISO(conge[startDate]));
+      for (let i = 0; i <= num; i++) {
+        result.push({
+          title: conge[property],
+          startDate: addDays(parseISO(conge[startDate]), i),
+          endDate: addDays(parseISO(conge[startDate]), i),
+          color: conge.color,
+          attributes: attributeList.reduce((acc, e) => {
+            acc[e] = conge[e];
+            return acc;
+          }, {}),
+        });
+      }
+    });
+    return result;
+  }, [newData, attributeList, endDate, startDate, property]);
 
   const congesByDate = useMemo(() => {
     return list.reduce((acc: { [key: string]: any[] }, conge) => {
@@ -131,10 +152,14 @@ const Calendar: FC<ICalendarProps> = ({
 
   const [showScrollbar, setShowScrollbar] = useState(false);
 
-  const daysInMonth = eachDayOfInterval({
-    start: startOfWeek(startOfMonth(date), { weekStartsOn: 1 }),
-    end: endOfWeek(endOfMonth(date), { weekStartsOn: 1 }),
-  });
+  const daysInMonth = useMemo(
+    () =>
+      eachDayOfInterval({
+        start: startOfWeek(startOfMonth(date), { weekStartsOn: 1 }),
+        end: endOfWeek(endOfMonth(date), { weekStartsOn: 1 }),
+      }),
+    [date],
+  );
 
   const prevMonth = () => setDate(subMonths(date, 1));
   const nextMonth = () => setDate(addMonths(date, 1));
@@ -144,8 +169,6 @@ const Calendar: FC<ICalendarProps> = ({
   const isSelected = (date: Date) => {
     return isEqual(date, selectedDate);
   };
-
-  console.log('selectedDate', selectedDate);
 
   const languageList = {
     en: [
@@ -177,30 +200,38 @@ const Calendar: FC<ICalendarProps> = ({
     ],
   };
 
-  let weekdays = languageList.en;
-  let locale = {};
+  const [weekdays, locale] = useMemo(() => {
+    let weekdays = languageList.en;
+    let locale = {};
 
-  if (language === 'fr') {
-    weekdays = languageList.fr;
-    locale = { locale: fr };
-  } else if (language === 'es') {
-    weekdays = languageList.es;
-    locale = { locale: es };
-  }
-
-  if (type === 'work') {
-    weekdays = weekdays.slice(0, 5);
-  }
-
-  const filteredDays = daysInMonth.filter((day) => {
-    if (type === 'work') {
-      const dayOfWeek = new Date(day).getDay();
-      return dayOfWeek >= 1 && dayOfWeek <= 5; // Monday to Friday
+    if (language === 'fr') {
+      weekdays = languageList.fr;
+      locale = { locale: fr };
+    } else if (language === 'es') {
+      weekdays = languageList.es;
+      locale = { locale: es };
     }
-    return true;
-  });
 
-  return (
+    if (type === 'work') {
+      weekdays = weekdays.slice(0, 5);
+    }
+
+    return [weekdays, locale];
+  }, [language, type]);
+
+  const filteredDays = useMemo(
+    () =>
+      daysInMonth.filter((day) => {
+        if (type === 'work') {
+          const dayOfWeek = day.getDay();
+          return dayOfWeek >= 1 && dayOfWeek <= 5;
+        }
+        return true;
+      }),
+    [daysInMonth, type],
+  );
+
+  return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="calendar-container flex flex-col gap-4 w-full h-full">
         <div className="calendar-header w-full flex justify-center gap-2 items-center">
@@ -323,6 +354,11 @@ const Calendar: FC<ICalendarProps> = ({
           })}
         </div>
       </div>
+    </div>
+  ) : (
+    <div className="flex h-24 flex-col items-center justify-center gap-2 rounded-lg border bg-purple-400 py-4 text-white">
+      <BsFillInfoCircleFill className=" h-6 w-6" />
+      <p className=" font-medium">{checkParams}</p>
     </div>
   );
 };
