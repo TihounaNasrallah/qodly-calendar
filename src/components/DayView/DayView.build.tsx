@@ -13,6 +13,7 @@ import { fr, es } from 'date-fns/locale';
 const DayView: FC<IDayViewProps> = ({
   language,
   todayButton,
+  headerPosition,
   color,
   hours,
   timeFormat,
@@ -63,7 +64,9 @@ const DayView: FC<IDayViewProps> = ({
         <table className="table-fixed w-full h-full border-collapse">
           <thead>
             <tr className="day-view-header">
-              <th className=" w-40 top-0 z-[1] bg-white">
+              <th
+                className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+              >
                 <div className="nav-buttons flex items-center justify-center ">
                   <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
                     <MdKeyboardArrowLeft />
@@ -82,7 +85,9 @@ const DayView: FC<IDayViewProps> = ({
                   {format(date, 'OOOO')}
                 </span>
               </th>
-              <th className="w-full top-0 z-[1] bg-white">
+              <th
+                className={`w-full ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+              >
                 <div className="weekday-title ml-4 flex flex-col items-start justify-center font-medium">
                   <span>
                     <span

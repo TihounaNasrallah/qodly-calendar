@@ -16,6 +16,7 @@ const DayView: FC<IDayViewProps> = ({
   todayButton,
   colors = [],
   property,
+  headerPosition,
   eventDate,
   startTime,
   endTime,
@@ -122,7 +123,9 @@ const DayView: FC<IDayViewProps> = ({
         <table className="table-fixed w-full h-full border-collapse">
           <thead>
             <tr className="day-view-header">
-              <th className="w-40 top-0 z-[1] bg-white">
+              <th
+                className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+              >
                 <div className="nav-buttons w-full flex items-center justify-center">
                   <button
                     onClick={handlePrevDay}
@@ -148,7 +151,9 @@ const DayView: FC<IDayViewProps> = ({
                   {format(date, 'OOOO')}
                 </span>
               </th>
-              <th className="w-full top-0 z-[1] bg-white">
+              <th
+                className={`w-full ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+              >
                 <div className="weekday-title ml-4 flex flex-col items-start justify-center font-medium">
                   <span>
                     <span

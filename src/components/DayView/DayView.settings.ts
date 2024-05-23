@@ -40,6 +40,16 @@ const commonSettings: TSetting[] = [
     defaultValue: '12',
   },
   {
+    key: 'headerPosition',
+    label: 'Header Display',
+    type: ESetting.SELECT,
+    options: [
+      { value: 'auto', label: 'Auto' },
+      { value: 'sticky', label: 'Sticky' },
+    ],
+    defaultValue: 'auto',
+  },
+  {
     key: 'todayButton',
     label: 'Today Button',
     type: ESetting.CHECKBOX,
