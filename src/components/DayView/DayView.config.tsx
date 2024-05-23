@@ -34,8 +34,8 @@ export default {
     color: '#1a73e8',
     timeFormat: '12',
     todayButton: true,
+    headerPosition: '',
     language: 'en',
-
   },
 } as T4DComponentConfig<IDayViewProps>;
 
@@ -48,6 +48,7 @@ export interface IDayViewProps extends webforms.ComponentProps {
   timeFormat?: string;
   hours?: string;
   language: string;
+  headerPosition: 'sticky' | '';
   todayButton?: boolean;
   colors?: IColors[];
 }

@@ -36,6 +36,7 @@ export default {
     color: '#1a73e8',
     timeFormat: '12',
     height: '64px',
+    headerPosition: '',
     todayButton: true,
   },
 } as T4DComponentConfig<ISchedulerProps>;
