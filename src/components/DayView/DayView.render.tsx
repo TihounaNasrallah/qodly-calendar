@@ -1,9 +1,10 @@
 import { useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useMemo } from 'react';
 
 import { format, setHours, isToday } from 'date-fns';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
+import { BsFillInfoCircleFill } from 'react-icons/bs';
 import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
 
 import { IDayViewProps } from './DayView.config';
@@ -30,39 +31,6 @@ const DayView: FC<IDayViewProps> = ({
     sources: { datasource: ds },
   } = useSources();
 
-  const [value, setValue] = useState<any[]>([]);
-
-  const [date, setDate] = useState(new Date());
-
-  const isCurrentHour = (hourIndex: number) => {
-    return date.getHours() === hourIndex;
-  };
-
-  let hourList = Array.from({ length: 24 });
-
-  let checkHours = (i: number) => {
-    if (hours === 'work') {
-      return i + 8;
-    }
-    return i;
-  };
-
-  if (hours === 'work') {
-    hourList = Array.from({ length: 11 }, (_, index) => index + 8);
-  }
-
-  const handlePrevDay = () => {
-    const prevDate = new Date(date);
-    prevDate.setDate(date.getDate() - 1);
-    setDate(prevDate);
-  };
-
-  const handleNextDay = () => {
-    const nextDate = new Date(date);
-    nextDate.setDate(date.getDate() + 1);
-    setDate(nextDate);
-  };
-
   useEffect(() => {
     if (!ds) return;
 
@@ -81,27 +49,71 @@ const DayView: FC<IDayViewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
 
-  const colorgenerated = generateColorPalette(
-    value.length,
-    ...colors.map((e) => e.color || randomColor()),
+  const [value, setValue] = useState<any[]>([]);
+
+  const [date, setDate] = useState(new Date());
+
+  const isCurrentHour = (hourIndex: number) => {
+    return date.getHours() === hourIndex;
+  };
+
+  const hourList = useMemo(() => {
+    return hours === 'work'
+      ? Array.from({ length: 11 }, (_, index) => index + 8)
+      : Array.from({ length: 24 });
+  }, [hours]);
+
+  let checkHours = (i: number) => {
+    if (hours === 'work') {
+      return i + 8;
+    }
+    return i;
+  };
+
+  const handlePrevDay = () => {
+    const prevDate = new Date(date);
+    prevDate.setDate(date.getDate() - 1);
+    setDate(prevDate);
+  };
+
+  const handleNextDay = () => {
+    const nextDate = new Date(date);
+    nextDate.setDate(date.getDate() + 1);
+    setDate(nextDate);
+  };
+
+  const checkParams = useMemo(() => {
+    if (!ds) return 'Please set a datasource';
+    if (!property) return 'Please set a property';
+    if (!eventDate) return 'Please set the event date attribute';
+    if (!startTime) return 'Please set the start time attribute';
+    if (!endTime) return 'Please set the end time attribute';
+    return '';
+  }, [ds, property, eventDate, startTime, endTime]);
+
+  const colorgenerated = useMemo(
+    () => generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor())),
+    [value.length, colors],
   );
 
-  let data = value.map((obj, index) => ({
-    ...obj,
-    color: colorgenerated[index],
-  }));
+  const data = useMemo(
+    () => value.map((obj, index) => ({ ...obj, color: colorgenerated[index] })),
+    [value, colorgenerated],
+  );
 
-  let locale = {};
-  let today = 'Today';
-  if (language === 'fr') {
-    locale = { locale: fr };
-    today = "Aujourd'hui";
-  } else if (language === 'es') {
-    locale = { locale: es };
-    today = 'Hoy';
-  }
+  const locale = useMemo(() => {
+    if (language === 'fr') return { locale: fr };
+    if (language === 'es') return { locale: es };
+    return {};
+  }, [language]);
 
-  return (
+  const todayLabel = useMemo(() => {
+    if (language === 'fr') return "Aujourd'hui";
+    if (language === 'es') return 'Hoy';
+    return 'Today';
+  }, [language]);
+
+  return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="current-day text-center text-xl font-medium">
         {format(date, 'dd MMMM yyyy', locale)}
@@ -123,7 +135,7 @@ const DayView: FC<IDayViewProps> = ({
                     className="today-button p-1 rounded-lg hover:bg-gray-300 duration-300"
                     style={{ display: todayButton ? 'block' : 'none' }}
                   >
-                    {today}
+                    {todayLabel}
                   </button>
                   <button
                     onClick={handleNextDay}
@@ -214,6 +226,11 @@ const DayView: FC<IDayViewProps> = ({
           </tbody>
         </table>
       </div>
+    </div>
+  ) : (
+    <div className="flex h-24 flex-col items-center justify-center gap-2 rounded-lg border bg-purple-400 py-4 text-white">
+      <BsFillInfoCircleFill className=" h-6 w-6" />
+      <p className=" font-medium">{checkParams}</p>
     </div>
   );
 };

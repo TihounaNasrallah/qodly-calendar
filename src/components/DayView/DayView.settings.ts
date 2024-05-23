@@ -3,6 +3,12 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
+    key: 'color',
+    label: 'Current Day Color',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#1a73e8',
+  },
+  {
     key: 'language',
     label: 'Language',
     type: ESetting.SELECT,
@@ -39,27 +45,6 @@ const commonSettings: TSetting[] = [
     type: ESetting.CHECKBOX,
     defaultValue: true,
   },
-  {
-    key: 'color',
-    label: 'Current Day Color',
-    type: ESetting.COLOR_PICKER,
-    defaultValue: '#1a73e8',
-  },
-  {
-    key: 'colors',
-    name: 'Colors',
-    label: 'Colors',
-    type: ESetting.DATAGRID,
-    titleProperty: 'color',
-    data: [
-      {
-        key: 'color',
-        label: 'Color',
-        type: ESetting.COLOR_PICKER,
-        defaultValue: '',
-      },
-    ],
-  },
 ];
 
 const dataAccessSettings: TSetting[] = [
@@ -91,6 +76,27 @@ const dataAccessSettings: TSetting[] = [
     label: 'End Time',
     type: ESetting.TEXT_FIELD,
     defaultValue: '',
+  },
+  {
+    key: 'colors',
+    name: 'Colors',
+    label: 'Colors',
+    type: ESetting.DATAGRID,
+    titleProperty: 'color',
+    data: [
+      {
+        key: 'color',
+        label: 'Color',
+        type: ESetting.COLOR_PICKER,
+        defaultValue: '',
+      },
+    ],
+  },
+  {
+    key: 'serverSideRef',
+    label: 'Server Side',
+    type: ESetting.TEXT_FIELD,
+    validateOnEnter: true,
   },
 ];
 

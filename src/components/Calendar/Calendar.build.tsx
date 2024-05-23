@@ -1,6 +1,6 @@
 import { useEnhancedNode } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 
 import {
   MdKeyboardArrowLeft,
@@ -26,7 +26,6 @@ import {
 import { fr, es } from 'date-fns/locale';
 
 import { ICalendarProps } from './Calendar.config';
-import { generateColorPalette, randomColor } from '../shared/colorUtils';
 
 const Calendar: FC<ICalendarProps> = ({
   type,
@@ -35,7 +34,6 @@ const Calendar: FC<ICalendarProps> = ({
   property,
   rowHeight,
   color,
-  colors = [],
   yearNav,
   borderRadius,
   style,
@@ -49,64 +47,75 @@ const Calendar: FC<ICalendarProps> = ({
   const date = new Date();
   const firstDayOfMonth = startOfMonth(date);
 
-  const daysInMonth = eachDayOfInterval({
-    start: startOfWeek(startOfMonth(date), { weekStartsOn: 1 }),
-    end: endOfWeek(endOfMonth(date), { weekStartsOn: 1 }),
-  });
+  const daysInMonth = useMemo(
+    () =>
+      eachDayOfInterval({
+        start: startOfWeek(startOfMonth(date), { weekStartsOn: 1 }),
+        end: endOfWeek(endOfMonth(date), { weekStartsOn: 1 }),
+      }),
+    [date],
+  );
 
-  const weekdaysEn = [
-    { title: 'Mon', day: 'Monday' },
-    { title: 'Tue', day: 'Tuesday' },
-    { title: 'Wed', day: 'Wednesday' },
-    { title: 'Thu', day: 'Thursday' },
-    { title: 'Fri', day: 'Friday' },
-    { title: 'Sat', day: 'Saturday' },
-    { title: 'Sun', day: 'Sunday' },
-  ];
-  const weekdaysFr = [
-    { title: 'Lun', day: 'Lundi' },
-    { title: 'Mar', day: 'Mardi' },
-    { title: 'Mer', day: 'Mercredi' },
-    { title: 'Jeu', day: 'Jeudi' },
-    { title: 'Ven', day: 'Vendredi' },
-    { title: 'Sam', day: 'Samedi' },
-    { title: 'Dim', day: 'Dimanche' },
-  ];
+  const languageList = {
+    en: [
+      { title: 'Mon', day: 'Monday' },
+      { title: 'Tue', day: 'Tuesday' },
+      { title: 'Wed', day: 'Wednesday' },
+      { title: 'Thu', day: 'Thursday' },
+      { title: 'Fri', day: 'Friday' },
+      { title: 'Sat', day: 'Saturday' },
+      { title: 'Sun', day: 'Sunday' },
+    ],
+    fr: [
+      { title: 'Lun', day: 'Lundi' },
+      { title: 'Mar', day: 'Mardi' },
+      { title: 'Mer', day: 'Mercredi' },
+      { title: 'Jeu', day: 'Jeudi' },
+      { title: 'Ven', day: 'Vendredi' },
+      { title: 'Sam', day: 'Samedi' },
+      { title: 'Dim', day: 'Dimanche' },
+    ],
+    es: [
+      { title: 'Lun', day: 'Lunes' },
+      { title: 'Mar', day: 'Martes' },
+      { title: 'Mie', day: 'Miercoles' },
+      { title: 'Jue', day: 'Jueves' },
+      { title: 'Vie', day: 'Viernes' },
+      { title: 'Sab', day: 'Sabado' },
+      { title: 'Dom', day: 'Domingo' },
+    ],
+  };
 
-  const weekdaysEs = [
-    { title: 'Lun', day: 'Lunes' },
-    { title: 'Mar', day: 'Martes' },
-    { title: 'Mie', day: 'Miercoles' },
-    { title: 'Jue', day: 'Jueves' },
-    { title: 'Vie', day: 'Viernes' },
-    { title: 'Sab', day: 'Sabado' },
-    { title: 'Dom', day: 'Domingo' },
-  ];
+  const [weekdays, locale] = useMemo(() => {
+    let weekdays = languageList.en;
+    let locale = {};
 
-  let weekdays = weekdaysEn;
-  let locale = {};
-
-  if (language === 'fr') {
-    weekdays = weekdaysFr;
-    locale = { locale: fr };
-  } else if (language === 'es') {
-    weekdays = weekdaysEs;
-    locale = { locale: es };
-  }
-
-  if (type === 'work') {
-    weekdays = weekdays.slice(0, 5);
-  }
-
-  const filteredDays = daysInMonth.filter((day) => {
-    if (type === 'work') {
-      const dayOfWeek = new Date(day).getDay();
-      return dayOfWeek >= 1 && dayOfWeek <= 5; // Monday to Friday
+    if (language === 'fr') {
+      weekdays = languageList.fr;
+      locale = { locale: fr };
+    } else if (language === 'es') {
+      weekdays = languageList.es;
+      locale = { locale: es };
     }
-    return true;
-  });
 
-  const colorgenerated = generateColorPalette(1, ...colors.map((e) => e.color || randomColor()));
+    if (type === 'work') {
+      weekdays = weekdays.slice(0, 5);
+    }
+
+    return [weekdays, locale];
+  }, [language, type]);
+
+  const filteredDays = useMemo(
+    () =>
+      daysInMonth.filter((day) => {
+        if (type === 'work') {
+          const dayOfWeek = day.getDay();
+          return dayOfWeek >= 1 && dayOfWeek <= 5;
+        }
+        return true;
+      }),
+    [daysInMonth, type],
+  );
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
@@ -178,12 +187,8 @@ const Calendar: FC<ICalendarProps> = ({
                     className="element-container px-2 py-1 flex flex-col w-full border-l-4"
                     style={{
                       borderRadius: borderRadius,
-                      backgroundColor: property
-                        ? colorgenerated[0] + '50'
-                        : new TinyColor('#C084FC').toHexString() + '50',
-                      borderLeftColor: property
-                        ? colorgenerated[0]
-                        : new TinyColor('#C084FC').toHexString(),
+                      backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
+                      borderLeftColor: new TinyColor('#C084FC').toHexString(),
                     }}
                   >
                     <span className="element-title font-medium line-clamp-2">

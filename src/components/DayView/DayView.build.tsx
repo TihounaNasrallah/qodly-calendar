@@ -1,6 +1,6 @@
 import { useEnhancedNode } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 
 import { IDayViewProps } from './DayView.config';
 
@@ -20,7 +20,6 @@ const DayView: FC<IDayViewProps> = ({
   className,
   classNames = [],
 }) => {
-
   const {
     connectors: { connect },
   } = useEnhancedNode();
@@ -31,7 +30,11 @@ const DayView: FC<IDayViewProps> = ({
     return date.getHours() === hourIndex;
   };
 
-  let hourList = Array.from({ length: 24 });
+  const hourList = useMemo(() => {
+    return hours === 'work'
+      ? Array.from({ length: 11 }, (_, index) => index + 8)
+      : Array.from({ length: 24 });
+  }, [hours]);
 
   let checkHours = (i: number) => {
     if (hours === 'work') {
@@ -40,20 +43,17 @@ const DayView: FC<IDayViewProps> = ({
     return i;
   };
 
-  if (hours === 'work') {
-    hourList = Array.from({ length: 11 }, (_, index) => index + 8);
-  }
+  const locale = useMemo(() => {
+    if (language === 'fr') return { locale: fr };
+    if (language === 'es') return { locale: es };
+    return {};
+  }, [language]);
 
-  let locale = {};
-  let today = 'Today';
-  if (language === 'fr') {
-    locale = { locale: fr };
-    today = "Aujourd'hui";
-  } else if (language === 'es') {
-    locale = { locale: es };
-    today = 'Hoy';
-  }
-
+  const todayLabel = useMemo(() => {
+    if (language === 'fr') return "Aujourd'hui";
+    if (language === 'es') return 'Hoy';
+    return 'Today';
+  }, [language]);
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="current-day text-center text-xl font-medium">
@@ -72,7 +72,7 @@ const DayView: FC<IDayViewProps> = ({
                     className="today-button p-1 rounded-lg hover:bg-gray-300 duration-300"
                     style={{ display: todayButton ? 'block' : 'none' }}
                   >
-                    {today}
+                    {todayLabel}
                   </button>
                   <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
                     <MdKeyboardArrowRight />

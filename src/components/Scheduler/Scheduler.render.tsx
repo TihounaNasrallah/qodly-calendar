@@ -1,10 +1,11 @@
 import { useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useMemo } from 'react';
 
 import { format, startOfWeek, addDays, subWeeks, addWeeks, isToday, setHours } from 'date-fns';
 import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
 
+import { BsFillInfoCircleFill } from 'react-icons/bs';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 
 import { ISchedulerProps } from './Scheduler.config';
@@ -16,7 +17,6 @@ const Scheduler: FC<ISchedulerProps> = ({
   language,
   hours,
   days,
-  fontSize,
   height,
   property,
   startDate,
@@ -36,8 +36,6 @@ const Scheduler: FC<ISchedulerProps> = ({
     sources: { datasource: ds },
   } = useSources();
 
-  const [value, setValue] = useState<any[]>([]);
-
   useEffect(() => {
     if (!ds) return;
 
@@ -56,15 +54,27 @@ const Scheduler: FC<ISchedulerProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
 
-  const colorgenerated = generateColorPalette(
-    value.length,
-    ...colors.map((e) => e.color || randomColor()),
-  );
+  const [value, setValue] = useState<any[]>([]);
 
-  let data = value.map((obj, index) => ({
-    ...obj,
-    color: colorgenerated[index],
-  }));
+  const checkParams = useMemo(() => {
+    if (!ds) return 'Please set a datasource';
+    if (!property) return 'Please set a property';
+    if (!startDate) return 'Please set the event date attribute';
+    if (!startTime) return 'Please set the start time attribute';
+    if (!endTime) return 'Please set the end time attribute';
+    return '';
+  }, [ds, property, startDate, startTime, endTime]);
+
+  const colorgenerated = useMemo(() => {
+    return generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor()));
+  }, [value.length, colors]);
+
+  const data = useMemo(() => {
+    return value.map((obj, index) => ({
+      ...obj,
+      color: colorgenerated[index],
+    }));
+  }, [value, colorgenerated]);
 
   const [date, setDate] = useState<Date>(new Date());
 
@@ -82,8 +92,6 @@ const Scheduler: FC<ISchedulerProps> = ({
     return currentHour === hourIndex;
   };
 
-  let weekDates = getWeekDates(date);
-
   const goToPreviousWeek = () => {
     setDate(subWeeks(date, 1));
   };
@@ -92,7 +100,6 @@ const Scheduler: FC<ISchedulerProps> = ({
     setDate(addWeeks(date, 1));
   };
 
-  let hourList = Array.from({ length: 24 });
   let checkHours = (i: number) => {
     if (hours === 'work') {
       return i + 8;
@@ -100,24 +107,31 @@ const Scheduler: FC<ISchedulerProps> = ({
     return i;
   };
 
-  if (days === 'work') {
-    weekDates = weekDates.slice(0, 5);
-  }
+  const weekDates = useMemo(() => {
+    let dates = getWeekDates(date);
+    if (days === 'work') dates = dates.slice(0, 5);
+    return dates;
+  }, [date, days, getWeekDates]);
 
-  if (hours === 'work') {
-    hourList = Array.from({ length: 11 }, (_, index) => index + 8);
-  }
+  const hourList = useMemo(() => {
+    return hours === 'work'
+      ? Array.from({ length: 11 }, (_, index) => index + 8)
+      : Array.from({ length: 24 });
+  }, [hours]);
 
-  let locale = {};
-  let today = 'Today';
-  if (language === 'fr') {
-    locale = { locale: fr };
-    today = "Aujourd'hui";
-  } else if (language === 'es') {
-    locale = { locale: es };
-    today = 'Hoy';
-  }
-  return (
+  const locale = useMemo(() => {
+    if (language === 'fr') return { locale: fr };
+    if (language === 'es') return { locale: es };
+    return {};
+  }, [language]);
+
+  const todayLabel = useMemo(() => {
+    if (language === 'fr') return "Aujourd'hui";
+    if (language === 'es') return 'Hoy';
+    return 'Today';
+  }, [language]);
+
+  return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="scheduler-container flex flex-col gap-4 h-full">
         <div className="flex items-center justify-center gap-2">
@@ -145,7 +159,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       className="today-button p-1 rounded-lg hover:bg-gray-300 duration-300"
                       style={{ display: todayButton ? 'block' : 'none' }}
                     >
-                      {today}
+                      {todayLabel}
                     </button>
                     <button
                       className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
@@ -233,7 +247,6 @@ const Scheduler: FC<ISchedulerProps> = ({
                               style={{
                                 backgroundColor: event.color + '40',
                                 borderTopColor: event.color,
-                                fontSize: fontSize,
                               }}
                             >
                               <span
@@ -254,6 +267,11 @@ const Scheduler: FC<ISchedulerProps> = ({
           </table>
         </div>
       </div>
+    </div>
+  ) : (
+    <div className="flex h-24 flex-col items-center justify-center gap-2 rounded-lg border bg-purple-400 py-4 text-white">
+      <BsFillInfoCircleFill className=" h-6 w-6" />
+      <p className=" font-medium">{checkParams}</p>
     </div>
   );
 };

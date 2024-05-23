@@ -3,6 +3,12 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
+    key: 'color',
+    label: 'Current Day Color',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#1a73e8',
+  },
+  {
     key: 'language',
     label: 'Language',
     type: ESetting.SELECT,
@@ -44,33 +50,6 @@ const commonSettings: TSetting[] = [
     defaultValue: '12',
   },
   {
-    key: 'todayButton',
-    label: 'Today Button',
-    type: ESetting.CHECKBOX,
-    defaultValue: true,
-  },
-  {
-    key: 'color',
-    label: 'Current Day Color',
-    type: ESetting.COLOR_PICKER,
-    defaultValue: '#1a73e8',
-  },
-  {
-    key: 'colors',
-    name: 'Colors',
-    label: 'Colors',
-    type: ESetting.DATAGRID,
-    titleProperty: 'color',
-    data: [
-      {
-        key: 'color',
-        label: 'Color',
-        type: ESetting.COLOR_PICKER,
-        defaultValue: '',
-      },
-    ],
-  },
-  {
     key: 'headerPosition',
     label: 'Header Display',
     type: ESetting.SELECT,
@@ -81,18 +60,17 @@ const commonSettings: TSetting[] = [
     defaultValue: '',
   },
   {
-    key: 'fontSize',
-    label: 'Element Font Size',
-    type: ESetting.UNITFIELD,
-    hasLabel: true,
-    defaultValue: '12px',
-  },
-  {
     key: 'height',
     label: 'Row Height',
     type: ESetting.UNITFIELD,
     hasLabel: true,
     defaultValue: '64px',
+  },
+  {
+    key: 'todayButton',
+    label: 'Today Button',
+    type: ESetting.CHECKBOX,
+    defaultValue: true,
   },
 ];
 
@@ -125,6 +103,27 @@ const dataAccessSettings: TSetting[] = [
     label: 'End Time',
     type: ESetting.TEXT_FIELD,
     defaultValue: '',
+  },
+  {
+    key: 'colors',
+    name: 'Colors',
+    label: 'Colors',
+    type: ESetting.DATAGRID,
+    titleProperty: 'color',
+    data: [
+      {
+        key: 'color',
+        label: 'Color',
+        type: ESetting.COLOR_PICKER,
+        defaultValue: '',
+      },
+    ],
+  },
+  {
+    key: 'serverSideRef',
+    label: 'Server Side',
+    type: ESetting.TEXT_FIELD,
+    validateOnEnter: true,
   },
 ];
 
