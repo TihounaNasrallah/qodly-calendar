@@ -31,8 +31,9 @@
 | `Selected Date` | String           | No       | Will contain the variable that will contain the selected Date | `date`                                                                                                                                                                                                                                |
 | `Property`      | String           | Yes      | Will contain the property to be displayed                     | `name`                                                                                                                                                                                                                                |
 | `First Date`    | String           | Yes      | Will contain the start date attribute in our array            | `dateDebut`                                                                                                                                                                                                                           |
-| `Last Date`     | String           | Yes      | Will contain the end date attribute in our array              | `dateFin`                                                                                                                                                                                                                             |
-| `Attributes`    | Array of Strings | No       | Sets the additional properties to be displayed                | [`team`, `type`]                                                                                                                                                                                                                      |
+| `Last Date`     | String           | Yes      | Will contain the end date attribute in our array              | `dateFin`         |
+| `Color Attribute`  | String           | No      | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto generated randomly           | `dateFin`         |
+| `Attributes`    | Array of Strings | No       | Sets the additional properties to be displayed                | [`team`, `type`] |
 
 ### Events :
 

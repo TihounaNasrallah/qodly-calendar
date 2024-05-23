@@ -26,6 +26,7 @@ import {
 import { fr, es } from 'date-fns/locale';
 
 import { ICalendarProps } from './Calendar.config';
+import { generateColorPalette, randomColor } from '../shared/colorUtils';
 
 const Calendar: FC<ICalendarProps> = ({
   type,
@@ -116,6 +117,8 @@ const Calendar: FC<ICalendarProps> = ({
       }),
     [daysInMonth, type],
   );
+
+  const colorgenerated = generateColorPalette(1, ...colors.map((e) => e.color || randomColor()));
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
