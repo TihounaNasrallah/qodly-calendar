@@ -55,15 +55,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   }, [ds]);
 
   const [value, setValue] = useState<any[]>([]);
-
-  const checkParams = useMemo(() => {
-    if (!ds) return 'Please set a datasource';
-    if (!property) return 'Please set a property';
-    if (!startDate) return 'Please set the event date attribute';
-    if (!startTime) return 'Please set the start time attribute';
-    if (!endTime) return 'Please set the end time attribute';
-    return '';
-  }, [ds, property, startDate, startTime, endTime]);
+  const [date, setDate] = useState<Date>(new Date());
 
   const colorgenerated = useMemo(() => {
     return generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor()));
@@ -76,7 +68,36 @@ const Scheduler: FC<ISchedulerProps> = ({
     }));
   }, [value, colorgenerated]);
 
-  const [date, setDate] = useState<Date>(new Date());
+  const checkParams = useMemo(() => {
+    if (!ds) {
+      return 'Please set the datasource attribute';
+    } else if (!value[0] || !value.length) {
+      return 'No Data Available';
+    }
+
+    if (!property) {
+      return 'Please set the property attribute';
+    } else if (!(property in value[0])) {
+      return `${property} does not exist as a property`;
+    }
+    if (!startDate) {
+      return 'Please set the event date attribute';
+    } else if (!(startDate in value[0])) {
+      return `${startDate} does not exist as a property`;
+    }
+    if (!startTime) {
+      return 'Please set the start time attribute';
+    } else if (!(startTime in value[0])) {
+      return `${startTime} does not exist as a property`;
+    }
+    if (!endTime) {
+      return 'Please set the end time attribute';
+    } else if (!(endTime in value[0])) {
+      return `${endTime} does not exist as a property`;
+    }
+
+    return '';
+  }, [ds, value, property, startDate, startTime, endTime]);
 
   const getWeekDates = (startDate: Date) => {
     const dates = [];
@@ -92,13 +113,9 @@ const Scheduler: FC<ISchedulerProps> = ({
     return currentHour === hourIndex;
   };
 
-  const goToPreviousWeek = () => {
-    setDate(subWeeks(date, 1));
-  };
+  const goToPreviousWeek = () => setDate(subWeeks(date, 1));
 
-  const goToNextWeek = () => {
-    setDate(addWeeks(date, 1));
-  };
+  const goToNextWeek = () => setDate(addWeeks(date, 1));
 
   let checkHours = (i: number) => {
     if (hours === 'work') {
@@ -269,7 +286,7 @@ const Scheduler: FC<ISchedulerProps> = ({
       </div>
     </div>
   ) : (
-    <div className="flex h-24 flex-col items-center justify-center gap-2 rounded-lg border bg-purple-400 py-4 text-white">
+    <div className="flex h-24 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-red-600 py-4 text-red-700">
       <BsFillInfoCircleFill className=" h-6 w-6" />
       <p className=" font-medium">{checkParams}</p>
     </div>
