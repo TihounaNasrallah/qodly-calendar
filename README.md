@@ -1,4 +1,11 @@
-# Overview
+# Table of contents
+
+1. [Overview](#overview)
+2. [Calendar Component](#calendar)
+3. [Week-View Component](#weekview)
+4. [Day-View Component](#dayview)
+
+# Overview <a id="overview"></a>
 
 **The Calendar Component** is a versatile tool designed to provide an intuitive and interactive calendar interface. It allows users to easily navigate between months or years, and also display data related to every single day.
 
@@ -6,7 +13,34 @@
 
 **The Day-View Component** provides a vibrant, interactive day view of your calendar, enabling easy navigation through your scheduled events for each day.
 
-# Calendar Component
+### **Tips**💡
+
+In order to be able to visualize data coming from an **`EntitySelection`** in any component of the list, you must declare a function that will run when the webform is loaded ( `onLoad` ), the function creates an array of objects. Here is an example :
+
+```ts
+exposed function listEmployee()
+	var i : number
+	var employees : cs.EmployeeSelection
+	employees = ds.Employee.all()
+	var newItem : object
+	var list : collection
+	list = []
+	for (i, 0, employees.length-1)
+		newItem = {name: "", type: "", startDate: "", endDate: "", team: "", color: ""}
+		newItem.name = employees[i].name
+		newItem.type = employees[i].leaveType
+		newItem.startDate = string(employees[i].startDate, "yyyy-MM-dd")
+		newItem.endDate = string(employees[i].endDate, "yyyy-MM-dd")
+		newItem.team = employees[i].team.name
+		newItem.color = employees[i].team.color
+		list.push(newItem)
+	end
+	return list
+```
+
+# Calendar Component <a id="calendar"></a>
+
+<a href="#top">Back to top</a>
 
 ![The Calendar Component](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/221a3ea5-c749-45b6-bd0a-1295825e4a46)
 
@@ -32,7 +66,7 @@
 | `Property`        | String           | Yes      | Will contain the property to be displayed                                                                                 | `name`                                                                                                                                                                                                                                |
 | `First Date`      | String           | Yes      | Will contain the start date attribute in our array                                                                        | `dateDebut`                                                                                                                                                                                                                           |
 | `Last Date`       | String           | Yes      | Will contain the end date attribute in our array                                                                          | `dateFin`                                                                                                                                                                                                                             |
-| `Color Attribute` | String           | No       | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto generated randomly) | `dateFin`                                                                                                                                                                                                                             |
+| `Color Attribute` | String           | No       | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto generated randomly) | `color`                                                                                                                                                                                                                               |
 | `Attributes`      | Array of Strings | No       | Sets the additional properties to be displayed                                                                            | [`team`, `type`]                                                                                                                                                                                                                      |
 
 ### Events :
@@ -78,7 +112,9 @@ self .day-container:hover {
 }
 ```
 
-# Week-View Component
+# Week-View Component <a id="weekview"></a>
+
+<a href="#top">Back to top</a>
 
 ![Scheduler Component](./public/week-view.png)
 
@@ -133,7 +169,9 @@ self .month-title {
 }
 ```
 
-# Day View Component
+# Day View Component <a id="dayview"></a>
+
+<a href="#top">Back to top</a>
 
 ![Day-View Component](public/dayView.png)
 

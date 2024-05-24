@@ -82,16 +82,28 @@ const Calendar: FC<ICalendarProps> = ({
 
   const checkParams = useMemo(() => {
     if (!ds) {
-      return 'Please set a datasource';
-    } else if (!property) {
-      return 'Please set a property';
-    } else if (!startDate) {
-      return 'Please set the first date attribute';
-    } else if (!endDate) {
-      return 'Please set the end date attribute';
+      return 'Please set the datasource attribute';
+    } else if (!data[0] || !data.length) {
+      return 'No Data Available';
+    }
+
+    if (!property) {
+      return 'Please set the property attribute';
+    } else if (!(property in data[0])) {
+      return `${property} does not exist as a property`;
+    }
+    if (!startDate) {
+      return 'Please set the Start Date attribute';
+    } else if (!(startDate in data[0])) {
+      return `${startDate} does not exist as a property`;
+    }
+    if (!endDate) {
+      return 'Please set the End Date attribute';
+    } else if (!(endDate in data[0])) {
+      return `${endDate} does not exist as a property`;
     }
     return '';
-  }, [ds, property, startDate, endDate]);
+  }, [ds, data, property, startDate, endDate]);
 
   const handleDateClick = async (value: Date) => {
     currentDate.setValue(null, value);
@@ -356,7 +368,7 @@ const Calendar: FC<ICalendarProps> = ({
       </div>
     </div>
   ) : (
-    <div className="flex h-24 flex-col items-center justify-center gap-2 rounded-lg border bg-purple-400 py-4 text-white">
+    <div className="flex h-24 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-red-600 py-4 text-red-700">
       <BsFillInfoCircleFill className=" h-6 w-6" />
       <p className=" font-medium">{checkParams}</p>
     </div>
