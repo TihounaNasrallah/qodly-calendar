@@ -40,8 +40,6 @@ exposed function listEmployee()
 
 # Calendar Component <a id="calendar"></a>
 
-<a href="#top">Back to top</a>
-
 ![The Calendar Component](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/221a3ea5-c749-45b6-bd0a-1295825e4a46)
 
 ### Properties :
@@ -59,16 +57,15 @@ exposed function listEmployee()
 
 ### Data Access Properties :
 
-| Name              | Type             | Required | Description                                                                                                               | Example                                                                                                                                                                                                                               |
-| ----------------- | ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Data Source`     | Array of Objects | Yes      | Will contain an array of objects.                                                                                         | [<br />{"name":"Employee 0","type":"Paternité","dateDebut":"2024-03-28","dateFin":"2024-04-03","team":"Team 3"},<br />{"name":"Employee 1","type":"Marriage","dateDebut":"2024-03-13","dateFin":"2024-03-18","team":"Team 2"} <br />] |
-| `Selected Date`   | String           | No       | Will contain the variable that will contain the selected Date                                                             | `date`                                                                                                                                                                                                                                |
-| `Property`        | String           | Yes      | Will contain the property to be displayed                                                                                 | `name`                                                                                                                                                                                                                                |
-| `First Date`      | String           | Yes      | Will contain the start date attribute in our array                                                                        | `dateDebut`                                                                                                                                                                                                                           |
-| `Last Date`       | String           | Yes      | Will contain the end date attribute in our array                                                                          | `dateFin`                                                                                                                                                                                                                             |
-| `Color Attribute` | String           | No       | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto generated randomly) | `color`                                                                                                                                                                                                                               |
-
-| `Attributes`      | Array of Strings | No       | Sets the additional properties to be displayed                                                                            | [`team`, `type`]                                                                                                                                                                                                                      |
+| Name              | Type                            | Required | Description                                                                                                               | Example                                                                                                                                                                                                                               |
+| ----------------- | ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Data Source`     | DataSource (`Array` of Objects) | ✅       | An Array that contains the objects that will be displayed                                                                 | [<br />{"name":"Employee 0","type":"Paternité","dateDebut":"2024-03-28","dateFin":"2024-04-03","team":"Team 3"},<br />{"name":"Employee 1","type":"Marriage","dateDebut":"2024-03-13","dateFin":"2024-03-18","team":"Team 2"} <br />] |
+| `Selected Date`   | DataSource (`Date`)             | ❌       | Will contain the variable that will contain the selected Date                                                             | `date`                                                                                                                                                                                                                                |
+| `Property`        | String                          | ✅       | Will contain the property to be displayed                                                                                 | `name`                                                                                                                                                                                                                                |
+| `First Date`      | String                          | ✅       | Will contain the start date attribute in our array                                                                        | `dateDebut`                                                                                                                                                                                                                           |
+| `Last Date`       | String                          | ✅       | Will contain the end date attribute in our array                                                                          | `dateFin`                                                                                                                                                                                                                             |
+| `Color Attribute` | String                          | ❌       | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto generated randomly) | `color`                                                                                                                                                                                                                               |
+| `Attributes`      | Array of Strings                | ❌       | Sets the additional properties to be displayed                                                                            | [`team`, `type`]                                                                                                                                                                                                                      |
 
 ### Events :
 
@@ -115,8 +112,6 @@ self .day-container:hover {
 
 # Week-View Component <a id="weekview"></a>
 
-<a href="#top">Back to top</a>
-
 ![Scheduler Component](./public/week-view.png)
 
 ### Properties :
@@ -124,23 +119,24 @@ self .day-container:hover {
 | Name                | Type             | Default        | Description                                                      |
 | ------------------- | ---------------- | -------------- | ---------------------------------------------------------------- |
 | `Current Day Color` | String           | #1a73e8        | Sets the background color of the current day number              |
+| `Language`          | String           | English        | Sets the language of the calendar (English, French or Spanish)   |
 | `Hours`             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed   |
 | `Week Days`         | String           | All            | If 'Business Days' is selected, only the work days are displayed |
 | `Time Format`       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                             |
 | `Colors`            | Array of Strings | Auto-generated | Sets the background color of the displayed elements              |
 | `Header Display`    | String           | Auto           | If 'Sticky' is selected, the header position will be sticky      |
-| `Element Font Size` | Number           | 12px           | Sets the size of the displayed elements                          |
 | `Row Height`        | Number           | 64px           | Sets the height of the scheduler's rows                          |
+| `Today Button`      | Boolean          | `true`         | if `false`, the today button will be hidden                      |
 
 ### Data Access Properties :
 
-| Name          | Type             | Required | Description                                               | Example                                                                                                                                                                                            |
-| ------------- | ---------------- | -------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Data Source` | Array of Objects | Yes      | Will contain an array of objects                          | [<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />] |
-| `Property`    | String           | Yes      | Will contain the property to be displayed                 | title                                                                                                                                                                                              |
-| `Date`        | String           | Yes      | Will contain the date attribute of the events             | date                                                                                                                                                                                               |
-| `Start Time`  | String           | Yes      | Will contain the attribute of the start time in our array | startTime                                                                                                                                                                                          |
-| `End Time`    | String           | Yes      | Will contain the attribute of the end time in our array   | endTime                                                                                                                                                                                            |
+| Name          | Type                            | Required | Description                                               | Example                                                                                                                                                                                            |
+| ------------- | ------------------------------- | -------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Data Source` | DataSource (`Array` of Objects) | ✅       | An Array that contains the objects that will be displayed | [<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />] |
+| `Property`    | String                          | ✅       | Will contain the property to be displayed                 | title                                                                                                                                                                                              |
+| `Date`        | String                          | ✅       | Will contain the date attribute of the events             | date                                                                                                                                                                                               |
+| `Start Time`  | String                          | ✅       | Will contain the attribute of the start time in our array | startTime                                                                                                                                                                                          |
+| `End Time`    | String                          | ✅       | Will contain the attribute of the end time in our array   | endTime                                                                                                                                                                                            |
 
 ### Custom CSS
 
@@ -172,8 +168,6 @@ self .month-title {
 
 # Day View Component <a id="dayview"></a>
 
-<a href="#top">Back to top</a>
-
 ![Day-View Component](public/dayView.png)
 
 ### Properties :
@@ -181,6 +175,7 @@ self .month-title {
 | Name                | Type             | Default        | Description                                                    |
 | ------------------- | ---------------- | -------------- | -------------------------------------------------------------- |
 | `Current Day Color` | String           | #1a73e8        | Sets the background color of the current day number            |
+| `Language`          | String           | English        | Sets the language of the calendar (English, French or Spanish) |
 | `Hours`             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed |
 | `Time Format`       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                           |
 | `Colors`            | Array of Strings | Auto-generated | Sets the background color of the displayed elements            |
@@ -189,13 +184,13 @@ self .month-title {
 
 ### Data Access Properties :
 
-| Name          | Type             | Required | Description                                               | Example                                                                                                                                                                                            |
-| ------------- | ---------------- | -------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Data Source` | Array of Objects | Yes      | Will contain an array of objects                          | [<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />] |
-| `Property`    | String           | Yes      | Will contain the property to be displayed                 | title                                                                                                                                                                                              |
-| `Date`        | String           | Yes      | Will contain the date attribute of the events             | date                                                                                                                                                                                               |
-| `Start Time`  | String           | Yes      | Will contain the attribute of the start time in our array | startTime                                                                                                                                                                                          |
-| `End Time`    | String           | Yes      | Will contain the attribute of the end time in our array   | endTime                                                                                                                                                                                            |
+| Name          | Type                            | Required | Description                                               | Example                                                                                                                                                                                            |
+| ------------- | ------------------------------- | -------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Data Source` | DataSource (`Array` of Objects) | ✅       | An Array that contains the objects that will be displayed | [<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />] |
+| `Property`    | String                          | ✅       | Will contain the property to be displayed                 | title                                                                                                                                                                                              |
+| `Date`        | String                          | ✅       | Will contain the date attribute of the events             | date                                                                                                                                                                                               |
+| `Start Time`  | String                          | ✅       | Will contain the attribute of the start time in our array | startTime                                                                                                                                                                                          |
+| `End Time`    | String                          | ✅       | Will contain the attribute of the end time in our array   | endTime                                                                                                                                                                                            |
 
 ### Custom CSS
 
