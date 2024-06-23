@@ -65,12 +65,14 @@ const Scheduler: FC<ISchedulerProps> = ({
   const locale = useMemo(() => {
     if (language === 'fr') return { locale: fr };
     if (language === 'es') return { locale: es };
+    if (language === 'de') return { locale: de };
     return {};
   }, [language]);
 
   const todayLabel = useMemo(() => {
     if (language === 'fr') return "Aujourd'hui";
     if (language === 'es') return 'Hoy';
+    if (language === 'de') return 'Heute';
     return 'Today';
   }, [language]);
 

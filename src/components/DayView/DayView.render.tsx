@@ -9,7 +9,7 @@ import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUt
 
 import { IDayViewProps } from './DayView.config';
 
-import { fr, es } from 'date-fns/locale';
+import { fr, es, de } from 'date-fns/locale';
 
 const DayView: FC<IDayViewProps> = ({
   language,
@@ -127,12 +127,14 @@ const DayView: FC<IDayViewProps> = ({
   const locale = useMemo(() => {
     if (language === 'fr') return { locale: fr };
     if (language === 'es') return { locale: es };
+    if (language === 'de') return { locale: de };
     return {};
   }, [language]);
 
   const todayLabel = useMemo(() => {
     if (language === 'fr') return "Aujourd'hui";
     if (language === 'es') return 'Hoy';
+    if (language === 'de') return 'Heute';
     return 'Today';
   }, [language]);
 
