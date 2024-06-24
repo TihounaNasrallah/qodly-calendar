@@ -84,7 +84,7 @@ const Calendar: FC<ICalendarProps> = ({
       { title: 'Sab', day: 'Sabado' },
       { title: 'Dom', day: 'Domingo' },
     ],
-	de: [
+    de: [
       { title: 'Mo', day: 'Montag' },
       { title: 'Di', day: 'Dienstag' },
       { title: 'Mi', day: 'Mittwoch' },
@@ -105,11 +105,10 @@ const Calendar: FC<ICalendarProps> = ({
     } else if (language === 'es') {
       weekdays = languageList.es;
       locale = { locale: es };
-    } else if (language === 'detail') {
+    } else if (language === 'de') {
       weekdays = languageList.de;
       locale = { locale: de };
     }
-
 
     if (type === 'work') {
       weekdays = weekdays.slice(0, 5);

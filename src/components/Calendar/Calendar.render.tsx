@@ -84,7 +84,7 @@ const Calendar: FC<ICalendarProps> = ({
     if (!ds) {
       return 'Please set the datasource attribute';
     } else if (!data[0] || !data.length) {
-      return 'No Data Available';
+      return '';
     }
 
     if (!property) {
@@ -231,7 +231,7 @@ const Calendar: FC<ICalendarProps> = ({
     } else if (language === 'es') {
       weekdays = languageList.es;
       locale = { locale: es };
-    } else if (language === 'detail') {
+    } else if (language === 'de') {
       weekdays = languageList.de;
       locale = { locale: de };
     }
