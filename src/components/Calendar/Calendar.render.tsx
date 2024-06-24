@@ -32,7 +32,7 @@ import {
 
 import { ICalendarProps } from './Calendar.config';
 
-import { fr, es } from 'date-fns/locale';
+import { fr, es, de } from 'date-fns/locale';
 
 const Calendar: FC<ICalendarProps> = ({
   type,
@@ -84,7 +84,7 @@ const Calendar: FC<ICalendarProps> = ({
     if (!ds) {
       return 'Please set the datasource attribute';
     } else if (!data[0] || !data.length) {
-      return 'No Data Available';
+      return '';
     }
 
     if (!property) {
@@ -210,6 +210,15 @@ const Calendar: FC<ICalendarProps> = ({
       { title: 'Sab', day: 'Sabado' },
       { title: 'Dom', day: 'Domingo' },
     ],
+    de: [
+      { title: 'Mo', day: 'Montag' },
+      { title: 'Di', day: 'Dienstag' },
+      { title: 'Mi', day: 'Mittwoch' },
+      { title: 'Do', day: 'Donnerstag' },
+      { title: 'Fr', day: 'Freitag' },
+      { title: 'Sa', day: 'Samstag' },
+      { title: 'So', day: 'Sonntag' },
+    ],
   };
 
   const [weekdays, locale] = useMemo(() => {
@@ -222,6 +231,9 @@ const Calendar: FC<ICalendarProps> = ({
     } else if (language === 'es') {
       weekdays = languageList.es;
       locale = { locale: es };
+    } else if (language === 'de') {
+      weekdays = languageList.de;
+      locale = { locale: de };
     }
 
     if (type === 'work') {

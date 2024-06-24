@@ -16,6 +16,7 @@ const commonSettings: TSetting[] = [
       { value: 'en', label: 'English' },
       { value: 'es', label: 'Spanish' },
       { value: 'fr', label: 'French' },
+      { value: 'de', label: 'German' },
     ],
     defaultValue: 'en',
   },
