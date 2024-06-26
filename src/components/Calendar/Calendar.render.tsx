@@ -77,8 +77,13 @@ const Calendar: FC<ICalendarProps> = ({
   }, [ds, currentDate]);
 
   const [date, setDate] = useState(new Date());
+  const currentMonth = date.getMonth();
   const [data, setData] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  useEffect(() => {
+    emit('onMonthChange');
+  }, [date, currentMonth]);
 
   const checkParams = useMemo(() => {
     if (!ds) {

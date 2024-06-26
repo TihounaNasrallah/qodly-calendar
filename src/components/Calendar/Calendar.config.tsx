@@ -30,6 +30,10 @@ export default {
         label: 'On Date Click',
         value: 'onDateClick',
       },
+      {
+        label: 'On Month Change',
+        value: 'onMonthChange',
+      },
     ],
     datasources: {
       accept: ['array'],
