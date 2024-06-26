@@ -8,7 +8,7 @@ import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { format, startOfWeek, addDays, isToday, setHours } from 'date-fns';
 import { colorToHex } from '../shared/colorUtils';
 
-import { fr, es } from 'date-fns/locale';
+import { fr, es, de } from 'date-fns/locale';
 
 const Scheduler: FC<ISchedulerProps> = ({
   todayButton,

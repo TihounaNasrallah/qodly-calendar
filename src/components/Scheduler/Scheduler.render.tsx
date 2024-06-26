@@ -30,10 +30,10 @@ const Scheduler: FC<ISchedulerProps> = ({
   className,
   classNames = [],
 }) => {
-  const { connect } = useRenderer();
+  const { connect, emit } = useRenderer();
 
   const {
-    sources: { datasource: ds },
+    sources: { datasource: ds, currentElement: ce },
   } = useSources();
 
   useEffect(() => {
@@ -55,6 +55,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   }, [ds]);
 
   const [value, setValue] = useState<any[]>([]);
+  const [, setSelectedData] = useState<any>({});
   const [date, setDate] = useState<Date>(new Date());
 
   const colorgenerated = useMemo(() => {
@@ -66,7 +67,7 @@ const Scheduler: FC<ISchedulerProps> = ({
       ...obj,
       color: colorgenerated[index],
     }));
-  }, [value, colorgenerated]);
+  }, [value]);
 
   const checkParams = useMemo(() => {
     if (!ds) {
@@ -116,6 +117,13 @@ const Scheduler: FC<ISchedulerProps> = ({
   const goToPreviousWeek = () => setDate(subWeeks(date, 1));
 
   const goToNextWeek = () => setDate(addWeeks(date, 1));
+
+  const handleItemClick = async (value: Object) => {
+    ce.setValue(null, value);
+    const selItem = await ce.getValue();
+    setSelectedData(selItem);
+    emit('onItemClick');
+  };
 
   let checkHours = (i: number) => {
     if (hours === 'work') {
@@ -244,7 +252,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       return (
                         event[startDate] === format(day, 'yyyy-MM-dd') &&
                         checkHours(hourIndex) >= eventStartTime &&
-                        checkHours(hourIndex) < eventEndTime
+                        checkHours(hourIndex) <= eventEndTime
                       );
                     });
                     return (
@@ -262,11 +270,12 @@ const Scheduler: FC<ISchedulerProps> = ({
                           {event.map((event, index) => (
                             <div
                               key={index}
-                              className="event p-1 w-full border-t-4 overflow-y-auto h-full flex flex-col gap-1"
+                              className="event p-1 w-full border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
                               style={{
                                 backgroundColor: event.color + '40',
                                 borderTopColor: event.color,
                               }}
+                              onClick={() => handleItemClick(event)}
                             >
                               <span
                                 className="event-title text-base font-medium"

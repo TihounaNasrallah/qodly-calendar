@@ -24,7 +24,12 @@ export default {
     displayName: 'DayView',
     exposed: true,
     icon: MdCalendarViewDay,
-    events: [],
+    events: [
+      {
+        label: 'On Item Click',
+        value: 'onItemClick',
+      },
+    ],
     datasources: {
       accept: ['array'],
     },

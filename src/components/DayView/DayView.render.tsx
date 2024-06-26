@@ -27,9 +27,9 @@ const DayView: FC<IDayViewProps> = ({
   className,
   classNames = [],
 }) => {
-  const { connect } = useRenderer();
+  const { connect, emit } = useRenderer();
   const {
-    sources: { datasource: ds },
+    sources: { datasource: ds, currentElement: ce },
   } = useSources();
 
   useEffect(() => {
@@ -49,6 +49,8 @@ const DayView: FC<IDayViewProps> = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
+
+  const [, setSelectedData] = useState<any>({});
 
   const [value, setValue] = useState<any[]>([]);
 
@@ -121,8 +123,17 @@ const DayView: FC<IDayViewProps> = ({
 
   const data = useMemo(
     () => value.map((obj, index) => ({ ...obj, color: colorgenerated[index] })),
-    [value, colorgenerated],
+    [value],
   );
+
+  console.log(data);
+
+  const handleItemClick = async (value: Object) => {
+    ce.setValue(null, value);
+    const selItem = await ce.getValue();
+    setSelectedData(selItem);
+    emit('onItemClick');
+  };
 
   const locale = useMemo(() => {
     if (language === 'fr') return { locale: fr };
@@ -209,7 +220,7 @@ const DayView: FC<IDayViewProps> = ({
                 return (
                   event[eventDate] === format(date, 'yyyy-MM-dd') &&
                   checkHours(hourIndex) >= eventStartTime &&
-                  checkHours(hourIndex) < eventEndTime
+                  checkHours(hourIndex) <= eventEndTime
                 );
               });
               return (
@@ -236,11 +247,12 @@ const DayView: FC<IDayViewProps> = ({
                         <div
                           title={event[property]}
                           key={index}
-                          className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
+                          className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
                           style={{
                             backgroundColor: event.color + '40',
                             borderTopColor: event.color,
                           }}
+                          onClick={() => handleItemClick(event)}
                         >
                           <span className="event-title text-base font-medium">
                             {event[property]}

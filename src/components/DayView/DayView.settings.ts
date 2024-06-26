@@ -65,6 +65,11 @@ const dataAccessSettings: TSetting[] = [
     type: ESetting.DS_AUTO_SUGGEST,
   },
   {
+    key: 'currentElement',
+    label: 'Selected Item',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
     key: 'property',
     label: 'Property',
     type: ESetting.TEXT_FIELD,
