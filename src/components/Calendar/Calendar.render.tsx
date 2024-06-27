@@ -1,4 +1,4 @@
-import { useRenderer, useSources } from '@ws-ui/webform-editor';
+import { useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo } from 'react';
 
@@ -38,6 +38,7 @@ const Calendar: FC<ICalendarProps> = ({
   type,
   language,
   attributes,
+  selectedDate,
   property,
   startDate,
   endDate,
@@ -55,7 +56,7 @@ const Calendar: FC<ICalendarProps> = ({
   const { connect, emit } = useRenderer();
 
   const {
-    sources: { datasource: ds, currentElement: currentDate },
+    sources: { datasource: ds, currentElement: selectedElement },
   } = useSources();
 
   useEffect(() => {
@@ -74,11 +75,17 @@ const Calendar: FC<ICalendarProps> = ({
       ds.removeListener('changed', listener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds, currentDate]);
+  }, [ds]);
 
   const [date, setDate] = useState(new Date());
+  const currentMonth = date.getMonth();
   const [data, setData] = useState<any[]>([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [, setSelectedData] = useState<Object>();
+  const [selDate, setSelDate] = useState(new Date());
+
+  useEffect(() => {
+    emit('onMonthChange');
+  }, [date, currentMonth]);
 
   const checkParams = useMemo(() => {
     if (!ds) {
@@ -105,11 +112,21 @@ const Calendar: FC<ICalendarProps> = ({
     return '';
   }, [ds, data, property, startDate, endDate]);
 
+  const path = useWebformPath();
+
   const handleDateClick = async (value: Date) => {
-    currentDate.setValue(null, value);
-    const ce = await currentDate.getValue<any>();
-    setSelectedDate(ce);
-    emit('onDateClick', { day: value });
+    const ds = window.DataSource.getSource(selectedDate, path);
+    ds?.setValue(null, value);
+    const ce = await ds?.getValue();
+    setSelDate(ce);
+    emit('onDateClick');
+  };
+
+  const handleItemClick = async (value: Object) => {
+    selectedElement.setValue(null, value);
+    const ce = await selectedElement.getValue<any>();
+    setSelectedData(ce);
+    emit('onItemClick');
   };
 
   const colorgenerated = useMemo(
@@ -179,7 +196,7 @@ const Calendar: FC<ICalendarProps> = ({
   const prevYear = () => setDate(subMonths(date, 12));
 
   const isSelected = (date: Date) => {
-    return isEqual(date, selectedDate);
+    return isEqual(date, selDate);
   };
 
   const languageList = {
@@ -319,7 +336,7 @@ const Calendar: FC<ICalendarProps> = ({
                   height: rowHeight,
                 }}
               >
-                <div className="h-fit w-full cursor-pointer">
+                <div className="h-fit w-full">
                   <span
                     className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full cursor-pointer hover:bg-gray-300 duration-300"
                     style={{
@@ -341,13 +358,14 @@ const Calendar: FC<ICalendarProps> = ({
                     return (
                       <div
                         key={`${conge.title}-${conge.startDate}`}
-                        className={`element-container px-2 py-1 flex flex-col w-full border-l-4 text-black`}
+                        className={`element-container cursor-pointer px-2 py-1 flex flex-col w-full border-l-4 text-black`}
                         style={{
                           color: isSameMonth(day, date) ? 'black' : '#969696',
                           backgroundColor: isSameMonth(day, date) ? conge?.color + '50' : '#E3E3E3',
                           borderRadius: borderRadius,
                           borderLeftColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
                         }}
+                        onClick={() => handleItemClick(conge)}
                       >
                         <span
                           title={conge.title}

@@ -25,7 +25,12 @@ export default {
     displayName: 'WeekView',
     exposed: true,
     icon: MdCalendarViewWeek,
-    events: [],
+    events: [
+      {
+        label: 'On Item Click',
+        value: 'onItemClick',
+      },
+    ],
     datasources: {
       accept: ['array'],
     },

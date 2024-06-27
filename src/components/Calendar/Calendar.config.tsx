@@ -30,6 +30,14 @@ export default {
         label: 'On Date Click',
         value: 'onDateClick',
       },
+      {
+        label: 'On Item Click',
+        value: 'onItemClick',
+      },
+      {
+        label: 'On Month Change',
+        value: 'onMonthChange',
+      },
     ],
     datasources: {
       accept: ['array'],
@@ -53,6 +61,7 @@ export interface ICalendarProps extends webforms.ComponentProps {
   yearNav: boolean;
   borderRadius: string;
   property: string;
+  selectedDate: string;
   startDate: string;
   endDate: string;
   rowHeight: string;

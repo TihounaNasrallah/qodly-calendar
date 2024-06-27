@@ -8,7 +8,7 @@ import { format, setHours, isToday } from 'date-fns';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { colorToHex } from '../shared/colorUtils';
 
-import { fr, es } from 'date-fns/locale';
+import { fr, es, de } from 'date-fns/locale';
 
 const DayView: FC<IDayViewProps> = ({
   language,
