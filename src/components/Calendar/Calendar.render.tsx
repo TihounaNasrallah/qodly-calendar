@@ -80,7 +80,7 @@ const Calendar: FC<ICalendarProps> = ({
   // Date
   const [date, setDate] = useState(new Date());
   const currentMonth = date.getMonth();
-
+  
   // Data
   const [data, setData] = useState<any[]>([]);
   const [, setSelectedData] = useState<Object>();
