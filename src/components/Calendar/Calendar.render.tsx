@@ -284,32 +284,36 @@ const Calendar: FC<ICalendarProps> = ({
   return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="calendar-container flex flex-col gap-4 w-full h-full">
-        <div className="calendar-header w-full flex justify-center gap-2 items-center">
+        <div
+          className={`calendar-header w-full flex justify-center gap-2 items-center ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
+        >
           <button
-            className="nav-button text-2xl cursor-pointer rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={prevYear}
             style={{ display: yearNav ? 'block' : 'none' }}
           >
             <MdKeyboardDoubleArrowLeft />
           </button>
           <button
-            className="nav-button text-2xl cursor-pointer rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={prevMonth}
           >
             <MdKeyboardArrowLeft />
           </button>
-          <h2 className="month-title w-44 text-center font-medium text-xl">
+          <h2
+            className={`month-title w-44 text-center ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+          >
             {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
               format(date, 'MMMM yyyy', locale).slice(1)}
           </h2>
           <button
-            className="nav-button text-2xl cursor-pointer rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={nextMonth}
           >
             <MdKeyboardArrowRight />
           </button>
           <button
-            className="nav-button text-2xl cursor-pointer rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={nextYear}
             style={{ display: yearNav ? 'block' : 'none' }}
           >
@@ -327,7 +331,7 @@ const Calendar: FC<ICalendarProps> = ({
             <span
               key={day.title}
               title={day.day}
-              className="weekday-title font-medium text-lg text-center"
+              className={`weekday-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'} ${style?.fontSize ? style?.fontSize : 'text-lg'} text-center`}
             >
               {day.title}
             </span>
@@ -338,16 +342,20 @@ const Calendar: FC<ICalendarProps> = ({
             return (
               <div
                 key={day.toString()}
-                className="day-container flex flex-col justify-start items-start gap-1 py-1 px-1 w-full border border-gray-200"
+                className={`day-container flex flex-col justify-start items-start gap-1 p-1 w-full border ${style?.borderColor ? style?.borderColor : 'border-gray-200'}`}
                 style={{
-                  color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
+                  color: isSameMonth(day, date)
+                    ? style?.color
+                      ? style?.color
+                      : 'black'
+                    : '#C0C0C0',
                   backgroundColor: isSameMonth(day, date) ? 'white' : '#F3F4F6',
                   height: rowHeight,
                 }}
               >
                 <div className="h-fit w-full">
                   <span
-                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full cursor-pointer hover:bg-gray-300 duration-300"
+                    className={`day-number h-7 w-7 flex items-center justify-center ${style?.fontWeight ? style?.fontWeight : 'font-medium'} rounded-full cursor-pointer hover:bg-gray-300 duration-300`}
                     style={{
                       border: isSelected(day) ? `2px solid ${colorToHex(selectedColor)}` : '',
                       backgroundColor: isToday(day) ? color : '',
@@ -379,7 +387,7 @@ const Calendar: FC<ICalendarProps> = ({
                         <span
                           title={conge.title}
                           key={index}
-                          className="element-title font-medium line-clamp-2"
+                          className={`element-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'} line-clamp-2`}
                         >
                           {conge.title}
                         </span>
@@ -388,7 +396,7 @@ const Calendar: FC<ICalendarProps> = ({
                           {attributeList?.map((e) => {
                             return (
                               <span
-                                className="attribute text-sm basis-1/2 text-start"
+                                className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
                                 title={conge.attributes[e].toString()}
                               >
                                 {conge.attributes[e]}
