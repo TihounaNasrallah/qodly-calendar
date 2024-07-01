@@ -1,6 +1,6 @@
 import { useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo } from 'react';
+import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
 import { BsFillInfoCircleFill } from 'react-icons/bs';
 
@@ -77,14 +77,23 @@ const Calendar: FC<ICalendarProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
 
+  // Date
   const [date, setDate] = useState(new Date());
   const currentMonth = date.getMonth();
+
+  // Data
   const [data, setData] = useState<any[]>([]);
   const [, setSelectedData] = useState<Object>();
   const [selDate, setSelDate] = useState(new Date());
 
+  const hasMounted = useRef(false);
+
   useEffect(() => {
-    emit('onMonthChange');
+    if (hasMounted.current) {
+      emit('onMonthChange');
+    } else {
+      hasMounted.current = true;
+    }
   }, [date, currentMonth]);
 
   const checkParams = useMemo(() => {
