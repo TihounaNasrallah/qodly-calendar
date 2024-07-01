@@ -126,8 +126,6 @@ const DayView: FC<IDayViewProps> = ({
     [value],
   );
 
-  console.log(data);
-
   const handleItemClick = async (value: Object) => {
     ce.setValue(null, value);
     const selItem = await ce.getValue();

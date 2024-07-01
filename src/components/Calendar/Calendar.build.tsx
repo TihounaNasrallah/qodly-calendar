@@ -131,94 +131,101 @@ const Calendar: FC<ICalendarProps> = ({
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="calendar-container">
-        <div className="flex flex-col gap-4 w-full h-full">
-          <div className="calendar-header w-full flex justify-center gap-2 items-center">
-            <button
-              className="nav-button text-2xl rounded-full p-1 hover:bg-gray-300 duration-300"
-              style={{ display: yearNav ? 'block' : 'none' }}
-            >
-              <MdKeyboardDoubleArrowLeft />
-            </button>
-            <button className="nav-button text-2xl rounded-full p-1 hover:bg-gray-300 duration-300">
-              <MdKeyboardArrowLeft />
-            </button>
-            <h2 className="month-title w-44 text-center font-medium text-xl">
-              {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
-                format(date, 'MMMM yyyy', locale).slice(1)}
-            </h2>
-            <button className="nav-button text-2xl rounded-full p-1 hover:bg-gray-300 duration-300">
-              <MdKeyboardArrowRight />
-            </button>
-            <button
-              className="nav-button text-2xl rounded-full p-1 hover:bg-gray-300 duration-300"
-              style={{ display: yearNav ? 'block' : 'none' }}
-            >
-              <MdKeyboardDoubleArrowRight />
-            </button>
-          </div>
-          <div
-            className="calendar-grid w-full grid justify-center"
-            style={{
-              gridTemplateColumns: `repeat(${weekdays.length}, minmax(0, 1fr))`,
-            }}
+      <div className="calendar-container flex flex-col gap-4 w-full h-full">
+        <div
+          className={`calendar-header w-full flex justify-center gap-2 items-center ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
+        >
+          <button
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            style={{ display: yearNav ? 'block' : 'none' }}
           >
-            {weekdays.map((day) => (
-              <div
-                key={day.title}
-                title={day.day}
-                className="weekday-title font-medium text-lg text-center"
-              >
-                {day.title}
-              </div>
-            ))}
+            <MdKeyboardDoubleArrowLeft />
+          </button>
+          <button className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300">
+            <MdKeyboardArrowLeft />
+          </button>
+          <h2
+            className={`month-title w-44 text-center ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+          >
+            {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
+              format(date, 'MMMM yyyy', locale).slice(1)}
+          </h2>
+          <button className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300">
+            <MdKeyboardArrowRight />
+          </button>
+          <button
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            style={{ display: yearNav ? 'block' : 'none' }}
+          >
+            <MdKeyboardDoubleArrowRight />
+          </button>
+        </div>
+        <div
+          className="calendar-grid w-full grid justify-center"
+          style={{
+            gridTemplateColumns: `repeat(${weekdays.length}, minmax(0, 1fr))`,
+          }}
+        >
+          {weekdays.map((day) => (
+            <div
+              key={day.title}
+              title={day.day}
+              className={`weekday-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'} ${style?.fontSize ? style?.fontSize : 'text-lg'} text-center`}
+            >
+              {day.title}
+            </div>
+          ))}
 
-            {filteredDays.map((day, index) => (
-              <div
-                key={index}
-                className="day-container flex flex-col justify-start items-start gap-1 p-1 w-full border border-gray-200"
-                style={{
-                  color: isSameMonth(day, date) ? 'black' : '#C0C0C0',
-                  backgroundColor: isSameMonth(day, date) ? 'white' : '#F3F4F6',
-                  height: rowHeight,
-                }}
-              >
-                <div className="h-fit w-full">
+          {filteredDays.map((day, index) => (
+            <div
+              key={index}
+              className={`day-container flex flex-col justify-start items-start gap-1 p-1 w-full border ${style?.borderColor ? style?.borderColor : 'border-gray-200'}`}
+              style={{
+                color: isSameMonth(day, date) ? (style?.color ? style?.color : 'black') : '#C0C0C0',
+                backgroundColor: isSameMonth(day, date) ? 'white' : '#F3F4F6',
+                height: rowHeight,
+              }}
+            >
+              <div className="h-fit w-full">
+                <span
+                  className={`day-number h-7 w-7 flex items-center justify-center ${style?.fontWeight ? style?.fontWeight : 'font-medium'} rounded-full cursor-pointer hover:bg-gray-300 duration-300`}
+                  style={{
+                    backgroundColor: isToday(day) ? color : '',
+                    color: isToday(day) ? 'white' : '',
+                  }}
+                >
+                  {format(day, 'd')}
+                </span>
+              </div>
+              {isEqual(day, firstDayOfMonth) ? (
+                <div
+                  className="element-container px-2 py-1 flex flex-col w-full border-l-4"
+                  style={{
+                    borderRadius: borderRadius,
+                    backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
+                    borderLeftColor: new TinyColor('#C084FC').toHexString(),
+                  }}
+                >
                   <span
-                    className="day-number h-7 w-7 flex items-center justify-center font-medium rounded-full cursor-pointer hover:bg-gray-300 duration-300"
-                    style={{
-                      backgroundColor: isToday(day) ? color : '',
-                      color: isToday(day) ? 'white' : '',
-                    }}
+                    className={`element-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'} line-clamp-2`}
                   >
-                    {format(day, 'd')}
+                    {property ? '{' + property + '}' : 'No Property Set'}
                   </span>
-                </div>
-                {isEqual(day, firstDayOfMonth) ? (
-                  <div
-                    className="element-container px-2 py-1 flex flex-col w-full border-l-4"
-                    style={{
-                      borderRadius: borderRadius,
-                      backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
-                      borderLeftColor: new TinyColor('#C084FC').toHexString(),
-                    }}
-                  >
-                    <span className="element-title font-medium line-clamp-2">
-                      {property ? '{' + property + '}' : 'No Property Set'}
-                    </span>
 
-                    <div className="element-detail flex flex-wrap">
-                      {attributes?.map((attribute, index) => (
-                        <span key={index} className="attribute text-sm basis-1/2 text-start">
-                          {attribute.Attribute}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="element-detail flex flex-wrap">
+                    {attributes?.map((attribute, index) => (
+                      <span
+                        key={index}
+                        className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
+                      >
+                        {attribute.Attribute}
+                      </span>
+                    ))}
                   </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
+                </div>
+              ) : null}
+            </div>
+          ))}
         </div>
       </div>
     </div>
