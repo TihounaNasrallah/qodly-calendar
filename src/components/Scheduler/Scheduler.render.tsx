@@ -73,7 +73,7 @@ const Scheduler: FC<ISchedulerProps> = ({
     if (!ds) {
       return 'Please set the datasource attribute';
     } else if (!value[0] || !value.length) {
-      return 'No Data Available';
+      return '';
     }
 
     if (!property) {

@@ -4,13 +4,15 @@ import { FC, useMemo } from 'react';
 
 import { IDayViewProps } from './DayView.config';
 
-import { format, setHours, isToday } from 'date-fns';
+import { format, setHours, isToday, isEqual } from 'date-fns';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { colorToHex } from '../shared/colorUtils';
 
 import { fr, es, de } from 'date-fns/locale';
+import { TinyColor } from '@ctrl/tinycolor';
 
 const DayView: FC<IDayViewProps> = ({
+  property,
   language,
   todayButton,
   headerPosition,
@@ -26,6 +28,13 @@ const DayView: FC<IDayViewProps> = ({
   } = useEnhancedNode();
 
   const date = new Date();
+
+  const firstHour = useMemo(() => {
+    if (hours === 'work') {
+      return 8;
+    }
+    return 0;
+  }, [hours]);
 
   const isCurrentHour = (hourIndex: number) => {
     return date.getHours() === hourIndex;
@@ -125,14 +134,34 @@ const DayView: FC<IDayViewProps> = ({
                 </td>
                 <td
                   key={format(date, 'yyyy-MM-dd') + '-' + hourIndex}
-                  className="time-content border border-gray-200"
+                  className="border border-gray-200 p-1"
                   style={{
                     backgroundColor:
                       isToday(date) && isCurrentHour(checkHours(hourIndex))
                         ? colorToHex(color) + '30'
                         : '',
+                    borderLeft:
+                      isToday(date) && isCurrentHour(checkHours(hourIndex))
+                        ? '6px solid ' + color
+                        : '',
                   }}
-                ></td>
+                >
+                  <div className="time-content flex flex-col flex-wrap w-1/3 h-full gap-1 overflow-x-auto">
+                    {isToday(date) && isEqual(firstHour, checkHours(hourIndex)) ? (
+                      <div
+                        className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
+                        style={{
+                          backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
+                          borderTopColor: new TinyColor('#C084FC').toHexString(),
+                        }}
+                      >
+                        <span className="event-title text-base font-medium">
+                          {property ? '{' + property + '}' : 'No Property Set'}
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

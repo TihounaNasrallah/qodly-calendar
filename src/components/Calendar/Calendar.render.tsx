@@ -80,7 +80,7 @@ const Calendar: FC<ICalendarProps> = ({
   // Date
   const [date, setDate] = useState(new Date());
   const currentMonth = date.getMonth();
-  
+
   // Data
   const [data, setData] = useState<any[]>([]);
   const [, setSelectedData] = useState<Object>();
@@ -392,10 +392,11 @@ const Calendar: FC<ICalendarProps> = ({
                           {conge.title}
                         </span>
 
-                        <div className="element-detail flex flex-wrap">
+                        <div key={`attributes-${index}`} className="element-detail flex flex-wrap">
                           {attributeList?.map((e) => {
                             return (
                               <span
+                                key={`attribute-${index}-${e}`}
                                 className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
                                 title={conge.attributes[e].toString()}
                               >

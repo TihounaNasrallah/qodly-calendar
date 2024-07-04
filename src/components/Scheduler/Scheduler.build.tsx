@@ -5,12 +5,14 @@ import { FC, useMemo } from 'react';
 import { ISchedulerProps } from './Scheduler.config';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 
-import { format, startOfWeek, addDays, isToday, setHours } from 'date-fns';
+import { format, startOfWeek, addDays, isToday, setHours, isEqual } from 'date-fns';
 import { colorToHex } from '../shared/colorUtils';
 
 import { fr, es, de } from 'date-fns/locale';
+import { TinyColor } from '@ctrl/tinycolor';
 
 const Scheduler: FC<ISchedulerProps> = ({
+  property,
   todayButton,
   language,
   days,
@@ -28,6 +30,13 @@ const Scheduler: FC<ISchedulerProps> = ({
   } = useEnhancedNode();
 
   const date = new Date();
+
+  const firstHour = useMemo(() => {
+    if (hours === 'work') {
+      return 8;
+    }
+    return 0;
+  }, [hours]);
 
   const getWeekDates = (startDate: Date) => {
     const dates = [];
@@ -166,7 +175,23 @@ const Scheduler: FC<ISchedulerProps> = ({
                             ? colorToHex(color) + '30'
                             : '',
                       }}
-                    ></td>
+                    >
+                      <div className="time-content flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
+                        {isToday(day) && isEqual(firstHour, checkHours(hourIndex)) ? (
+                          <div
+                            className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
+                            style={{
+                              backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
+                              borderTopColor: new TinyColor('#C084FC').toHexString(),
+                            }}
+                          >
+                            <span className="event-title text-base font-medium">
+                              {property ? '{' + property + '}' : 'No Property Set'}
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
+                    </td>
                   ))}
                 </tr>
               ))}
