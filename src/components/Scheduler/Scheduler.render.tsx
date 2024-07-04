@@ -24,6 +24,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   endTime,
   timeFormat,
   color,
+  colorProp,
   colors = [],
   headerPosition,
   style,
@@ -65,7 +66,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   const data = useMemo(() => {
     return value.map((obj, index) => ({
       ...obj,
-      color: colorgenerated[index],
+      color: obj[colorProp] || colorgenerated[index],
     }));
   }, [value]);
 
@@ -73,7 +74,7 @@ const Scheduler: FC<ISchedulerProps> = ({
     if (!ds) {
       return 'Please set the datasource attribute';
     } else if (!value[0] || !value.length) {
-      return 'No Data Available';
+      return '';
     }
 
     if (!property) {
@@ -162,7 +163,9 @@ const Scheduler: FC<ISchedulerProps> = ({
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="scheduler-container flex flex-col gap-4 h-full">
         <div className="flex items-center justify-center gap-2">
-          <span className="current-month text-xl font-medium">
+          <span
+            className={`current-month ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'} `}
+          >
             {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
               format(date, 'MMMM yyyy', locale).slice(1)}
           </span>
@@ -239,7 +242,9 @@ const Scheduler: FC<ISchedulerProps> = ({
                   }}
                 >
                   <td className="timeline flex items-center justify-center">
-                    <span className=" text-gray-400 text-[12px] font-semibold">
+                    <span
+                      className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+                    >
                       {timeFormat === '12'
                         ? format(setHours(new Date(), checkHours(hourIndex)), 'K a')
                         : format(setHours(new Date(), checkHours(hourIndex)), 'HH:00')}
@@ -258,11 +263,15 @@ const Scheduler: FC<ISchedulerProps> = ({
                     return (
                       <td
                         key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                        className="time-content border border-gray-20"
+                        className="time-content border border-gray-200 p-1"
                         style={{
                           backgroundColor:
                             isToday(day) && isCurrentHour(checkHours(hourIndex))
                               ? colorToHex(color) + '30'
+                              : '',
+                          border:
+                            isToday(day) && isCurrentHour(checkHours(hourIndex))
+                              ? '2px solid ' + color
                               : '',
                         }}
                       >
@@ -278,7 +287,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                               onClick={() => handleItemClick(event)}
                             >
                               <span
-                                className="event-title text-base font-medium"
+                                className={`event-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'}`}
                                 title={event[property]}
                               >
                                 {event[property]}

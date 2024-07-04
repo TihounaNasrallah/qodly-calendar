@@ -5,12 +5,14 @@ import { FC, useMemo } from 'react';
 import { ISchedulerProps } from './Scheduler.config';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 
-import { format, startOfWeek, addDays, isToday, setHours } from 'date-fns';
+import { format, startOfWeek, addDays, isToday, setHours, isEqual } from 'date-fns';
 import { colorToHex } from '../shared/colorUtils';
 
 import { fr, es, de } from 'date-fns/locale';
+import { TinyColor } from '@ctrl/tinycolor';
 
 const Scheduler: FC<ISchedulerProps> = ({
+  property,
   todayButton,
   language,
   days,
@@ -28,6 +30,13 @@ const Scheduler: FC<ISchedulerProps> = ({
   } = useEnhancedNode();
 
   const date = new Date();
+
+  const firstHour = useMemo(() => {
+    if (hours === 'work') {
+      return 8;
+    }
+    return 0;
+  }, [hours]);
 
   const getWeekDates = (startDate: Date) => {
     const dates = [];
@@ -80,7 +89,9 @@ const Scheduler: FC<ISchedulerProps> = ({
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="scheduler-container flex flex-col gap-4 h-full">
         <div className="flex items-center justify-center gap-2">
-          <span className="current-month text-xl font-medium">
+          <span
+            className={`current-month ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'} `}
+          >
             {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
               format(date, 'MMMM yyyy', locale).slice(1)}
           </span>
@@ -106,7 +117,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       <MdKeyboardArrowRight />
                     </button>
                   </div>
-                  <span className="current-month font-medium text-xs text-gray-400">
+                  <span className="timezone font-medium text-xs text-gray-400">
                     {format(date, 'OOOO')}
                   </span>
                 </th>
@@ -149,8 +160,10 @@ const Scheduler: FC<ISchedulerProps> = ({
                     height: height,
                   }}
                 >
-                  <td className="flex items-center justify-center">
-                    <span className="timeline text-gray-400 text-[12px] font-semibold">
+                  <td className="timeline flex items-center justify-center">
+                    <span
+                      className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+                    >
                       {timeFormat === '12'
                         ? format(setHours(new Date(), checkHours(hourIndex)), 'K a')
                         : format(setHours(new Date(), checkHours(hourIndex)), 'HH:00')}
@@ -159,14 +172,32 @@ const Scheduler: FC<ISchedulerProps> = ({
                   {weekDates.map((day, dayIndex) => (
                     <td
                       key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                      className="time-content border border-gray-200"
+                      className="time-content border border-gray-200 p-1"
                       style={{
                         backgroundColor:
                           isToday(day) && isCurrentHour(checkHours(hourIndex))
                             ? colorToHex(color) + '30'
                             : '',
                       }}
-                    ></td>
+                    >
+                      <div className="time-content flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
+                        {isToday(day) && isEqual(firstHour, checkHours(hourIndex)) ? (
+                          <div
+                            className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
+                            style={{
+                              backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
+                              borderTopColor: new TinyColor('#C084FC').toHexString(),
+                            }}
+                          >
+                            <span
+                              className={`event-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'}`}
+                            >
+                              {property ? '{' + property + '}' : 'No Property Set'}
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
+                    </td>
                   ))}
                 </tr>
               ))}

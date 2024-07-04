@@ -14,6 +14,7 @@ import { fr, es, de } from 'date-fns/locale';
 const DayView: FC<IDayViewProps> = ({
   language,
   todayButton,
+  colorProp,
   colors = [],
   property,
   headerPosition,
@@ -89,7 +90,7 @@ const DayView: FC<IDayViewProps> = ({
     if (!ds) {
       return 'Please set the datasource attribute';
     } else if (!value[0] || !value.length) {
-      return 'No Data Available';
+      return '';
     }
 
     if (!property) {
@@ -122,7 +123,7 @@ const DayView: FC<IDayViewProps> = ({
   );
 
   const data = useMemo(
-    () => value.map((obj, index) => ({ ...obj, color: colorgenerated[index] })),
+    () => value.map((obj, index) => ({ ...obj, color: obj[colorProp] || colorgenerated[index] })),
     [value],
   );
 
@@ -149,13 +150,15 @@ const DayView: FC<IDayViewProps> = ({
 
   return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="current-day text-center text-xl font-medium">
+      <div
+        className={`current-day text-center ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+      >
         {format(date, 'dd MMMM yyyy', locale)}
       </div>
-      <div className="day-view-container w-full h-full">
+      <div className="dayview-container w-full h-full">
         <table className="table-fixed w-full h-full border-collapse">
           <thead>
-            <tr className="day-view-header">
+            <tr className="dayview-header">
               <th
                 className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
               >
@@ -180,7 +183,7 @@ const DayView: FC<IDayViewProps> = ({
                     <MdKeyboardArrowRight />
                   </button>
                 </div>
-                <span className="current-month font-medium text-xs text-gray-400">
+                <span className="timezone font-medium text-xs text-gray-400">
                   {format(date, 'OOOO')}
                 </span>
               </th>
@@ -212,7 +215,7 @@ const DayView: FC<IDayViewProps> = ({
           </thead>
           <tbody>
             {hourList.map((_, hourIndex) => {
-              const event = data.filter((event) => {
+              const events = data.filter((event) => {
                 const eventStartTime = parseInt(event[startTime].split(':')[0]);
                 const eventEndTime = parseInt(event[endTime].split(':')[0]);
                 return (
@@ -224,7 +227,9 @@ const DayView: FC<IDayViewProps> = ({
               return (
                 <tr key={checkHours(hourIndex)} className="w-36 h-16">
                   <td className="flex items-center justify-center">
-                    <span className="timeline text-gray-400 text-[12px] font-semibold">
+                    <span
+                      className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+                    >
                       {timeFormat === '12'
                         ? format(setHours(new Date(), checkHours(hourIndex)), 'K a')
                         : format(setHours(new Date(), checkHours(hourIndex)), 'HH:00')}
@@ -232,16 +237,20 @@ const DayView: FC<IDayViewProps> = ({
                   </td>
                   <td
                     key={format(date, 'yyyy-MM-dd') + '-' + hourIndex}
-                    className="time-content border border-gray-200"
+                    className="border border-gray-200 p-1"
                     style={{
                       backgroundColor:
                         isToday(date) && isCurrentHour(checkHours(hourIndex))
                           ? colorToHex(color) + '30'
                           : '',
+                      borderLeft:
+                        isToday(date) && isCurrentHour(checkHours(hourIndex))
+                          ? '6px solid ' + color
+                          : '',
                     }}
                   >
-                    <div className="flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
-                      {event.map((event, index) => (
+                    <div className="time-content flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
+                      {events.map((event, index) => (
                         <div
                           title={event[property]}
                           key={index}
@@ -252,7 +261,9 @@ const DayView: FC<IDayViewProps> = ({
                           }}
                           onClick={() => handleItemClick(event)}
                         >
-                          <span className="event-title text-base font-medium">
+                          <span
+                            className={`event-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'}`}
+                          >
                             {event[property]}
                           </span>
                         </div>

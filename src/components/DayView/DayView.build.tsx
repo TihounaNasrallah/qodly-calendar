@@ -4,13 +4,15 @@ import { FC, useMemo } from 'react';
 
 import { IDayViewProps } from './DayView.config';
 
-import { format, setHours, isToday } from 'date-fns';
+import { format, setHours, isToday, isEqual } from 'date-fns';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { colorToHex } from '../shared/colorUtils';
 
 import { fr, es, de } from 'date-fns/locale';
+import { TinyColor } from '@ctrl/tinycolor';
 
 const DayView: FC<IDayViewProps> = ({
+  property,
   language,
   todayButton,
   headerPosition,
@@ -26,6 +28,13 @@ const DayView: FC<IDayViewProps> = ({
   } = useEnhancedNode();
 
   const date = new Date();
+
+  const firstHour = useMemo(() => {
+    if (hours === 'work') {
+      return 8;
+    }
+    return 0;
+  }, [hours]);
 
   const isCurrentHour = (hourIndex: number) => {
     return date.getHours() === hourIndex;
@@ -59,13 +68,15 @@ const DayView: FC<IDayViewProps> = ({
   }, [language]);
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="current-day text-center text-xl font-medium">
+      <div
+        className={`current-day text-center ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+      >
         {format(date, 'dd MMMM yyyy', locale)}
       </div>
-      <div className="day-view-container w-full h-full">
+      <div className="dayview-container w-full h-full">
         <table className="table-fixed w-full h-full border-collapse">
           <thead>
-            <tr className="day-view-header">
+            <tr className="dayview-header">
               <th
                 className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
               >
@@ -83,7 +94,7 @@ const DayView: FC<IDayViewProps> = ({
                     <MdKeyboardArrowRight />
                   </button>
                 </div>
-                <span className="current-month font-medium text-xs text-gray-400">
+                <span className="timezone font-medium text-xs text-gray-400">
                   {format(date, 'OOOO')}
                 </span>
               </th>
@@ -117,7 +128,9 @@ const DayView: FC<IDayViewProps> = ({
             {hourList.map((_, hourIndex) => (
               <tr key={checkHours(hourIndex)} className="w-36 h-16">
                 <td className="flex items-center justify-center">
-                  <span className="timeline text-gray-400 text-[12px] font-semibold">
+                  <span
+                    className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+                  >
                     {timeFormat === '12'
                       ? format(setHours(new Date(), checkHours(hourIndex)), 'K a')
                       : format(setHours(new Date(), checkHours(hourIndex)), 'HH:00')}
@@ -125,14 +138,36 @@ const DayView: FC<IDayViewProps> = ({
                 </td>
                 <td
                   key={format(date, 'yyyy-MM-dd') + '-' + hourIndex}
-                  className="time-content border border-gray-200"
+                  className="border border-gray-200 p-1"
                   style={{
                     backgroundColor:
                       isToday(date) && isCurrentHour(checkHours(hourIndex))
                         ? colorToHex(color) + '30'
                         : '',
+                    borderLeft:
+                      isToday(date) && isCurrentHour(checkHours(hourIndex))
+                        ? '6px solid ' + color
+                        : '',
                   }}
-                ></td>
+                >
+                  <div className="time-content flex flex-col flex-wrap w-1/3 h-full gap-1 overflow-x-auto">
+                    {isToday(date) && isEqual(firstHour, checkHours(hourIndex)) ? (
+                      <div
+                        className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
+                        style={{
+                          backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
+                          borderTopColor: new TinyColor('#C084FC').toHexString(),
+                        }}
+                      >
+                        <span
+                          className={`event-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'}`}
+                        >
+                          {property ? '{' + property + '}' : 'No Property Set'}
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

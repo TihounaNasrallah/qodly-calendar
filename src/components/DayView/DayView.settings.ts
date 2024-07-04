@@ -94,6 +94,12 @@ const dataAccessSettings: TSetting[] = [
     defaultValue: '',
   },
   {
+    key: 'colorProp',
+    label: 'Color Property',
+    type: ESetting.TEXT_FIELD,
+    defaultValue: '',
+  },
+  {
     key: 'colors',
     name: 'Colors',
     label: 'Colors',

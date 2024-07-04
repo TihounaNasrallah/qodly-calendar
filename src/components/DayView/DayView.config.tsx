@@ -55,6 +55,7 @@ export interface IDayViewProps extends webforms.ComponentProps {
   language: string;
   headerPosition: 'sticky' | '';
   todayButton?: boolean;
+  colorProp: string;
   colors?: IColors[];
 }
 
