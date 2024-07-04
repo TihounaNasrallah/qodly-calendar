@@ -24,6 +24,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   endTime,
   timeFormat,
   color,
+  colorProp,
   colors = [],
   headerPosition,
   style,
@@ -65,7 +66,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   const data = useMemo(() => {
     return value.map((obj, index) => ({
       ...obj,
-      color: colorgenerated[index],
+      color: obj[colorProp] || colorgenerated[index],
     }));
   }, [value]);
 
@@ -258,11 +259,15 @@ const Scheduler: FC<ISchedulerProps> = ({
                     return (
                       <td
                         key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                        className="time-content border border-gray-20"
+                        className="time-content border border-gray-200 p-1"
                         style={{
                           backgroundColor:
                             isToday(day) && isCurrentHour(checkHours(hourIndex))
                               ? colorToHex(color) + '30'
+                              : '',
+                          border:
+                            isToday(day) && isCurrentHour(checkHours(hourIndex))
+                              ? '2px solid ' + color
                               : '',
                         }}
                       >

@@ -168,7 +168,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                   {weekDates.map((day, dayIndex) => (
                     <td
                       key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                      className="time-content border border-gray-200"
+                      className="time-content border border-gray-200 p-1"
                       style={{
                         backgroundColor:
                           isToday(day) && isCurrentHour(checkHours(hourIndex))

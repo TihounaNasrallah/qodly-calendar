@@ -56,6 +56,7 @@ export interface ISchedulerProps extends webforms.ComponentProps {
   startDate: string;
   startTime: string;
   endTime: string;
+  colorProp: string;
   colors?: IColors[];
   todayButton?: boolean;
   hours?: string;
