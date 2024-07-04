@@ -89,7 +89,9 @@ const Scheduler: FC<ISchedulerProps> = ({
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="scheduler-container flex flex-col gap-4 h-full">
         <div className="flex items-center justify-center gap-2">
-          <span className="current-month text-xl font-medium">
+          <span
+            className={`current-month ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'} `}
+          >
             {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
               format(date, 'MMMM yyyy', locale).slice(1)}
           </span>
@@ -115,7 +117,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       <MdKeyboardArrowRight />
                     </button>
                   </div>
-                  <span className="current-month font-medium text-xs text-gray-400">
+                  <span className="timezone font-medium text-xs text-gray-400">
                     {format(date, 'OOOO')}
                   </span>
                 </th>
@@ -158,8 +160,10 @@ const Scheduler: FC<ISchedulerProps> = ({
                     height: height,
                   }}
                 >
-                  <td className="flex items-center justify-center">
-                    <span className="timeline text-gray-400 text-[12px] font-semibold">
+                  <td className="timeline flex items-center justify-center">
+                    <span
+                      className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+                    >
                       {timeFormat === '12'
                         ? format(setHours(new Date(), checkHours(hourIndex)), 'K a')
                         : format(setHours(new Date(), checkHours(hourIndex)), 'HH:00')}
@@ -185,7 +189,9 @@ const Scheduler: FC<ISchedulerProps> = ({
                               borderTopColor: new TinyColor('#C084FC').toHexString(),
                             }}
                           >
-                            <span className="event-title text-base font-medium">
+                            <span
+                              className={`event-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'}`}
+                            >
                               {property ? '{' + property + '}' : 'No Property Set'}
                             </span>
                           </div>

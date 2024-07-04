@@ -150,13 +150,15 @@ const DayView: FC<IDayViewProps> = ({
 
   return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="current-day text-center text-xl font-medium">
+      <div
+        className={`current-day text-center ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+      >
         {format(date, 'dd MMMM yyyy', locale)}
       </div>
-      <div className="day-view-container w-full h-full">
+      <div className="dayview-container w-full h-full">
         <table className="table-fixed w-full h-full border-collapse">
           <thead>
-            <tr className="day-view-header">
+            <tr className="dayview-header">
               <th
                 className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
               >
@@ -181,7 +183,7 @@ const DayView: FC<IDayViewProps> = ({
                     <MdKeyboardArrowRight />
                   </button>
                 </div>
-                <span className="current-month font-medium text-xs text-gray-400">
+                <span className="timezone font-medium text-xs text-gray-400">
                   {format(date, 'OOOO')}
                 </span>
               </th>
@@ -225,7 +227,9 @@ const DayView: FC<IDayViewProps> = ({
               return (
                 <tr key={checkHours(hourIndex)} className="w-36 h-16">
                   <td className="flex items-center justify-center">
-                    <span className="timeline text-gray-400 text-[12px] font-semibold">
+                    <span
+                      className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+                    >
                       {timeFormat === '12'
                         ? format(setHours(new Date(), checkHours(hourIndex)), 'K a')
                         : format(setHours(new Date(), checkHours(hourIndex)), 'HH:00')}
@@ -257,7 +261,9 @@ const DayView: FC<IDayViewProps> = ({
                           }}
                           onClick={() => handleItemClick(event)}
                         >
-                          <span className="event-title text-base font-medium">
+                          <span
+                            className={`event-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'}`}
+                          >
                             {event[property]}
                           </span>
                         </div>
