@@ -15,10 +15,12 @@
 
 ### **Tips**💡
 
-In order to be able to visualize data coming from an **`EntitySelection`** in any component of the list, you must declare a function that will run when the webform is loaded ( `onLoad` ), the function creates an array of objects. Here is an example :
+In order to be able to visualize data coming from an **`EntitySelection`** in any component of the list, you must declare a function that will run when the webform is loaded ( `onLoad` ), the function creates an array of objects. Here are two example :
 
 ```ts
-exposed function listEmployee()
+# Example 1
+
+exposed function listEmployees()
 	var i : number
 	var employees : cs.EmployeeSelection
 	employees = ds.Employee.all()
@@ -29,10 +31,31 @@ exposed function listEmployee()
 		newItem = {name: "", type: "", startDate: "", endDate: "", team: "", color: ""}
 		newItem.name = employees[i].name
 		newItem.type = employees[i].leaveType
-		newItem.startDate = string(employees[i].startDate, "yyyy-MM-dd")
-		newItem.endDate = string(employees[i].endDate, "yyyy-MM-dd")
+		newItem.startDate = employees[i].startDate
+		newItem.endDate = employees[i].endDate
 		newItem.team = employees[i].team.name
 		newItem.color = employees[i].team.color
+		list.push(newItem)
+	end
+	return list
+```
+
+```ts
+# Example 2
+
+exposed function listSessions()
+	var i : number
+	var sessions : cs.SessionSelection
+	sessions = ds.Session.all()
+	var newItem : object
+	var list : collection
+	list = []
+	for (i, 0, sessions.length-1)
+		newItem = {title: "", date: "", startTime: "", endTime: "", color: ""}
+		newItem.title = sessions[i].name
+		newItem.date = sessions[i].sessionDate
+		newItem.startTime = timeString(sessions[i].startTime)
+		newItem.endTime = timeString(sessions[i].endTime)
 		list.push(newItem)
 	end
 	return list
