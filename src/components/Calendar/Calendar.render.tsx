@@ -16,7 +16,6 @@ import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUt
 import {
   differenceInDays,
   isEqual,
-  parseISO,
   startOfWeek,
   endOfWeek,
   endOfMonth,
@@ -54,7 +53,6 @@ const Calendar: FC<ICalendarProps> = ({
   classNames = [],
 }) => {
   const { connect, emit } = useRenderer();
-
   const {
     sources: { datasource: ds, currentElement: selectedElement },
   } = useSources();
@@ -77,16 +75,14 @@ const Calendar: FC<ICalendarProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ds]);
 
-  // Date
   const [date, setDate] = useState(new Date());
   const currentMonth = date.getMonth();
-
-  // Data
   const [data, setData] = useState<any[]>([]);
   const [, setSelectedData] = useState<Object>();
   const [selDate, setSelDate] = useState(new Date());
-
   const hasMounted = useRef(false);
+  const [showScrollbar, setShowScrollbar] = useState(false);
+  const path = useWebformPath();
 
   useEffect(() => {
     if (hasMounted.current) {
@@ -98,32 +94,31 @@ const Calendar: FC<ICalendarProps> = ({
 
   const checkParams = useMemo(() => {
     if (!ds) {
-      return 'Please set the datasource attribute';
+      return 'Please set "Datasource"';
     } else if (!data[0] || !data.length) {
       return '';
     }
 
     if (!property) {
-      return 'Please set the property attribute';
+      return 'Please set "Property"';
     } else if (!(property in data[0])) {
-      return `${property} does not exist as a property`;
+      return `"${property}" does not exist as an attribute`;
     }
     if (!startDate) {
       return 'Please set the Start Date attribute';
     } else if (!(startDate in data[0])) {
-      return `${startDate} does not exist as a property`;
+      return `"${startDate}" does not exist as an attribute`;
     }
     if (!endDate) {
       return 'Please set the End Date attribute';
     } else if (!(endDate in data[0])) {
-      return `${endDate} does not exist as a property`;
+      return `"${endDate}" does not exist as an attribute`;
     }
     return '';
   }, [ds, data, property, startDate, endDate]);
 
-  const path = useWebformPath();
-
   const handleDateClick = async (value: Date) => {
+    if (!selectedDate) return;
     const ds = window.DataSource.getSource(selectedDate, path);
     ds?.setValue(null, value);
     const ce = await ds?.getValue();
@@ -132,6 +127,7 @@ const Calendar: FC<ICalendarProps> = ({
   };
 
   const handleItemClick = async (value: Object) => {
+    if (!selectedElement) return;
     selectedElement.setValue(null, value);
     const ce = await selectedElement.getValue<any>();
     setSelectedData(ce);
@@ -160,12 +156,12 @@ const Calendar: FC<ICalendarProps> = ({
   const list = useMemo(() => {
     const result: any[] = [];
     newData.forEach((conge) => {
-      const num = differenceInDays(parseISO(conge[endDate]), parseISO(conge[startDate]));
+      const num = differenceInDays(new Date(conge.endDate), new Date(conge.startDate));
       for (let i = 0; i <= num; i++) {
         result.push({
           title: conge[property],
-          startDate: addDays(parseISO(conge[startDate]), i),
-          endDate: addDays(parseISO(conge[startDate]), i),
+          startDate: addDays(new Date(conge.startDate), i),
+          endDate: addDays(new Date(conge.startDate), i),
           color: conge.color,
           attributes: attributeList.reduce((acc, e) => {
             acc[e] = conge[e];
@@ -187,8 +183,6 @@ const Calendar: FC<ICalendarProps> = ({
       return acc;
     }, {});
   }, [data]);
-
-  const [showScrollbar, setShowScrollbar] = useState(false);
 
   const daysInMonth = useMemo(
     () =>

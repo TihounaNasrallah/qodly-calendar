@@ -219,7 +219,7 @@ const DayView: FC<IDayViewProps> = ({
                 const eventStartTime = parseInt(event[startTime].split(':')[0]);
                 const eventEndTime = parseInt(event[endTime].split(':')[0]);
                 return (
-                  event[eventDate] === format(date, 'yyyy-MM-dd') &&
+                  format(new Date(event[eventDate]), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd') &&
                   checkHours(hourIndex) >= eventStartTime &&
                   checkHours(hourIndex) <= eventEndTime
                 );

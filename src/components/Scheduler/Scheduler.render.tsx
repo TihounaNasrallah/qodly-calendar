@@ -251,11 +251,12 @@ const Scheduler: FC<ISchedulerProps> = ({
                     </span>
                   </td>
                   {weekDates.map((day, dayIndex) => {
-                    const event = data.filter((event) => {
+                    const events = data.filter((event) => {
                       const eventStartTime = parseInt(event[startTime].split(':')[0]);
                       const eventEndTime = parseInt(event[endTime].split(':')[0]);
                       return (
-                        event[startDate] === format(day, 'yyyy-MM-dd') &&
+                        format(new Date(event[startDate]), 'yyyy-MM-dd') ===
+                          format(day, 'yyyy-MM-dd') &&
                         checkHours(hourIndex) >= eventStartTime &&
                         checkHours(hourIndex) <= eventEndTime
                       );
@@ -276,7 +277,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                         }}
                       >
                         <div className="flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
-                          {event.map((event, index) => (
+                          {events.map((event, index) => (
                             <div
                               key={index}
                               className="event p-1 w-full border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
