@@ -60,39 +60,6 @@ const commonSettings: TSetting[] = [
 
 const attributesSettings: TSetting[] = [
   {
-    type: ESetting.DATAGRID,
-    key: 'attributes',
-    name: 'Attributes',
-    label: 'Attributes',
-    titleProperty: 'Attribute',
-    data: [
-      {
-        key: 'Attribute',
-        label: 'Attribute',
-        type: ESetting.TEXT_FIELD,
-        defaultValue: '',
-      },
-    ],
-  },
-];
-
-const dataAccessSettings: TSetting[] = [
-  {
-    key: 'datasource',
-    label: 'Data Source',
-    type: ESetting.DS_AUTO_SUGGEST,
-  },
-  {
-    key: 'currentElement',
-    label: 'Selected Item',
-    type: ESetting.DS_AUTO_SUGGEST,
-  },
-  {
-    key: 'selectedDate',
-    label: 'Selected Date',
-    type: ESetting.DS_AUTO_SUGGEST,
-  },
-  {
     key: 'property',
     label: 'Property',
     type: ESetting.TEXT_FIELD,
@@ -132,6 +99,39 @@ const dataAccessSettings: TSetting[] = [
     ],
   },
   {
+    type: ESetting.DATAGRID,
+    key: 'attributes',
+    name: 'Attributes',
+    label: 'Attributes',
+    titleProperty: 'Attribute',
+    data: [
+      {
+        key: 'Attribute',
+        label: 'Attribute',
+        type: ESetting.TEXT_FIELD,
+        defaultValue: '',
+      },
+    ],
+  },
+];
+
+const dataAccessSettings: TSetting[] = [
+  {
+    key: 'datasource',
+    label: 'Data Source',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'currentElement',
+    label: 'Selected Item',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'selectedDate',
+    label: 'Selected Date',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
     key: 'serverSideRef',
     label: 'Server Side',
     type: ESetting.TEXT_FIELD,
@@ -154,7 +154,7 @@ const Settings: TSetting[] = [
   },
   {
     key: 'attributes',
-    label: 'Attributes to Display',
+    label: 'Data Attributes',
     type: ESetting.GROUP,
     components: attributesSettings,
   },

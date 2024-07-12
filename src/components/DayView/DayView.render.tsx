@@ -88,30 +88,30 @@ const DayView: FC<IDayViewProps> = ({
 
   const checkParams = useMemo(() => {
     if (!ds) {
-      return 'Please set the datasource attribute';
+      return 'Please set "Datasource"';
     } else if (!value[0] || !value.length) {
       return '';
     }
 
     if (!property) {
-      return 'Please set the property attribute';
+      return 'Please set "Property"';
     } else if (!(property in value[0])) {
-      return `${property} does not exist as a property`;
+      return `${property} does not exist as an attribute`;
     }
     if (!eventDate) {
-      return 'Please set the event date attribute';
+      return 'Please set "event date"';
     } else if (!(eventDate in value[0])) {
-      return `${eventDate} does not exist as a property`;
+      return `${eventDate} does not exist as an attribute`;
     }
     if (!startTime) {
-      return 'Please set the start time attribute';
+      return 'Please set the "start time"';
     } else if (!(startTime in value[0])) {
-      return `${startTime} does not exist as a property`;
+      return `${startTime} does not exist as an attribute`;
     }
     if (!endTime) {
-      return 'Please set the end time attribute';
+      return 'Please set the "end time"';
     } else if (!(endTime in value[0])) {
-      return `${endTime} does not exist as a property`;
+      return `${endTime} does not exist as an attribute`;
     }
 
     return '';
