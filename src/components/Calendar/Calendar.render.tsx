@@ -1,6 +1,6 @@
-import { useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
+import { DataLoader, useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo, useRef } from 'react';
+import { FC, useEffect, useState, useMemo, useRef, useCallback } from 'react';
 
 import { BsFillInfoCircleFill } from 'react-icons/bs';
 
@@ -36,7 +36,7 @@ import { fr, es, de } from 'date-fns/locale';
 const Calendar: FC<ICalendarProps> = ({
   type,
   language,
-  attributes,
+  attributes = [],
   selectedDate,
   property,
   startDate,
@@ -57,40 +57,63 @@ const Calendar: FC<ICalendarProps> = ({
     sources: { datasource: ds, currentElement: selectedElement },
   } = useSources();
 
-  useEffect(() => {
-    if (!ds) return;
-
-    const listener = async (/* event */) => {
-      const v = await ds.getValue<any>();
-      setData(v);
-    };
-
-    listener();
-
-    ds.addListener('changed', listener);
-
-    return () => {
-      ds.removeListener('changed', listener);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds]);
-
   const [date, setDate] = useState(new Date());
   const currentMonth = date.getMonth();
   const [data, setData] = useState<any[]>([]);
-  const [, setSelectedData] = useState<Object>();
+  const [selectedData, setSelectedData] = useState<Object>({});
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const [showScrollbar, setShowScrollbar] = useState(false);
   const path = useWebformPath();
 
-  useEffect(() => {
-    if (hasMounted.current) {
-      emit('onMonthChange');
-    } else {
-      hasMounted.current = true;
-    }
-  }, [date, currentMonth]);
+  switch (ds.type) {
+    case 'scalar':
+      useEffect(() => {
+        if (!ds) return;
+
+        const listener = async (/* event */) => {
+          const v = await ds.getValue<any>();
+          setData(v);
+        };
+
+        listener();
+
+        ds.addListener('changed', listener);
+
+        return () => {
+          ds.removeListener('changed', listener);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [ds]);
+      break;
+
+    case 'entitysel':
+      const loader = useMemo<DataLoader | any>(() => {
+        if (!ds) return;
+        return DataLoader.create(ds, [
+          property,
+          startDate,
+          endDate,
+          colorProp,
+          ...attributes.map((a) => a.Attribute as string),
+        ]);
+      }, [ds, property]);
+
+      const updateFromLoader = useCallback(() => {
+        if (!loader) return;
+        setData(loader.page);
+      }, [loader]);
+
+      useEffect(() => {
+        if (!loader || !ds) return;
+
+        loader.sourceHasChanged().then(updateFromLoader);
+      }, []);
+      break;
+
+    default:
+      break;
+  }
 
   const checkParams = useMemo(() => {
     if (!ds) {
@@ -117,6 +140,14 @@ const Calendar: FC<ICalendarProps> = ({
     return '';
   }, [ds, data, property, startDate, endDate]);
 
+  useEffect(() => {
+    if (hasMounted.current) {
+      emit('onMonthChange');
+    } else {
+      hasMounted.current = true;
+    }
+  }, [date, currentMonth]);
+
   const handleDateClick = async (value: Date) => {
     if (!selectedDate) return;
     const ds = window.DataSource.getSource(selectedDate, path);
@@ -128,10 +159,19 @@ const Calendar: FC<ICalendarProps> = ({
 
   const handleItemClick = async (value: Object) => {
     if (!selectedElement) return;
-    selectedElement.setValue(null, value);
-    const ce = await selectedElement.getValue<any>();
-    setSelectedData(ce);
-    emit('onItemClick');
+    switch (selectedElement.type) {
+      case 'scalar':
+        selectedElement.setValue(null, value);
+        let ce = await selectedElement.getValue<Object>();
+        setSelectedData(ce);
+        emit('onItemClick');
+        break;
+
+      case 'entity':
+        // TODO : implement entity rendering
+
+        break;
+    }
   };
 
   const colorgenerated = useMemo(
@@ -156,12 +196,12 @@ const Calendar: FC<ICalendarProps> = ({
   const list = useMemo(() => {
     const result: any[] = [];
     newData.forEach((conge) => {
-      const num = differenceInDays(new Date(conge.endDate), new Date(conge.startDate));
+      const num = differenceInDays(new Date(conge[endDate]), new Date(conge[startDate]));
       for (let i = 0; i <= num; i++) {
         result.push({
-          title: conge[property],
-          startDate: addDays(new Date(conge.startDate), i),
-          endDate: addDays(new Date(conge.startDate), i),
+          name: conge[property],
+          startDate: addDays(new Date(conge[startDate]), i),
+          endDate: addDays(new Date(conge[startDate]), i),
           color: conge.color,
           attributes: attributeList.reduce((acc, e) => {
             acc[e] = conge[e];
@@ -368,7 +408,7 @@ const Calendar: FC<ICalendarProps> = ({
                   {todaysConges.map((conge, index) => {
                     return (
                       <div
-                        key={`${conge.title}-${conge.startDate}`}
+                        key={`${conge.name}-${conge.startDate}`}
                         className={`element-container cursor-pointer px-2 py-1 flex flex-col w-full border-l-4 text-black`}
                         style={{
                           color: isSameMonth(day, date) ? 'black' : '#969696',
@@ -379,11 +419,11 @@ const Calendar: FC<ICalendarProps> = ({
                         onClick={() => handleItemClick(conge)}
                       >
                         <span
-                          title={conge.title}
+                          title={conge.name}
                           key={index}
                           className={`element-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'} line-clamp-2`}
                         >
-                          {conge.title}
+                          {conge.name}
                         </span>
 
                         <div key={`attributes-${index}`} className="element-detail flex flex-wrap">
@@ -392,7 +432,6 @@ const Calendar: FC<ICalendarProps> = ({
                               <span
                                 key={`attribute-${index}-${e}`}
                                 className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
-                                title={conge.attributes[e].toString()}
                               >
                                 {conge.attributes[e]}
                               </span>

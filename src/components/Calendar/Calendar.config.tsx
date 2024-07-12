@@ -40,7 +40,7 @@ export default {
       },
     ],
     datasources: {
-      accept: ['array'],
+      accept: ['array', 'entitysel'],
     },
   },
   defaultProps: {
@@ -69,7 +69,7 @@ export interface ICalendarProps extends webforms.ComponentProps {
   colors?: IColors[];
   language?: string;
   type?: string;
-  attributes?: IAttributes[];
+  attributes: IAttributes[];
 }
 
 export interface IColors {
@@ -77,5 +77,5 @@ export interface IColors {
 }
 
 export interface IAttributes {
-  Attribute?: string;
+  Attribute: string;
 }
