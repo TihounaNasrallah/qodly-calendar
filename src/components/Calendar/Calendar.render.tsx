@@ -147,7 +147,7 @@ const Calendar: FC<ICalendarProps> = ({
       value.map((obj, index) => ({
         ...obj,
         color: obj[colorProp] || colorgenerated[index],
-        attributes: attributeList.reduce((acc: { [key: string]: any }, e) => {
+        attributes: attributeList?.reduce((acc: { [key: string]: any }, e) => {
           acc[e] = obj[e];
           return acc;
         }, {}),

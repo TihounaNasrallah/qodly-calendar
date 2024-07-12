@@ -178,6 +178,10 @@ const Scheduler: FC<ISchedulerProps> = ({
                           isToday(day) && isCurrentHour(checkHours(hourIndex))
                             ? colorToHex(color) + '30'
                             : '',
+                        border:
+                          isToday(day) && isCurrentHour(checkHours(hourIndex))
+                            ? '2px solid ' + color
+                            : '',
                       }}
                     >
                       <div className="time-content flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
