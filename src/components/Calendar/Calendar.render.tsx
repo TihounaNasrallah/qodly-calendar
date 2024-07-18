@@ -137,7 +137,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   const colorgenerated = useMemo(
     () => generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor())),
-    [value.length, colors],
+    [value.length],
   );
 
   let attributeList = attributes?.map((e) => e.Attribute);
@@ -314,7 +314,11 @@ const Calendar: FC<ICalendarProps> = ({
                     : '#C0C0C0',
                   borderWidth: style?.borderWidth ? style?.borderWidth : '1px',
                   borderColor: style?.borderColor ? style?.borderColor : '#E0E0E0',
-                  backgroundColor: isSameMonth(day, date) ? 'white' : '#F3F4F6',
+                  backgroundColor: isSameMonth(day, date)
+                    ? style?.backgroundColor
+                      ? style?.backgroundColor
+                      : 'white'
+                    : '#F3F4F6',
                   height: rowHeight,
                 }}
               >
@@ -341,7 +345,9 @@ const Calendar: FC<ICalendarProps> = ({
                         className={`element-container cursor-pointer px-2 py-1 flex flex-col w-full border-l-4 text-black`}
                         style={{
                           color: isSameMonth(day, date) ? 'black' : '#969696',
-                          backgroundColor: isSameMonth(day, date) ? conge?.color + '50' : '#E3E3E3',
+                          backgroundColor: isSameMonth(day, date)
+                            ? colorToHex(conge?.color) + '50'
+                            : '#E3E3E3',
                           borderRadius: borderRadius,
                           borderLeftColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
                         }}

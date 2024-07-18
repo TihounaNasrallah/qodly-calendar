@@ -142,17 +142,19 @@ self .day-container:hover {
 
 ### Properties :
 
-| Name                | Type             | Default        | Description                                                      |
-| ------------------- | ---------------- | -------------- | ---------------------------------------------------------------- |
-| `Current Day Color` | String           | #1a73e8        | Sets the background color of the current day number              |
-| `Language`          | String           | English        | Sets the language of the calendar (English, French or Spanish)   |
-| `Hours`             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed   |
-| `Week Days`         | String           | All            | If 'Business Days' is selected, only the work days are displayed |
-| `Time Format`       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                             |
-| `Colors`            | Array of Strings | Auto-generated | Sets the background color of the displayed elements              |
-| `Header Display`    | String           | Auto           | If 'Sticky' is selected, the header position will be sticky      |
-| `Row Height`        | Number           | 64px           | Sets the height of the scheduler's rows                          |
-| `Today Button`      | Boolean          | `true`         | if `false`, the today button will be hidden                      |
+| Name                | Type             | Default        | Description                                                              |
+| ------------------- | ---------------- | -------------- | ------------------------------------------------------------------------ |
+| `Current Day Color` | String           | #1a73e8        | Sets the background color of the current day number                      |
+| `Language`          | String           | English        | Sets the language of the calendar (English, French or Spanish)           |
+| `Minutes Interval`  | String           | 60 min         | Sets the interval between the displayed minutes (60 min, 30 min, 15 min) |
+| `Hours`             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed           |
+| `Week Days`         | String           | All            | If 'Business Days' is selected, only the work days are displayed         |
+| `Time Format`       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                                     |
+| `Colors`            | Array of Strings | Auto-generated | Sets the background color of the displayed elements                      |
+| `Header Display`    | String           | Auto           | If 'Sticky' is selected, the header position will be sticky              |
+| `Row Height`        | Number           | 64px           | Sets the height of the scheduler's rows                                  |
+| `Today Button`      | Boolean          | `true`         | if `false`, the today button will be hidden                              |
+| `Year Navigation`   | Boolean          | true           | If false, the year navigation buttons won't be displayed                 |
 
 ### Data Access Properties :
 
@@ -204,15 +206,16 @@ self .month-title {
 
 ### Properties :
 
-| Name                | Type             | Default        | Description                                                    |
-| ------------------- | ---------------- | -------------- | -------------------------------------------------------------- |
-| `Current Day Color` | String           | #1a73e8        | Sets the background color of the current day number            |
-| `Language`          | String           | English        | Sets the language of the calendar (English, French or Spanish) |
-| `Hours`             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed |
-| `Time Format`       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                           |
-| `Colors`            | Array of Strings | Auto-generated | Sets the background color of the displayed elements            |
-| `Header Display`    | String           | Auto           | If 'Sticky' is selected, the header position will be sticky    |
-| `Today Button`      | Boolean          | `true`         | if `false`, the today button will be hidden                    |
+| Name                | Type             | Default        | Description                                                              |
+| ------------------- | ---------------- | -------------- | ------------------------------------------------------------------------ |
+| `Current Day Color` | String           | #1a73e8        | Sets the background color of the current day number                      |
+| `Language`          | String           | English        | Sets the language of the calendar (English, French or Spanish)           |
+| `Minutes Interval`  | String           | 60 min         | Sets the interval between the displayed minutes (60 min, 30 min, 15 min) |
+| `Hours`             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed           |
+| `Time Format`       | String           | 12 hours       | Sets the time format (13:00 or 1 PM)                                     |
+| `Colors`            | Array of Strings | Auto-generated | Sets the background color of the displayed elements                      |
+| `Header Display`    | String           | Auto           | If 'Sticky' is selected, the header position will be sticky              |
+| `Today Button`      | Boolean          | `true`         | if `false`, the today button will be hidden                              |
 
 ### Data Access Properties :
 

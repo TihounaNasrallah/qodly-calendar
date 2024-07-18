@@ -184,7 +184,11 @@ const Calendar: FC<ICalendarProps> = ({
                 color: isSameMonth(day, date) ? (style?.color ? style?.color : 'black') : '#C0C0C0',
                 borderWidth: style?.borderWidth ? style?.borderWidth : '1px',
                 borderColor: style?.borderColor ? style?.borderColor : '#E0E0E0',
-                backgroundColor: isSameMonth(day, date) ? 'white' : '#F3F4F6',
+                backgroundColor: isSameMonth(day, date)
+                  ? style?.backgroundColor
+                    ? style?.backgroundColor
+                    : 'white'
+                  : '#F3F4F6',
                 height: rowHeight,
               }}
             >

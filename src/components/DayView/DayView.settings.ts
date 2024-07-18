@@ -21,6 +21,17 @@ const commonSettings: TSetting[] = [
     defaultValue: 'en',
   },
   {
+    key: 'minutes',
+    label: 'Minutes Interval',
+    type: ESetting.SELECT,
+    options: [
+      { value: '60', label: '60 min' },
+      { value: '30', label: '30 min' },
+      { value: '15', label: '15 min' },
+    ],
+    defaultValue: '60',
+  },
+  {
     key: 'hours',
     label: 'Day Hours',
     type: ESetting.SELECT,
@@ -70,6 +81,15 @@ const dataAccessSettings: TSetting[] = [
     type: ESetting.DS_AUTO_SUGGEST,
   },
   {
+    key: 'serverSideRef',
+    label: 'Server Side',
+    type: ESetting.TEXT_FIELD,
+    validateOnEnter: true,
+  },
+];
+
+const attributesSettings: TSetting[] = [
+  {
     key: 'property',
     label: 'Property',
     type: ESetting.TEXT_FIELD,
@@ -114,12 +134,6 @@ const dataAccessSettings: TSetting[] = [
       },
     ],
   },
-  {
-    key: 'serverSideRef',
-    label: 'Server Side',
-    type: ESetting.TEXT_FIELD,
-    validateOnEnter: true,
-  },
 ];
 
 const Settings: TSetting[] = [
@@ -134,6 +148,12 @@ const Settings: TSetting[] = [
     label: 'Data Access',
     type: ESetting.GROUP,
     components: dataAccessSettings,
+  },
+  {
+    key: 'attributes',
+    label: 'Data Attributes',
+    type: ESetting.GROUP,
+    components: attributesSettings,
   },
   ...load(DEFAULT_SETTINGS).filter('dataAccess'),
 ];

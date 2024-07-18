@@ -38,6 +38,7 @@ export default {
     days: 'full',
     color: '#1a73e8',
     timeFormat: '12',
+    minutes: '60',
     todayButton: true,
     headerPosition: '',
     language: 'en',
@@ -50,6 +51,7 @@ export interface IDayViewProps extends webforms.ComponentProps {
   startTime: string;
   endTime: string;
   color: string;
+  minutes: '60' | '15' | '30';
   timeFormat?: string;
   hours?: string;
   language: string;

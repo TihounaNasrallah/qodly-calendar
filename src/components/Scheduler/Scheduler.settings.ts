@@ -21,6 +21,17 @@ const commonSettings: TSetting[] = [
     defaultValue: 'en',
   },
   {
+    key: 'minutes',
+    label: 'Minutes Interval',
+    type: ESetting.SELECT,
+    options: [
+      { value: '60', label: '60 min' },
+      { value: '30', label: '30 min' },
+      { value: '15', label: '15 min' },
+    ],
+    defaultValue: '60',
+  },
+  {
     key: 'hours',
     label: 'Day Hours',
     type: ESetting.SELECT,
@@ -70,6 +81,12 @@ const commonSettings: TSetting[] = [
   {
     key: 'todayButton',
     label: 'Today Button',
+    type: ESetting.CHECKBOX,
+    defaultValue: true,
+  },
+  {
+    key: 'yearNav',
+    label: 'Year Navigation',
     type: ESetting.CHECKBOX,
     defaultValue: true,
   },

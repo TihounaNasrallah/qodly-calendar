@@ -3,18 +3,25 @@ import cn from 'classnames';
 import { FC, useMemo } from 'react';
 
 import { ISchedulerProps } from './Scheduler.config';
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdKeyboardDoubleArrowLeft,
+  MdKeyboardDoubleArrowRight,
+} from 'react-icons/md';
 
-import { format, startOfWeek, addDays, isToday, setHours, isEqual } from 'date-fns';
+import { format, startOfWeek, addDays, isToday, setHours, isEqual, setMinutes } from 'date-fns';
 import { colorToHex } from '../shared/colorUtils';
 
 import { fr, es, de } from 'date-fns/locale';
 import { TinyColor } from '@ctrl/tinycolor';
 
 const Scheduler: FC<ISchedulerProps> = ({
+  yearNav,
   property,
   todayButton,
   language,
+  minutes,
   days,
   hours,
   height,
@@ -47,9 +54,27 @@ const Scheduler: FC<ISchedulerProps> = ({
     return dates;
   };
 
-  const isCurrentHour = (hourIndex: number) => {
+  const isCurrentHour = (hourIndex: number, mins: number) => {
     const currentHour = new Date().getHours();
-    return currentHour === hourIndex;
+    switch (minutes) {
+      case '15': {
+        return (
+          currentHour === hourIndex &&
+          new Date().getMinutes() <= mins + 15 &&
+          new Date().getMinutes() > mins
+        );
+      }
+      case '30': {
+        return (
+          currentHour === hourIndex &&
+          new Date().getMinutes() <= mins + 30 &&
+          new Date().getMinutes() > mins
+        );
+      }
+      case '60': {
+        return currentHour === hourIndex;
+      }
+    }
   };
 
   let checkHours = (i: number) => {
@@ -65,11 +90,61 @@ const Scheduler: FC<ISchedulerProps> = ({
     return dates;
   }, [date, days, getWeekDates]);
 
-  const hourList = useMemo(() => {
-    return hours === 'work'
-      ? Array.from({ length: 11 }, (_, index) => index + 8)
-      : Array.from({ length: 24 });
-  }, [hours]);
+  const timeList = useMemo(() => {
+    switch (minutes) {
+      case '15': {
+        return hours === 'work'
+          ? Array.from({ length: 44 }, (_, index) => {
+              const hour = Math.floor(index / 4);
+              const minutes = (index % 4) * 15;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 96 }, (_, index) => {
+              const hour = Math.floor(index / 4);
+              const minutes = (index % 4) * 15;
+              return { hour, minutes };
+            });
+      }
+      case '30': {
+        return hours === 'work'
+          ? Array.from({ length: 22 }, (_, index) => {
+              const hour = Math.floor(index / 2);
+              const minutes = (index % 2) * 30;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 48 }, (_, index) => {
+              const hour = Math.floor(index / 2);
+              const minutes = (index % 2) * 30;
+              return { hour, minutes };
+            });
+      }
+      case '60': {
+        return hours === 'work'
+          ? Array.from({ length: 11 }, (_, index) => {
+              const hour = index;
+              const minutes = 0;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 24 }, (_, index) => {
+              const hour = index;
+              const minutes = 0;
+              return { hour, minutes };
+            });
+      }
+      default:
+        return hours === 'work'
+          ? Array.from({ length: 11 }, (_, index) => {
+              const hour = index + 8;
+              const minutes = 0;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 24 }, (_, index) => {
+              const hour = index;
+              const minutes = 0;
+              return { hour, minutes };
+            });
+    }
+  }, [hours, minutes]);
 
   const locale = useMemo(() => {
     if (language === 'fr') return { locale: fr };
@@ -88,20 +163,40 @@ const Scheduler: FC<ISchedulerProps> = ({
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="scheduler-container flex flex-col gap-4 h-full">
-        <div className="flex items-center justify-center gap-2">
+        <div
+          className={`flex items-center justify-center gap-2 ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
+        >
+          <button
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            style={{ display: yearNav ? 'block' : 'none' }}
+          >
+            <MdKeyboardDoubleArrowLeft />
+          </button>
+          <button className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300">
+            <MdKeyboardArrowLeft />
+          </button>
           <span
             className={`current-month ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'} `}
           >
             {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
               format(date, 'MMMM yyyy', locale).slice(1)}
           </span>
+          <button className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300">
+            <MdKeyboardArrowRight />
+          </button>
+          <button
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            style={{ display: yearNav ? 'block' : 'none' }}
+          >
+            <MdKeyboardDoubleArrowRight />
+          </button>
         </div>
         <div className="scheduler-grid w-full h-full flex justify-center">
           <table className="table-fixed w-full h-full border-collapse">
             <thead>
               <tr>
                 <th
-                  className={`scheduler-header w-36 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+                  className={`scheduler-header w-36 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                 >
                   <div className="nav-buttons w-full flex items-center justify-center">
                     <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
@@ -124,7 +219,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                 {weekDates.map((day, index) => (
                   <th
                     key={index}
-                    className={`scheduler-header w-32 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+                    className={`scheduler-header ${isToday(day) ? 'w-24' : 'w-16'} ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                   >
                     <div
                       key={index}
@@ -152,9 +247,9 @@ const Scheduler: FC<ISchedulerProps> = ({
               </tr>
             </thead>
             <tbody className="scheduler-body">
-              {hourList.map((_, hourIndex) => (
+              {timeList.map(({ hour, minutes }, hourIndex) => (
                 <tr
-                  key={checkHours(hourIndex)}
+                  key={`${hour}-${minutes}`}
                   className="w-36"
                   style={{
                     height: height,
@@ -165,8 +260,14 @@ const Scheduler: FC<ISchedulerProps> = ({
                       className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
                     >
                       {timeFormat === '12'
-                        ? format(setHours(new Date(), checkHours(hourIndex)), 'K a')
-                        : format(setHours(new Date(), checkHours(hourIndex)), 'HH:00')}
+                        ? format(
+                            setMinutes(setHours(new Date(), checkHours(hour)), minutes),
+                            'h:mm a',
+                          )
+                        : format(
+                            setMinutes(setHours(new Date(), checkHours(hour)), minutes),
+                            'HH:mm',
+                          )}
                     </span>
                   </td>
                   {weekDates.map((day, dayIndex) => (
@@ -175,11 +276,11 @@ const Scheduler: FC<ISchedulerProps> = ({
                       className="time-content border border-gray-200 p-1"
                       style={{
                         backgroundColor:
-                          isToday(day) && isCurrentHour(checkHours(hourIndex))
+                          isToday(day) && isCurrentHour(checkHours(hour), minutes)
                             ? colorToHex(color) + '30'
                             : '',
                         border:
-                          isToday(day) && isCurrentHour(checkHours(hourIndex))
+                          isToday(day) && isCurrentHour(checkHours(hour), minutes)
                             ? '2px solid ' + color
                             : '',
                       }}

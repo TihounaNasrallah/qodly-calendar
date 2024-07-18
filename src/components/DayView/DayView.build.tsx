@@ -4,14 +4,17 @@ import { FC, useMemo } from 'react';
 
 import { IDayViewProps } from './DayView.config';
 
-import { format, setHours, isToday, isEqual } from 'date-fns';
+import { format, setHours, isToday, isEqual, setMinutes } from 'date-fns';
+
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
+
 import { colorToHex } from '../shared/colorUtils';
 
 import { fr, es, de } from 'date-fns/locale';
 import { TinyColor } from '@ctrl/tinycolor';
 
 const DayView: FC<IDayViewProps> = ({
+  minutes,
   property,
   language,
   todayButton,
@@ -36,15 +39,84 @@ const DayView: FC<IDayViewProps> = ({
     return 0;
   }, [hours]);
 
-  const isCurrentHour = (hourIndex: number) => {
-    return date.getHours() === hourIndex;
+  const isCurrentHour = (hourIndex: number, mins: number) => {
+    const currentHour = new Date().getHours();
+    switch (minutes) {
+      case '15': {
+        return (
+          currentHour === hourIndex &&
+          new Date().getMinutes() <= mins + 15 &&
+          new Date().getMinutes() > mins
+        );
+      }
+      case '30': {
+        return (
+          currentHour === hourIndex &&
+          new Date().getMinutes() <= mins + 30 &&
+          new Date().getMinutes() > mins
+        );
+      }
+      case '60': {
+        return currentHour === hourIndex;
+      }
+    }
   };
 
-  const hourList = useMemo(() => {
-    return hours === 'work'
-      ? Array.from({ length: 11 }, (_, index) => index + 8)
-      : Array.from({ length: 24 });
-  }, [hours]);
+  const timeList = useMemo(() => {
+    switch (minutes) {
+      case '15': {
+        return hours === 'work'
+          ? Array.from({ length: 44 }, (_, index) => {
+              const hour = Math.floor(index / 4);
+              const minutes = (index % 4) * 15;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 96 }, (_, index) => {
+              const hour = Math.floor(index / 4);
+              const minutes = (index % 4) * 15;
+              return { hour, minutes };
+            });
+      }
+      case '30': {
+        return hours === 'work'
+          ? Array.from({ length: 22 }, (_, index) => {
+              const hour = Math.floor(index / 2);
+              const minutes = (index % 2) * 30;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 48 }, (_, index) => {
+              const hour = Math.floor(index / 2);
+              const minutes = (index % 2) * 30;
+              return { hour, minutes };
+            });
+      }
+      case '60': {
+        return hours === 'work'
+          ? Array.from({ length: 11 }, (_, index) => {
+              const hour = index;
+              const minutes = 0;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 24 }, (_, index) => {
+              const hour = index;
+              const minutes = 0;
+              return { hour, minutes };
+            });
+      }
+      default:
+        return hours === 'work'
+          ? Array.from({ length: 11 }, (_, index) => {
+              const hour = index + 8;
+              const minutes = 0;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 24 }, (_, index) => {
+              const hour = index;
+              const minutes = 0;
+              return { hour, minutes };
+            });
+    }
+  }, [hours, minutes]);
 
   let checkHours = (i: number) => {
     if (hours === 'work') {
@@ -78,7 +150,7 @@ const DayView: FC<IDayViewProps> = ({
           <thead>
             <tr className="dayview-header">
               <th
-                className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+                className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
               >
                 <div className="nav-buttons flex items-center justify-center ">
                   <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
@@ -99,7 +171,7 @@ const DayView: FC<IDayViewProps> = ({
                 </span>
               </th>
               <th
-                className={`w-full ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+                className={`w-full ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
               >
                 <div className="weekday-title ml-4 flex flex-col items-start justify-center font-medium">
                   <span>
@@ -125,15 +197,21 @@ const DayView: FC<IDayViewProps> = ({
             </tr>
           </thead>
           <tbody>
-            {hourList.map((_, hourIndex) => (
-              <tr key={checkHours(hourIndex)} className="w-36 h-16">
+            {timeList.map(({ hour, minutes }, hourIndex) => (
+              <tr key={`${hour}-${minutes}`} className="w-36 h-16">
                 <td className="flex items-center justify-center">
                   <span
                     className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
                   >
                     {timeFormat === '12'
-                      ? format(setHours(new Date(), checkHours(hourIndex)), 'K a')
-                      : format(setHours(new Date(), checkHours(hourIndex)), 'HH:00')}
+                      ? format(
+                          setMinutes(setHours(new Date(), checkHours(hour)), minutes),
+                          'h:mm a',
+                        )
+                      : format(
+                          setMinutes(setHours(new Date(), checkHours(hour)), minutes),
+                          'HH:mm',
+                        )}
                   </span>
                 </td>
                 <td
@@ -141,12 +219,12 @@ const DayView: FC<IDayViewProps> = ({
                   className="border border-gray-200 p-1"
                   style={{
                     backgroundColor:
-                      isToday(date) && isCurrentHour(checkHours(hourIndex))
+                      isToday(date) && isCurrentHour(checkHours(hour), minutes)
                         ? colorToHex(color) + '30'
                         : '',
-                    borderLeft:
-                      isToday(date) && isCurrentHour(checkHours(hourIndex))
-                        ? '6px solid ' + color
+                    border:
+                      isToday(date) && isCurrentHour(checkHours(hour), minutes)
+                        ? '2px solid ' + color
                         : '',
                   }}
                 >
