@@ -30,6 +30,10 @@ export default {
         label: 'On Item Click',
         value: 'onItemClick',
       },
+      {
+        label: 'On Week Change',
+        value: 'onWeekChange',
+      },
     ],
     datasources: {
       accept: ['array'],

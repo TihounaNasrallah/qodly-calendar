@@ -1,6 +1,6 @@
 import { useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo } from 'react';
+import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
 import {
   subMonths,
@@ -75,6 +75,15 @@ const Scheduler: FC<ISchedulerProps> = ({
   const [value, setValue] = useState<any[]>([]);
   const [, setSelectedData] = useState<any>({});
   const [date, setDate] = useState<Date>(new Date());
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    if (hasMounted.current) {
+      emit('onWeekChange');
+    } else {
+      hasMounted.current = true;
+    }
+  }, [date]);
 
   const colorgenerated = useMemo(() => {
     return generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor()));

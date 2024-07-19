@@ -29,6 +29,10 @@ export default {
         label: 'On Item Click',
         value: 'onItemClick',
       },
+      {
+        label: 'On Day Change',
+        value: 'onDayChange',
+      },
     ],
     datasources: {
       accept: ['array'],

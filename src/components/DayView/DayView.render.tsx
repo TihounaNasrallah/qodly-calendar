@@ -1,6 +1,6 @@
 import { useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo } from 'react';
+import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
 import { format, setHours, isToday, setMinutes } from 'date-fns';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
@@ -53,10 +53,17 @@ const DayView: FC<IDayViewProps> = ({
   }, [ds]);
 
   const [, setSelectedData] = useState<any>({});
-
   const [value, setValue] = useState<any[]>([]);
-
   const [date, setDate] = useState(new Date());
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    if (hasMounted.current) {
+      emit('onDayChange');
+    } else {
+      hasMounted.current = true;
+    }
+  }, [date]);
 
   const isCurrentHour = (hourIndex: number, mins: number) => {
     const currentHour = new Date().getHours();
