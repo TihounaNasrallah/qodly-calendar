@@ -1,8 +1,8 @@
-import { useRenderer, useSources } from '@ws-ui/webform-editor';
+import { useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo } from 'react';
+import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
-import { format, setHours, isToday } from 'date-fns';
+import { format, setHours, isToday, setMinutes, isEqual } from 'date-fns';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { BsFillInfoCircleFill } from 'react-icons/bs';
 import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
@@ -16,6 +16,7 @@ const DayView: FC<IDayViewProps> = ({
   todayButton,
   colorProp,
   colors = [],
+  selectedDate,
   property,
   headerPosition,
   eventDate,
@@ -23,6 +24,7 @@ const DayView: FC<IDayViewProps> = ({
   endTime,
   color,
   hours,
+  minutes,
   timeFormat,
   style,
   className,
@@ -52,20 +54,46 @@ const DayView: FC<IDayViewProps> = ({
   }, [ds]);
 
   const [, setSelectedData] = useState<any>({});
-
   const [value, setValue] = useState<any[]>([]);
-
   const [date, setDate] = useState(new Date());
+  const [selDate, setSelDate] = useState(new Date());
+  const hasMounted = useRef(false);
+  const path = useWebformPath();
 
-  const isCurrentHour = (hourIndex: number) => {
-    return date.getHours() === hourIndex;
+  useEffect(() => {
+    if (hasMounted.current) {
+      emit('onDayChange', { currentDate: date });
+    } else {
+      hasMounted.current = true;
+    }
+  }, [date]);
+
+  const isCurrentHour = (hourIndex: number, mins: number) => {
+    const currentHour = new Date().getHours();
+    switch (minutes) {
+      case '15': {
+        return (
+          currentHour === hourIndex &&
+          new Date().getMinutes() <= mins + 15 &&
+          new Date().getMinutes() > mins
+        );
+      }
+      case '30': {
+        return (
+          currentHour === hourIndex &&
+          new Date().getMinutes() <= mins + 30 &&
+          new Date().getMinutes() > mins
+        );
+      }
+      case '60': {
+        return currentHour === hourIndex;
+      }
+    }
   };
 
-  const hourList = useMemo(() => {
-    return hours === 'work'
-      ? Array.from({ length: 11 }, (_, index) => index + 8)
-      : Array.from({ length: 24 });
-  }, [hours]);
+  const isSelected = (date: Date) => {
+    return isEqual(date, selDate);
+  };
 
   let checkHours = (i: number) => {
     if (hours === 'work') {
@@ -73,6 +101,81 @@ const DayView: FC<IDayViewProps> = ({
     }
     return i;
   };
+
+  const numberMin = useMemo(() => {
+    switch (minutes) {
+      case '15': {
+        return 15;
+      }
+      case '30': {
+        return 30;
+      }
+      case '60': {
+        return 60;
+      }
+    }
+  }, [minutes]);
+
+  const timeToFloat = (hour: number, minutes: number) => {
+    const minutesFraction = minutes / 60;
+    return hour + minutesFraction;
+  };
+
+  const timeList = useMemo(() => {
+    switch (minutes) {
+      case '15': {
+        return hours === 'work'
+          ? Array.from({ length: 44 }, (_, index) => {
+              const hour = Math.floor(index / 4);
+              const minutes = (index % 4) * 15;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 96 }, (_, index) => {
+              const hour = Math.floor(index / 4);
+              const minutes = (index % 4) * 15;
+              return { hour, minutes };
+            });
+      }
+      case '30': {
+        return hours === 'work'
+          ? Array.from({ length: 22 }, (_, index) => {
+              const hour = Math.floor(index / 2);
+              const minutes = (index % 2) * 30;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 48 }, (_, index) => {
+              const hour = Math.floor(index / 2);
+              const minutes = (index % 2) * 30;
+              return { hour, minutes };
+            });
+      }
+      case '60': {
+        return hours === 'work'
+          ? Array.from({ length: 11 }, (_, index) => {
+              const hour = index;
+              const minutes = 0;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 24 }, (_, index) => {
+              const hour = index;
+              const minutes = 0;
+              return { hour, minutes };
+            });
+      }
+      default:
+        return hours === 'work'
+          ? Array.from({ length: 11 }, (_, index) => {
+              const hour = index + 8;
+              const minutes = 0;
+              return { hour, minutes };
+            })
+          : Array.from({ length: 24 }, (_, index) => {
+              const hour = index;
+              const minutes = 0;
+              return { hour, minutes };
+            });
+    }
+  }, [hours, minutes]);
 
   const handlePrevDay = () => {
     const prevDate = new Date(date);
@@ -88,30 +191,30 @@ const DayView: FC<IDayViewProps> = ({
 
   const checkParams = useMemo(() => {
     if (!ds) {
-      return 'Please set the datasource attribute';
+      return 'Please set "Datasource"';
     } else if (!value[0] || !value.length) {
       return '';
     }
 
     if (!property) {
-      return 'Please set the property attribute';
+      return 'Please set "Property"';
     } else if (!(property in value[0])) {
-      return `${property} does not exist as a property`;
+      return `${property} does not exist as an attribute`;
     }
     if (!eventDate) {
-      return 'Please set the event date attribute';
+      return 'Please set "event date"';
     } else if (!(eventDate in value[0])) {
-      return `${eventDate} does not exist as a property`;
+      return `${eventDate} does not exist as an attribute`;
     }
     if (!startTime) {
-      return 'Please set the start time attribute';
+      return 'Please set the "start time"';
     } else if (!(startTime in value[0])) {
-      return `${startTime} does not exist as a property`;
+      return `${startTime} does not exist as an attribute`;
     }
     if (!endTime) {
-      return 'Please set the end time attribute';
+      return 'Please set the "end time"';
     } else if (!(endTime in value[0])) {
-      return `${endTime} does not exist as a property`;
+      return `${endTime} does not exist as an attribute`;
     }
 
     return '';
@@ -119,7 +222,7 @@ const DayView: FC<IDayViewProps> = ({
 
   const colorgenerated = useMemo(
     () => generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor())),
-    [value.length, colors],
+    [value.length],
   );
 
   const data = useMemo(
@@ -128,10 +231,20 @@ const DayView: FC<IDayViewProps> = ({
   );
 
   const handleItemClick = async (value: Object) => {
+    if (!ce) return;
     ce.setValue(null, value);
     const selItem = await ce.getValue();
     setSelectedData(selItem);
-    emit('onItemClick');
+    emit('onItemClick', { selectedData: selItem });
+  };
+
+  const handleDateClick = async (value: Date) => {
+    if (!selectedDate) return;
+    const ds = window.DataSource.getSource(selectedDate, path);
+    ds?.setValue(null, value);
+    const ce = await ds?.getValue();
+    setSelDate(ce);
+    emit('onDateClick', { selectedDate: ce });
   };
 
   const locale = useMemo(() => {
@@ -160,10 +273,11 @@ const DayView: FC<IDayViewProps> = ({
           <thead>
             <tr className="dayview-header">
               <th
-                className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+                className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
               >
                 <div className="nav-buttons w-full flex items-center justify-center">
                   <button
+                    title="Previous Day"
                     onClick={handlePrevDay}
                     className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                   >
@@ -177,6 +291,7 @@ const DayView: FC<IDayViewProps> = ({
                     {todayLabel}
                   </button>
                   <button
+                    title="Next Day"
                     onClick={handleNextDay}
                     className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                   >
@@ -188,9 +303,12 @@ const DayView: FC<IDayViewProps> = ({
                 </span>
               </th>
               <th
-                className={`w-full ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] bg-white`}
+                className={`w-full ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
               >
-                <div className="weekday-title ml-4 flex flex-col items-start justify-center font-medium">
+                <div
+                  title={format(date, 'EEEE dd MMMM yyyy', locale)}
+                  className="weekday-title ml-4 flex flex-col items-start justify-center font-medium"
+                >
                   <span>
                     <span
                       className="weekday-day text-sm"
@@ -203,8 +321,10 @@ const DayView: FC<IDayViewProps> = ({
                       className="weekday-number rounded-full text-xl mb-1 h-10 w-10 flex items-center justify-center font-medium"
                       style={{
                         backgroundColor: isToday(date) ? color : '',
+                        border: isSelected(date) ? `2px solid ${colorToHex(color)}` : '',
                         color: isToday(date) ? 'white' : '',
                       }}
+                      onClick={() => handleDateClick(date)}
                     >
                       {format(date, 'dd')}
                     </span>
@@ -214,14 +334,28 @@ const DayView: FC<IDayViewProps> = ({
             </tr>
           </thead>
           <tbody>
-            {hourList.map((_, hourIndex) => {
+            {timeList.map(({ hour, minutes }, hourIndex) => {
               const events = data.filter((event) => {
-                const eventStartTime = parseInt(event[startTime].split(':')[0]);
-                const eventEndTime = parseInt(event[endTime].split(':')[0]);
+                const eventStartTime = timeToFloat(
+                  parseInt(event[startTime].split(':')[0]),
+                  parseInt(event[startTime].split(':')[1]),
+                );
+                const eventEndTime = timeToFloat(
+                  parseInt(event[endTime].split(':')[0]),
+                  parseInt(event[endTime].split(':')[1]),
+                );
+
                 return (
-                  format(new Date(event[eventDate]), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd') &&
-                  checkHours(hourIndex) >= eventStartTime &&
-                  checkHours(hourIndex) <= eventEndTime
+                  (format(new Date(event[eventDate]), 'yyyy-MM-dd') ===
+                    format(date, 'yyyy-MM-dd') &&
+                    timeToFloat(checkHours(hour), minutes) >= eventStartTime &&
+                    timeToFloat(checkHours(hour), minutes) <= eventEndTime) ||
+                  (format(new Date(event[eventDate]), 'yyyy-MM-dd') ===
+                    format(date, 'yyyy-MM-dd') &&
+                    checkHours(hour) >= parseInt(event[startTime].split(':')[0]) &&
+                    minutes <= parseInt(event[startTime].split(':')[1]) &&
+                    parseInt(event[startTime].split(':')[1]) <= minutes + numberMin &&
+                    checkHours(hour) <= parseInt(event[endTime].split(':')[0]))
                 );
               });
               return (
@@ -231,8 +365,14 @@ const DayView: FC<IDayViewProps> = ({
                       className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
                     >
                       {timeFormat === '12'
-                        ? format(setHours(new Date(), checkHours(hourIndex)), 'K a')
-                        : format(setHours(new Date(), checkHours(hourIndex)), 'HH:00')}
+                        ? format(
+                            setMinutes(setHours(new Date(), checkHours(hour)), minutes),
+                            'KK:mm a',
+                          )
+                        : format(
+                            setMinutes(setHours(new Date(), checkHours(hour)), minutes),
+                            'HH:mm',
+                          )}
                     </span>
                   </td>
                   <td
@@ -240,12 +380,12 @@ const DayView: FC<IDayViewProps> = ({
                     className="border border-gray-200 p-1"
                     style={{
                       backgroundColor:
-                        isToday(date) && isCurrentHour(checkHours(hourIndex))
+                        isToday(date) && isCurrentHour(checkHours(hour), minutes)
                           ? colorToHex(color) + '30'
                           : '',
-                      borderLeft:
-                        isToday(date) && isCurrentHour(checkHours(hourIndex))
-                          ? '6px solid ' + color
+                      border:
+                        isToday(date) && isCurrentHour(checkHours(hour), minutes)
+                          ? '2px solid ' + color
                           : '',
                     }}
                   >
@@ -256,8 +396,8 @@ const DayView: FC<IDayViewProps> = ({
                           key={index}
                           className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
                           style={{
-                            backgroundColor: event.color + '40',
-                            borderTopColor: event.color,
+                            backgroundColor: colorToHex(event.color) + '40',
+                            borderTopColor: colorToHex(event.color),
                           }}
                           onClick={() => handleItemClick(event)}
                         >

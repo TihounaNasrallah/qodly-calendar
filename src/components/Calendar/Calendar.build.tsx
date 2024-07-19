@@ -136,12 +136,16 @@ const Calendar: FC<ICalendarProps> = ({
           className={`calendar-header w-full flex justify-center gap-2 items-center ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
         >
           <button
+            title="Previous year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
           >
             <MdKeyboardDoubleArrowLeft />
           </button>
-          <button className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300">
+          <button
+            title="Previous month"
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+          >
             <MdKeyboardArrowLeft />
           </button>
           <h2
@@ -150,10 +154,14 @@ const Calendar: FC<ICalendarProps> = ({
             {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
               format(date, 'MMMM yyyy', locale).slice(1)}
           </h2>
-          <button className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300">
+          <button
+            title="Next month"
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+          >
             <MdKeyboardArrowRight />
           </button>
           <button
+            title="Next year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
           >
@@ -179,10 +187,16 @@ const Calendar: FC<ICalendarProps> = ({
           {filteredDays.map((day, index) => (
             <div
               key={index}
-              className={`day-container flex flex-col justify-start items-start gap-1 p-1 w-full border ${style?.borderColor ? style?.borderColor : 'border-gray-200'}`}
+              className={`day-container flex flex-col justify-start items-start gap-1 p-1 w-full`}
               style={{
                 color: isSameMonth(day, date) ? (style?.color ? style?.color : 'black') : '#C0C0C0',
-                backgroundColor: isSameMonth(day, date) ? 'white' : '#F3F4F6',
+                borderWidth: style?.borderWidth ? style?.borderWidth : '1px',
+                borderColor: style?.borderColor ? style?.borderColor : '#E0E0E0',
+                backgroundColor: isSameMonth(day, date)
+                  ? style?.backgroundColor
+                    ? style?.backgroundColor
+                    : 'white'
+                  : '#F3F4F6',
                 height: rowHeight,
               }}
             >
