@@ -136,12 +136,16 @@ const Calendar: FC<ICalendarProps> = ({
           className={`calendar-header w-full flex justify-center gap-2 items-center ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
         >
           <button
+            title="Previous year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
           >
             <MdKeyboardDoubleArrowLeft />
           </button>
-          <button className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300">
+          <button
+            title="Previous month"
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+          >
             <MdKeyboardArrowLeft />
           </button>
           <h2
@@ -150,10 +154,14 @@ const Calendar: FC<ICalendarProps> = ({
             {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
               format(date, 'MMMM yyyy', locale).slice(1)}
           </h2>
-          <button className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300">
+          <button
+            title="Next month"
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+          >
             <MdKeyboardArrowRight />
           </button>
           <button
+            title="Next year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
           >

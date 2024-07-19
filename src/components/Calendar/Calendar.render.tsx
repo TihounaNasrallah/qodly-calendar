@@ -82,7 +82,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   useEffect(() => {
     if (hasMounted.current) {
-      emit('onMonthChange');
+      emit('onMonthChange', { currentDate: date });
     } else {
       hasMounted.current = true;
     }
@@ -124,7 +124,7 @@ const Calendar: FC<ICalendarProps> = ({
     ds?.setValue(null, value);
     const ce = await ds?.getValue();
     setSelDate(ce);
-    emit('onDateClick');
+    emit('onDateClick', { selectedDate: ce });
   };
 
   const handleItemClick = async (value: Object) => {
@@ -132,7 +132,7 @@ const Calendar: FC<ICalendarProps> = ({
     selectedElement.setValue(null, value);
     const ce = await selectedElement.getValue<any>();
     setSelectedData(ce);
-    emit('onItemClick');
+    emit('onItemClick', { selectedData: ce });
   };
 
   const colorgenerated = useMemo(
@@ -248,6 +248,7 @@ const Calendar: FC<ICalendarProps> = ({
           className={`calendar-header w-full flex justify-center gap-2 items-center ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
         >
           <button
+            title="Previous year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={prevYear}
             style={{ display: yearNav ? 'block' : 'none' }}
@@ -255,6 +256,7 @@ const Calendar: FC<ICalendarProps> = ({
             <MdKeyboardDoubleArrowLeft />
           </button>
           <button
+            title="Previous month"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={prevMonth}
           >
@@ -267,12 +269,14 @@ const Calendar: FC<ICalendarProps> = ({
               format(date, 'MMMM yyyy', locale).slice(1)}
           </h2>
           <button
+            title="Next month"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={nextMonth}
           >
             <MdKeyboardArrowRight />
           </button>
           <button
+            title="Next year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={nextYear}
             style={{ display: yearNav ? 'block' : 'none' }}

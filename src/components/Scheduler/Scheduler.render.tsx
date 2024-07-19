@@ -1,8 +1,9 @@
-import { useRenderer, useSources } from '@ws-ui/webform-editor';
+import { useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
 import {
+  isEqual,
   subMonths,
   addMonths,
   format,
@@ -35,6 +36,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   hours,
   days,
   height,
+  selectedDate,
   property,
   startDate,
   startTime,
@@ -54,6 +56,13 @@ const Scheduler: FC<ISchedulerProps> = ({
     sources: { datasource: ds, currentElement: ce },
   } = useSources();
 
+  const [value, setValue] = useState<any[]>([]);
+  const [, setSelectedData] = useState<any>({});
+  const [date, setDate] = useState<Date>(new Date());
+  const [selDate, setSelDate] = useState(new Date());
+  const hasMounted = useRef(false);
+  const path = useWebformPath();
+
   useEffect(() => {
     if (!ds) return;
 
@@ -70,16 +79,11 @@ const Scheduler: FC<ISchedulerProps> = ({
       ds.removeListener('changed', listener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds]);
-
-  const [value, setValue] = useState<any[]>([]);
-  const [, setSelectedData] = useState<any>({});
-  const [date, setDate] = useState<Date>(new Date());
-  const hasMounted = useRef(false);
+  }, [ds, date]);
 
   useEffect(() => {
     if (hasMounted.current) {
-      emit('onWeekChange');
+      emit('onWeekChange', { currentDate: date });
     } else {
       hasMounted.current = true;
     }
@@ -159,6 +163,10 @@ const Scheduler: FC<ISchedulerProps> = ({
     }
   };
 
+  const isSelected = (date: Date) => {
+    return isEqual(date, selDate);
+  };
+
   const goToPreviousWeek = () => setDate(subWeeks(date, 1));
 
   const goToNextWeek = () => setDate(addWeeks(date, 1));
@@ -173,7 +181,16 @@ const Scheduler: FC<ISchedulerProps> = ({
     ce.setValue(null, value);
     const selItem = await ce.getValue();
     setSelectedData(selItem);
-    emit('onItemClick');
+    emit('onItemClick', { selectedData: selItem });
+  };
+
+  const handleDateClick = async (value: Date) => {
+    if (!selectedDate) return;
+    const ds = window.DataSource.getSource(selectedDate, path);
+    ds?.setValue(null, value);
+    const ce = await ds?.getValue();
+    setSelDate(ce);
+    emit('onDateClick', { selectedDate: ce });
   };
 
   let checkHours = (i: number) => {
@@ -283,6 +300,7 @@ const Scheduler: FC<ISchedulerProps> = ({
       <div className="scheduler-container flex flex-col gap-4 h-full">
         <div className="flex items-center justify-center gap-2">
           <button
+            title="Previous Year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
             onClick={prevYear}
@@ -290,6 +308,7 @@ const Scheduler: FC<ISchedulerProps> = ({
             <MdKeyboardDoubleArrowLeft />
           </button>
           <button
+            title="Previous Month"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={prevMonth}
           >
@@ -302,12 +321,14 @@ const Scheduler: FC<ISchedulerProps> = ({
               format(date, 'MMMM yyyy', locale).slice(1)}
           </span>
           <button
+            title="Next Month"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={nextMonth}
           >
             <MdKeyboardArrowRight />
           </button>
           <button
+            title="Next Year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
             onClick={nextYear}
@@ -324,6 +345,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                 >
                   <div className="nav-buttons w-full flex items-center justify-center">
                     <button
+                      title="Previous Week"
                       className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                       onClick={goToPreviousWeek}
                     >
@@ -337,6 +359,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       {todayLabel}
                     </button>
                     <button
+                      title="Next Week"
                       className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                       onClick={goToNextWeek}
                     >
@@ -353,22 +376,27 @@ const Scheduler: FC<ISchedulerProps> = ({
                     className={`scheduler-header w-32 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                   >
                     <div
+                      title={format(day, 'EEEE', locale)}
                       key={index}
                       className="weekday-title flex flex-col items-center font-medium text-center"
                     >
                       <span
-                        className="weekday-day text-sm"
-                        style={{ color: isToday(day) ? color : '' }}
+                        className="weekday-day text-sm cursor-pointer"
+                        style={{
+                          color: isToday(day) ? color : '',
+                        }}
                       >
                         {format(day, 'EEE', locale).charAt(0).toUpperCase() +
                           format(day, 'EEE', locale).slice(1)}
                       </span>
                       <span
-                        className="weekday-number rounded-full text-xl mb-1 h-10 w-10 flex items-center justify-center font-medium"
+                        className="weekday-number rounded-full text-xl mb-1 h-10 w-10 flex items-center justify-center font-medium cursor-pointer"
                         style={{
                           backgroundColor: isToday(day) ? color : '',
+                          border: isSelected(day) ? `2px solid ${colorToHex(color)}` : '',
                           color: isToday(day) ? 'white' : '',
                         }}
+                        onClick={() => handleDateClick(day)}
                       >
                         {format(day, 'dd')}
                       </span>
@@ -393,7 +421,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       {timeFormat === '12'
                         ? format(
                             setMinutes(setHours(new Date(), checkHours(hour)), minutes),
-                            'h:mm a',
+                            'KK:mm a',
                           )
                         : format(
                             setMinutes(setHours(new Date(), checkHours(hour)), minutes),
@@ -440,7 +468,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                               : '',
                         }}
                       >
-                        <div className="flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
+                        <div className="flex w-full h-full gap-1 overflow-x-auto">
                           {events.map((event, index) => (
                             <div
                               key={index}

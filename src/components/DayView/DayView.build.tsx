@@ -153,7 +153,10 @@ const DayView: FC<IDayViewProps> = ({
                 className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
               >
                 <div className="nav-buttons flex items-center justify-center ">
-                  <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
+                  <button
+                    title="Previous Day"
+                    className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                  >
                     <MdKeyboardArrowLeft />
                   </button>
                   <button
@@ -162,7 +165,10 @@ const DayView: FC<IDayViewProps> = ({
                   >
                     {todayLabel}
                   </button>
-                  <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
+                  <button
+                    title="Next Day"
+                    className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                  >
                     <MdKeyboardArrowRight />
                   </button>
                 </div>
@@ -173,7 +179,10 @@ const DayView: FC<IDayViewProps> = ({
               <th
                 className={`w-full ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
               >
-                <div className="weekday-title ml-4 flex flex-col items-start justify-center font-medium">
+                <div
+                  title={format(date, 'EEEE dd MMMM yyyy', locale)}
+                  className="weekday-title ml-4 flex flex-col items-start justify-center font-medium"
+                >
                   <span>
                     <span
                       className="weekday-day text-sm"
@@ -206,7 +215,7 @@ const DayView: FC<IDayViewProps> = ({
                     {timeFormat === '12'
                       ? format(
                           setMinutes(setHours(new Date(), checkHours(hour)), minutes),
-                          'h:mm a',
+                          'KK:mm a',
                         )
                       : format(
                           setMinutes(setHours(new Date(), checkHours(hour)), minutes),

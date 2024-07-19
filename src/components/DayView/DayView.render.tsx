@@ -1,8 +1,8 @@
-import { useRenderer, useSources } from '@ws-ui/webform-editor';
+import { useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
-import { format, setHours, isToday, setMinutes } from 'date-fns';
+import { format, setHours, isToday, setMinutes, isEqual } from 'date-fns';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { BsFillInfoCircleFill } from 'react-icons/bs';
 import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
@@ -16,6 +16,7 @@ const DayView: FC<IDayViewProps> = ({
   todayButton,
   colorProp,
   colors = [],
+  selectedDate,
   property,
   headerPosition,
   eventDate,
@@ -55,11 +56,13 @@ const DayView: FC<IDayViewProps> = ({
   const [, setSelectedData] = useState<any>({});
   const [value, setValue] = useState<any[]>([]);
   const [date, setDate] = useState(new Date());
+  const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
+  const path = useWebformPath();
 
   useEffect(() => {
     if (hasMounted.current) {
-      emit('onDayChange');
+      emit('onDayChange', { currentDate: date });
     } else {
       hasMounted.current = true;
     }
@@ -86,6 +89,10 @@ const DayView: FC<IDayViewProps> = ({
         return currentHour === hourIndex;
       }
     }
+  };
+
+  const isSelected = (date: Date) => {
+    return isEqual(date, selDate);
   };
 
   let checkHours = (i: number) => {
@@ -228,7 +235,16 @@ const DayView: FC<IDayViewProps> = ({
     ce.setValue(null, value);
     const selItem = await ce.getValue();
     setSelectedData(selItem);
-    emit('onItemClick');
+    emit('onItemClick', { selectedData: selItem });
+  };
+
+  const handleDateClick = async (value: Date) => {
+    if (!selectedDate) return;
+    const ds = window.DataSource.getSource(selectedDate, path);
+    ds?.setValue(null, value);
+    const ce = await ds?.getValue();
+    setSelDate(ce);
+    emit('onDateClick', { selectedDate: ce });
   };
 
   const locale = useMemo(() => {
@@ -261,6 +277,7 @@ const DayView: FC<IDayViewProps> = ({
               >
                 <div className="nav-buttons w-full flex items-center justify-center">
                   <button
+                    title="Previous Day"
                     onClick={handlePrevDay}
                     className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                   >
@@ -274,6 +291,7 @@ const DayView: FC<IDayViewProps> = ({
                     {todayLabel}
                   </button>
                   <button
+                    title="Next Day"
                     onClick={handleNextDay}
                     className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                   >
@@ -287,7 +305,10 @@ const DayView: FC<IDayViewProps> = ({
               <th
                 className={`w-full ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
               >
-                <div className="weekday-title ml-4 flex flex-col items-start justify-center font-medium">
+                <div
+                  title={format(date, 'EEEE dd MMMM yyyy', locale)}
+                  className="weekday-title ml-4 flex flex-col items-start justify-center font-medium"
+                >
                   <span>
                     <span
                       className="weekday-day text-sm"
@@ -300,8 +321,10 @@ const DayView: FC<IDayViewProps> = ({
                       className="weekday-number rounded-full text-xl mb-1 h-10 w-10 flex items-center justify-center font-medium"
                       style={{
                         backgroundColor: isToday(date) ? color : '',
+                        border: isSelected(date) ? `2px solid ${colorToHex(color)}` : '',
                         color: isToday(date) ? 'white' : '',
                       }}
+                      onClick={() => handleDateClick(date)}
                     >
                       {format(date, 'dd')}
                     </span>
@@ -344,7 +367,7 @@ const DayView: FC<IDayViewProps> = ({
                       {timeFormat === '12'
                         ? format(
                             setMinutes(setHours(new Date(), checkHours(hour)), minutes),
-                            'h:mm a',
+                            'KK:mm a',
                           )
                         : format(
                             setMinutes(setHours(new Date(), checkHours(hour)), minutes),

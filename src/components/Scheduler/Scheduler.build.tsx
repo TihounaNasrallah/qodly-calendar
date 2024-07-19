@@ -10,7 +10,16 @@ import {
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 
-import { format, startOfWeek, addDays, isToday, setHours, isEqual, setMinutes } from 'date-fns';
+import {
+  isMonday,
+  format,
+  startOfWeek,
+  addDays,
+  isToday,
+  setHours,
+  isEqual,
+  setMinutes,
+} from 'date-fns';
 import { colorToHex } from '../shared/colorUtils';
 
 import { fr, es, de } from 'date-fns/locale';
@@ -167,12 +176,16 @@ const Scheduler: FC<ISchedulerProps> = ({
           className={`flex items-center justify-center gap-2 ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
         >
           <button
+            title="Previous year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
           >
             <MdKeyboardDoubleArrowLeft />
           </button>
-          <button className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300">
+          <button
+            title="Previous month"
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+          >
             <MdKeyboardArrowLeft />
           </button>
           <span
@@ -181,10 +194,14 @@ const Scheduler: FC<ISchedulerProps> = ({
             {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
               format(date, 'MMMM yyyy', locale).slice(1)}
           </span>
-          <button className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300">
+          <button
+            title="Next month"
+            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+          >
             <MdKeyboardArrowRight />
           </button>
           <button
+            title="Next year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
           >
@@ -199,7 +216,10 @@ const Scheduler: FC<ISchedulerProps> = ({
                   className={`scheduler-header w-36 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                 >
                   <div className="nav-buttons w-full flex items-center justify-center">
-                    <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
+                    <button
+                      title="Previous week"
+                      className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                    >
                       <MdKeyboardArrowLeft />
                     </button>
                     <button
@@ -208,7 +228,10 @@ const Scheduler: FC<ISchedulerProps> = ({
                     >
                       {todayLabel}
                     </button>
-                    <button className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300">
+                    <button
+                      title="Next week"
+                      className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                    >
                       <MdKeyboardArrowRight />
                     </button>
                   </div>
@@ -219,9 +242,10 @@ const Scheduler: FC<ISchedulerProps> = ({
                 {weekDates.map((day, index) => (
                   <th
                     key={index}
-                    className={`scheduler-header ${isToday(day) ? 'w-24' : 'w-16'} ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
+                    className={`scheduler-header ${isMonday(day) ? ' w-32' : ' w-24'} ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                   >
                     <div
+                      title={format(day, 'EEEE', locale)}
                       key={index}
                       className="weekday-title flex flex-col items-center font-medium text-center"
                     >
@@ -262,7 +286,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       {timeFormat === '12'
                         ? format(
                             setMinutes(setHours(new Date(), checkHours(hour)), minutes),
-                            'h:mm a',
+                            'KK:mm a',
                           )
                         : format(
                             setMinutes(setHours(new Date(), checkHours(hour)), minutes),
@@ -286,7 +310,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       }}
                     >
                       <div className="time-content flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
-                        {isToday(day) && isEqual(firstHour, checkHours(hourIndex)) ? (
+                        {isMonday(day) && isEqual(firstHour, checkHours(hourIndex)) ? (
                           <div
                             className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
                             style={{

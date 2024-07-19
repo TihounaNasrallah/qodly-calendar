@@ -1,17 +1,10 @@
-# Table of contents
+# Overview <a id="top"></a>
 
-1. [Overview](#overview)
-2. [Calendar Component](#calendar)
-3. [Week-View Component](#weekview)
-4. [Day-View Component](#dayview)
+[**The Calendar Component**](#calendar) is a versatile tool designed to provide an intuitive and interactive calendar interface. It allows users to easily navigate between months or years, and also display data related to every single day.
 
-# Overview <a id="overview"></a>
+[**The Week-View Component**](#weekview) offers a dynamic week view of your calendar, presenting a user-friendly interface to effortlessly navigate through events scheduled for each day of the week.
 
-**The Calendar Component** is a versatile tool designed to provide an intuitive and interactive calendar interface. It allows users to easily navigate between months or years, and also display data related to every single day.
-
-**The Week-View Component** offers a dynamic week view of your calendar, presenting a user-friendly interface to effortlessly navigate through events scheduled for each day of the week.
-
-**The Day-View Component** provides a vibrant, interactive day view of your calendar, enabling easy navigation through your scheduled events for each day.
+[**The Day-View Component**](#dayview) provides a vibrant, interactive day view of your calendar, enabling easy navigation through your scheduled events for each day.
 
 ### **Tips**💡
 
@@ -51,7 +44,7 @@ exposed function listSessions()
 	var list : collection
 	list = []
 	for (i, 0, sessions.length-1)
-		newItem = {title: "", date: "", startTime: "", endTime: "", color: ""}
+		newItem = {title: "", date: "", startTime: "", endTime: ""}
 		newItem.title = sessions[i].name
 		newItem.date = sessions[i].sessionDate
 		newItem.startTime = timeString(sessions[i].startTime)
@@ -63,6 +56,8 @@ exposed function listSessions()
 
 # Calendar Component <a id="calendar"></a>
 
+[**Back To Top**](#top)
+
 ![The Calendar Component](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/221a3ea5-c749-45b6-bd0a-1295825e4a46)
 
 ### Properties :
@@ -73,29 +68,29 @@ exposed function listSessions()
 | `Week Days`          | String           | All            | If 'Business Days' is selected, only the work days are displayed |
 | `Current Day Color`  | String           | #4169E1        | Sets the background color of the current day number              |
 | `Selected Day Color` | String           | #4169E1        | Sets the border color of the selected day number                 |
-| `Colors`             | Array of Strings | Auto-generated | Sets the background color of the displayed elements              |
 | `Year Navigation`    | Boolean          | true           | If false, the year navigation buttons won't be displayed         |
 | `Row Height`         | Number           | 150px          | Sets the Height of the calendar rows                             |
 | `Border Radius`      | Number           | 6px            | Sets the border redius of the displayed elements                 |
+| `Colors`             | Array of Strings | Auto-generated | Sets the background color of the displayed elements              |
 
 ### Data Access Properties :
 
-| Name             | Type                            | Required | Description                                                                                                               | Example                                                                                                                                                                                                                               |
-| ---------------- | ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Data Source`    | DataSource (`Array` of Objects) | ✅       | An Array that contains the objects that will be displayed                                                                 | [<br />{"name":"Employee 0","type":"Paternité","dateDebut":"2024-03-28","dateFin":"2024-04-03","team":"Team 3"},<br />{"name":"Employee 1","type":"Marriage","dateDebut":"2024-03-13","dateFin":"2024-03-18","team":"Team 2"} <br />] |
-| `Selected Item`  | DataSource (`Object`)           | ❌       | Will contain the variable that will contain the selected Event or Item                                                    | `selectedObj`                                                                                                                                                                                                                         |
-| `Selected Date`  | DataSource (`Date`)             | ❌       | Will contain the variable that will contain the selected Date                                                             | `date`                                                                                                                                                                                                                                |
-| `Property`       | String                          | ✅       | Will contain the property to be displayed                                                                                 | `name`                                                                                                                                                                                                                                |
-| `First Date`     | String                          | ✅       | Will contain the start date attribute in our array                                                                        | `dateDebut`                                                                                                                                                                                                                           |
-| `Last Date`      | String                          | ✅       | Will contain the end date attribute in our array                                                                          | `dateFin`                                                                                                                                                                                                                             |
-| `Color Property` | String                          | ❌       | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto generated randomly) | `color`                                                                                                                                                                                                                               |
-| `Attributes`     | Array of Strings                | ❌       | Sets the additional properties to be displayed                                                                            | [`team`, `type`]                                                                                                                                                                                                                      |
+| Name             | Type                  | Required                                            | Description                                                                                                                | Example                                                                                                                                                                                                                               |
+| ---------------- | --------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Data Source`    | DataSource (`Array`)  | ✅                                                  | An Array that contains the objects that will be displayed                                                                  | [<br />{"name":"Employee 0","type":"Paternité","dateDebut":"2024-03-28","dateFin":"2024-04-03","team":"Team 3"},<br />{"name":"Employee 1","type":"Marriage","dateDebut":"2024-03-13","dateFin":"2024-03-18","team":"Team 2"} <br />] |
+| `Selected Item`  | DataSource (`Object`) | ❌ <br> (Required in case of using "On Item Click") | Will contain the variable that will store the selected Event Item of our array                                             | `selectedObj`                                                                                                                                                                                                                         |
+| `Selected Date`  | DataSource (`Date`)   | ❌ <br> (Required in case of using "On Date Click") | Will contain the variable that will store the selected Date                                                                | `date`                                                                                                                                                                                                                                |
+| `Property`       | String                | ✅                                                  | Will contain the property to be displayed                                                                                  | `name`                                                                                                                                                                                                                                |
+| `First Date`     | String                | ✅                                                  | Will contain the start date attribute in our array                                                                         | `dateDebut`                                                                                                                                                                                                                           |
+| `Last Date`      | String                | ✅                                                  | Will contain the end date attribute in our array                                                                           | `dateFin`                                                                                                                                                                                                                             |
+| `Color Property` | String                | ❌                                                  | Will contain the color attribute in our array (if not set, the colors of the displayed events are auto-generated randomly) | `color`                                                                                                                                                                                                                               |
+| `Attributes`     | Array of Strings      | ❌                                                  | Sets the additional properties to be displayed                                                                             | [`team`, `type`]                                                                                                                                                                                                                      |
 
 ### Events :
 
-- **`On Date Click`** : Trigger an event (open modal, execute a function, standard action, ...) when a day number is clicked.
-- **`On Month Change`** : Trigger an event (open modal, execute a function, standard action, ...) when the displayed month change.
-- **`On Item Click`** : Trigger an event (open modal, execute a function, standard action, ...) when an Event or item of the calendar is clicked.
+- **`On Date Click`** : Trigger an event (open modal, execute a function, standard action, ...) when a day number is clicked. We can access the currrent displayed date in **Qodly/4D** using : `webEvent.data.selectedDate`.
+- **`On Month Change`** : Trigger an event (open modal, execute a function, standard action, ...) when the displayed month change.We can access the currrent displayed date in **Qodly/4D** using : `webEvent.data.currentDate`.
+- **`On Item Click`** : Trigger an event (open modal, execute a function, standard action, ...) when an Event or item of the calendar is clicked. We can access the currrent displayed date in **Qodly/4D** using : `webEvent.data.selectedData`.
 
 ### Custom CSS :
 
@@ -138,6 +133,8 @@ self .day-container:hover {
 
 # Week-View Component <a id="weekview"></a>
 
+[**Back To Top**](#top)
+
 ![Scheduler Component](./public/week-view.png)
 
 ### Properties :
@@ -158,19 +155,24 @@ self .day-container:hover {
 
 ### Data Access Properties :
 
-| Name             | Type                            | Required | Description                                                                                                               | Example                                                                                                                                                                                            |
-| ---------------- | ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Data Source`    | DataSource (`Array` of Objects) | ✅       | An Array that contains the objects that will be displayed                                                                 | [<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />] |
-| `Selected Item`  | DataSource (`Object`)           | ❌       | Will contain the variable that will contain the selected Event or Item                                                    | `selectedObj`                                                                                                                                                                                      |
-| `Property`       | String                          | ✅       | Will contain the property to be displayed                                                                                 | title                                                                                                                                                                                              |
-| `Date`           | String                          | ✅       | Will contain the date attribute of the events                                                                             | date                                                                                                                                                                                               |
-| `Start Time`     | String                          | ✅       | Will contain the attribute of the start time in our array                                                                 | startTime                                                                                                                                                                                          |
-| `End Time`       | String                          | ✅       | Will contain the attribute of the end time in our array                                                                   | endTime                                                                                                                                                                                            |
-| `Color Property` | String                          | ❌       | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto generated randomly) | `color`                                                                                                                                                                                            |
+| Name             | Type                            | Required                                            | Description                                                                                                               | Example                                                                                                                                                                                            |
+| ---------------- | ------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Data Source`    | DataSource (`Array` of Objects) | ✅                                                  | An Array that contains the objects that will be displayed                                                                 | [<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />] |
+| `Selected Item`  | DataSource (`Object`)           | ❌ <br> (Required in case of using "On Item Click") | Will contain the variable that will store the selected Event Item of our array                                            | `selectedObj`                                                                                                                                                                                      |
+| `Selected Date`  | DataSource (`Date`)             | ❌ <br> (Required in case of using "On Date Click") | Will contain the variable that will store the selected Date                                                               | `date`                                                                                                                                                                                             |
+| `Property`       | String                          | ✅                                                  | Will contain the property to be displayed                                                                                 | title                                                                                                                                                                                              |
+| `Date`           | String                          | ✅                                                  | Will contain the date attribute of the events                                                                             | date                                                                                                                                                                                               |
+| `Start Time`     | String                          | ✅                                                  | Will contain the attribute of the start time in our array                                                                 | startTime                                                                                                                                                                                          |
+| `End Time`       | String                          | ✅                                                  | Will contain the attribute of the end time in our array                                                                   | endTime                                                                                                                                                                                            |
+| `Color Property` | String                          | ❌                                                  | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto-generated randomly) | `color`                                                                                                                                                                                            |
 
 ### Events :
 
-- **`On Item Click`** : Trigger an event (open modal, execute a function, standard action, ...) when an Event or item of the weekview calendar is clicked.
+- **`On Item Click`** : Trigger an event (open modal, execute a function, standard action, ...) when an Event or item of the weekview calendar is clicked. We can access the currrent displayed date in **Qodly/4D** using : `webEvent.data.selectedData`.
+
+- **`On Date Click`** : Trigger an event (open modal, execute a function, standard action, ...) when a day number is clicked. We can access the currrent displayed date in **Qodly/4D** using : `webEvent.data.selectedDate`.
+
+- **`On Week Change`** : Trigger an event (open modal, execute a function, standard action, ...) when the displayed week change. We can access the currrent displayed date in **Qodly/4D** using `webEvent.data.currentDate`.
 
 ### Custom CSS
 
@@ -202,6 +204,8 @@ self .month-title {
 
 # Day View Component <a id="dayview"></a>
 
+[**Back To Top**](#top)
+
 ![Day-View Component](public/dayView.png)
 
 ### Properties :
@@ -219,19 +223,24 @@ self .month-title {
 
 ### Data Access Properties :
 
-| Name             | Type                            | Required | Description                                                                                                               | Example                                                                                                                                                                                            |
-| ---------------- | ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Data Source`    | DataSource (`Array` of Objects) | ✅       | An Array that contains the objects that will be displayed                                                                 | [<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />] |
-| `Selected Item`  | DataSource (`Object`)           | ❌       | Will contain the variable that will contain the selected Event or Item                                                    | `selectedObj`                                                                                                                                                                                      |
-| `Property`       | String                          | ✅       | Will contain the property to be displayed                                                                                 | title                                                                                                                                                                                              |
-| `Date`           | String                          | ✅       | Will contain the date attribute of the events                                                                             | date                                                                                                                                                                                               |
-| `Start Time`     | String                          | ✅       | Will contain the attribute of the start time in our array                                                                 | startTime                                                                                                                                                                                          |
-| `End Time`       | String                          | ✅       | Will contain the attribute of the end time in our array                                                                   | endTime                                                                                                                                                                                            |
-| `Color Property` | String                          | ❌       | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto generated randomly) | `color`                                                                                                                                                                                            |
+| Name             | Type                            | Required                                            | Description                                                                                                               | Example                                                                                                                                                                                            |
+| ---------------- | ------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Data Source`    | DataSource (`Array` of Objects) | ✅                                                  | An Array that contains the objects that will be displayed                                                                 | [<br />{"title":"Meeting with John","date":"2024-04-02","startTime":"9:00","endTime":"12:00"},<br />{"title":"Meeting with Jane","date":"2024-04-05","startTime":"10:00","endTime":"12:00"}<br />] |
+| `Selected Item`  | DataSource (`Object`)           | ❌ <br> (Required in case of using "On Item Click") | Will contain the variable that will store the selected Event Item of our array                                            | `selectedObj`                                                                                                                                                                                      |
+| `Selected Date`  | DataSource (`Date`)             | ❌ <br> (Required in case of using "On Date Click") | Will contain the variable that will store the selected Date                                                               | `date`                                                                                                                                                                                             |
+| `Property`       | String                          | ✅                                                  | Will contain the property to be displayed                                                                                 | title                                                                                                                                                                                              |
+| `Date`           | String                          | ✅                                                  | Will contain the date attribute of the events                                                                             | date                                                                                                                                                                                               |
+| `Start Time`     | String                          | ✅                                                  | Will contain the attribute of the start time in our array                                                                 | startTime                                                                                                                                                                                          |
+| `End Time`       | String                          | ✅                                                  | Will contain the attribute of the end time in our array                                                                   | endTime                                                                                                                                                                                            |
+| `Color Property` | String                          | ❌                                                  | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto generated randomly) | `color`                                                                                                                                                                                            |
 
 ### Events :
 
-- **`On Item Click`** : Trigger an event (open modal, execute a function, standard action, ...) when an Event or item of the dayview calendar is clicked.
+- **`On Item Click`** : Trigger an event (open modal, execute a function, standard action, ...) when an Event or item of the weekview calendar is clicked. We can access the currrent displayed date in **Qodly/4D** using : `webEvent.data.selectedData`.
+
+- **`On Date Click`** : Trigger an event (open modal, execute a function, standard action, ...) when a day number is clicked. We can access the currrent displayed date in **Qodly/4D** using : `webEvent.data.selectedDate`.
+
+- **`On Day Change`** : Trigger an event (open modal, execute a function, standard action, ...) when the displayed day change. We can access the currrent displayed date in **Qodly/4D** using `webEvent.data.currentDate`.
 
 ### Custom CSS
 

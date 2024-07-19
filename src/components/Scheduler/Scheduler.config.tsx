@@ -34,6 +34,10 @@ export default {
         label: 'On Week Change',
         value: 'onWeekChange',
       },
+      {
+        label: 'On Date Click',
+        value: 'onDateClick',
+      },
     ],
     datasources: {
       accept: ['array'],
@@ -45,7 +49,7 @@ export default {
     minutes: '60',
     days: 'full',
     color: '#1a73e8',
-    timeFormat: '12',
+    timeFormat: '24',
     height: '64px',
     headerPosition: '',
     todayButton: true,
@@ -60,6 +64,7 @@ export interface ISchedulerProps extends webforms.ComponentProps {
   timeFormat: '12' | '24';
   headerPosition: 'sticky' | '';
   height?: string;
+  selectedDate: string;
   property: string;
   startDate: string;
   startTime: string;

@@ -56,10 +56,10 @@ const commonSettings: TSetting[] = [
     label: 'Time Format',
     type: ESetting.SELECT,
     options: [
-      { value: '12', label: '12 Hours' },
       { value: '24', label: '24 Hours' },
+      { value: '12', label: '12 Hours' },
     ],
-    defaultValue: '12',
+    defaultValue: '24',
   },
   {
     key: 'headerPosition',
@@ -101,6 +101,11 @@ const dataAccessSettings: TSetting[] = [
   {
     key: 'currentElement',
     label: 'Selected Item',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'selectedDate',
+    label: 'Selected Date',
     type: ESetting.DS_AUTO_SUGGEST,
   },
   {

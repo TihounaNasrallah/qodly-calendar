@@ -33,6 +33,10 @@ export default {
         label: 'On Day Change',
         value: 'onDayChange',
       },
+      {
+        label: 'On Date Click',
+        value: 'onDateClick',
+      },
     ],
     datasources: {
       accept: ['array'],
@@ -41,7 +45,7 @@ export default {
   defaultProps: {
     days: 'full',
     color: '#1a73e8',
-    timeFormat: '12',
+    timeFormat: '24',
     minutes: '60',
     todayButton: true,
     headerPosition: '',
@@ -50,13 +54,14 @@ export default {
 } as T4DComponentConfig<IDayViewProps>;
 
 export interface IDayViewProps extends webforms.ComponentProps {
+  selectedDate: string;
   property: string;
   eventDate: string;
   startTime: string;
   endTime: string;
   color: string;
   minutes: '60' | '15' | '30';
-  timeFormat?: string;
+  timeFormat: '12' | '24';
   hours?: string;
   language: string;
   headerPosition: 'sticky' | '';
