@@ -14,6 +14,7 @@ import { fr, es, de } from 'date-fns/locale';
 import { TinyColor } from '@ctrl/tinycolor';
 
 const DayView: FC<IDayViewProps> = ({
+  attributes = [],
   minutes,
   property,
   language,
@@ -207,7 +208,10 @@ const DayView: FC<IDayViewProps> = ({
           </thead>
           <tbody>
             {timeList.map(({ hour, minutes }, hourIndex) => (
-              <tr key={`${hour}-${minutes}`} className="w-36 h-16">
+              <tr
+                key={`${hour}-${minutes}`}
+                className={`${isEqual(firstHour, checkHours(hourIndex)) ? 'h-20' : 'h-14'}`}
+              >
                 <td className="flex items-center justify-center">
                   <span
                     className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
@@ -251,6 +255,16 @@ const DayView: FC<IDayViewProps> = ({
                         >
                           {property ? '{' + property + '}' : 'No Property Set'}
                         </span>
+                        <div className="attributes flex flex-wrap">
+                          {attributes?.map((attribute, index) => (
+                            <span
+                              key={index}
+                              className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
+                            >
+                              {attribute.Attribute}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     ) : null}
                   </div>

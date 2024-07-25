@@ -16,6 +16,7 @@ const DayView: FC<IDayViewProps> = ({
   todayButton,
   colorProp,
   colors = [],
+  attributes = [],
   selectedDate,
   property,
   headerPosition,
@@ -225,8 +226,18 @@ const DayView: FC<IDayViewProps> = ({
     [value.length],
   );
 
+  let attributeList = attributes?.map((e) => e.Attribute);
+
   const data = useMemo(
-    () => value.map((obj, index) => ({ ...obj, color: obj[colorProp] || colorgenerated[index] })),
+    () =>
+      value.map((obj, index) => ({
+        ...obj,
+        color: obj[colorProp] || colorgenerated[index],
+        attributes: attributeList?.reduce((acc: { [key: string]: any }, e) => {
+          acc[e] = obj[e];
+          return acc;
+        }, {}),
+      })),
     [value],
   );
 
@@ -406,6 +417,19 @@ const DayView: FC<IDayViewProps> = ({
                           >
                             {event[property]}
                           </span>
+                          <div key={`attributes-${index}`} className="attributes flex flex-wrap">
+                            {attributeList?.map((e) => {
+                              return (
+                                <span
+                                  key={`attribute-${index}-${e}`}
+                                  className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
+                                  title={event?.attributes[e]?.toString()}
+                                >
+                                  {event.attributes[e]}
+                                </span>
+                              );
+                            })}
+                          </div>
                         </div>
                       ))}
                     </div>

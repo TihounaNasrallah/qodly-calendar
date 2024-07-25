@@ -34,7 +34,6 @@ import { fr, es, de } from 'date-fns/locale';
 const Calendar: FC<ICalendarProps> = ({
   type,
   language,
-  attributes,
   selectedDate,
   property,
   startDate,
@@ -43,6 +42,7 @@ const Calendar: FC<ICalendarProps> = ({
   color,
   selectedColor,
   colors = [],
+  attributes = [],
   colorProp,
   yearNav,
   borderRadius,
@@ -371,7 +371,7 @@ const Calendar: FC<ICalendarProps> = ({
                               <span
                                 key={`attribute-${index}-${e}`}
                                 className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
-                                title={conge?.attributes[e].toString()}
+                                title={conge?.attributes[e]?.toString()}
                               >
                                 {conge.attributes[e]}
                               </span>

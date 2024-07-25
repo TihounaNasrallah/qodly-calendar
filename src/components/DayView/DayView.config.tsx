@@ -68,8 +68,13 @@ export interface IDayViewProps extends webforms.ComponentProps {
   todayButton?: boolean;
   colorProp: string;
   colors?: IColors[];
+  attributes: IAttributes[];
 }
 
 export interface IColors {
   color?: string;
+}
+
+export interface IAttributes {
+  Attribute: string;
 }

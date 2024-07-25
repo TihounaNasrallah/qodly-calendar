@@ -37,6 +37,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   timeFormat,
   headerPosition,
   color,
+  attributes = [],
   style,
   className,
   classNames = [],
@@ -242,7 +243,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                 {weekDates.map((day, index) => (
                   <th
                     key={index}
-                    className={`scheduler-header ${isMonday(day) ? ' w-32' : ' w-24'} ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
+                    className={`scheduler-header ${isMonday(day) ? 'w-36' : 'w-24'} ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                   >
                     <div
                       title={format(day, 'EEEE', locale)}
@@ -297,7 +298,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                   {weekDates.map((day, dayIndex) => (
                     <td
                       key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                      className="time-content border border-gray-200 p-1"
+                      className={`time-content border border-gray-200 p-1 ${isEqual(firstHour, checkHours(hourIndex)) ? 'h-24' : 'h-12'}`}
                       style={{
                         backgroundColor:
                           isToday(day) && isCurrentHour(checkHours(hour), minutes)
@@ -323,6 +324,16 @@ const Scheduler: FC<ISchedulerProps> = ({
                             >
                               {property ? '{' + property + '}' : 'No Property Set'}
                             </span>
+                            <div className="attributes flex flex-wrap">
+                              {attributes?.map((attribute, index) => (
+                                <span
+                                  key={index}
+                                  className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
+                                >
+                                  {attribute.Attribute}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         ) : null}
                       </div>

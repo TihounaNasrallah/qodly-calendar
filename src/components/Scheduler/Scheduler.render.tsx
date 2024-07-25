@@ -45,6 +45,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   color,
   colorProp,
   colors = [],
+  attributes = [],
   headerPosition,
   style,
   className,
@@ -89,6 +90,8 @@ const Scheduler: FC<ISchedulerProps> = ({
     }
   }, [date]);
 
+  let attributeList = attributes?.map((e) => e.Attribute);
+
   const colorgenerated = useMemo(() => {
     return generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor()));
   }, [value.length]);
@@ -97,6 +100,10 @@ const Scheduler: FC<ISchedulerProps> = ({
     return value.map((obj, index) => ({
       ...obj,
       color: obj[colorProp] || colorgenerated[index],
+      attributes: attributeList?.reduce((acc: { [key: string]: any }, e) => {
+        acc[e] = obj[e];
+        return acc;
+      }, {}),
     }));
   }, [value]);
 
@@ -298,7 +305,9 @@ const Scheduler: FC<ISchedulerProps> = ({
   return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="scheduler-container flex flex-col gap-4 h-full">
-        <div className="flex items-center justify-center gap-2">
+        <div
+          className={`flex items-center justify-center gap-2 ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
+        >
           <button
             title="Previous Year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
@@ -315,7 +324,7 @@ const Scheduler: FC<ISchedulerProps> = ({
             <MdKeyboardArrowLeft />
           </button>
           <span
-            className={`current-month ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'} `}
+            className={`current-month text-center w-44 ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'} `}
           >
             {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
               format(date, 'MMMM yyyy', locale).slice(1)}
@@ -485,6 +494,22 @@ const Scheduler: FC<ISchedulerProps> = ({
                               >
                                 {event[property]}
                               </span>
+                              <div
+                                key={`attributes-${index}`}
+                                className="attributes flex flex-wrap"
+                              >
+                                {attributeList?.map((e) => {
+                                  return (
+                                    <span
+                                      key={`attribute-${index}-${e}`}
+                                      className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
+                                      title={event?.attributes[e]?.toString()}
+                                    >
+                                      {event.attributes[e]}
+                                    </span>
+                                  );
+                                })}
+                              </div>
                             </div>
                           ))}
                         </div>
