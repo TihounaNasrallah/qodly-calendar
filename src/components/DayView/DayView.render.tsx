@@ -1,4 +1,4 @@
-import { useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
+import { splitDatasourceID, useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
@@ -251,7 +251,9 @@ const DayView: FC<IDayViewProps> = ({
 
   const handleDateClick = async (value: Date) => {
     if (!selectedDate) return;
-    const ds = window.DataSource.getSource(selectedDate, path);
+    const { id, namespace } = splitDatasourceID(selectedDate);
+    const ds =
+      window.DataSource.getSource(id, namespace) || window.DataSource.getSource(selectedDate, path);
     ds?.setValue(null, value);
     const ce = await ds?.getValue();
     setSelDate(ce);
