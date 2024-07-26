@@ -238,7 +238,7 @@ self .event:has(span[title='Room 2']) {
 
 [**Back To Top**](#top)
 
-![Day-View Component](./public/dayview.png)
+![Day-View Component](./public/dayView.png)
 
 ### Properties :
 
