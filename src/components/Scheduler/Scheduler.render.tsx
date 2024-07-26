@@ -304,13 +304,13 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="scheduler-container flex flex-col gap-4 h-full">
+      <div className="flex flex-col gap-4 h-full">
         <div
-          className={`flex items-center justify-center gap-2 ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
+          className={`scheduler-navigation flex items-center justify-center gap-2 ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
         >
           <button
             title="Previous Year"
-            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button last-year rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
             onClick={prevYear}
           >
@@ -318,7 +318,7 @@ const Scheduler: FC<ISchedulerProps> = ({
           </button>
           <button
             title="Previous Month"
-            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button last-month rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={prevMonth}
           >
             <MdKeyboardArrowLeft />
@@ -331,31 +331,31 @@ const Scheduler: FC<ISchedulerProps> = ({
           </span>
           <button
             title="Next Month"
-            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button next-month rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={nextMonth}
           >
             <MdKeyboardArrowRight />
           </button>
           <button
             title="Next Year"
-            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button next-year rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
             onClick={nextYear}
           >
             <MdKeyboardDoubleArrowRight />
           </button>
         </div>
-        <div className="scheduler-grid w-full h-full flex justify-center">
+        <div className="scheduler w-full h-full flex justify-center">
           <table className="table-fixed w-full h-full border-collapse ">
             <thead>
-              <tr>
+              <tr className="scheduler-header-row">
                 <th
-                  className={`scheduler-header w-24 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
+                  className={`scheduler-header time-column w-24 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                 >
-                  <div className="nav-buttons w-full flex items-center justify-center">
+                  <div className="week-navigation w-full flex items-center justify-center">
                     <button
                       title="Previous Week"
-                      className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                      className="nav-button last-week p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                       onClick={goToPreviousWeek}
                     >
                       <MdKeyboardArrowLeft />
@@ -369,7 +369,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                     </button>
                     <button
                       title="Next Week"
-                      className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                      className="nav-button next-week p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                       onClick={goToNextWeek}
                     >
                       <MdKeyboardArrowRight />
@@ -382,7 +382,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                 {weekDates.map((day, index) => (
                   <th
                     key={index}
-                    className={`scheduler-header w-32 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
+                    className={`scheduler-header week-row w-32 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                   >
                     <div
                       title={format(day, 'EEEE', locale)}
@@ -423,7 +423,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                     height: height,
                   }}
                 >
-                  <td className="timeline flex items-center justify-center">
+                  <td className="flex items-center justify-center">
                     <span
                       className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
                     >
@@ -465,7 +465,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                     return (
                       <td
                         key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                        className="time-content border border-gray-200 p-1"
+                        className="border border-gray-200 p-1"
                         style={{
                           backgroundColor:
                             isToday(day) && isCurrentHour(checkHours(hour), minutes)
@@ -477,11 +477,11 @@ const Scheduler: FC<ISchedulerProps> = ({
                               : '',
                         }}
                       >
-                        <div className="flex w-full h-full gap-1 overflow-x-auto">
+                        <div className="time-content flex w-full h-full gap-1 overflow-x-auto">
                           {events.map((event, index) => (
                             <div
                               key={index}
-                              className="event p-1 w-full border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
+                              className="event px-2 w-full border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
                               style={{
                                 backgroundColor: colorToHex(event.color) + '40',
                                 borderTopColor: colorToHex(event.color),
