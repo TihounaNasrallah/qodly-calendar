@@ -139,6 +139,21 @@ const attributesSettings: TSetting[] = [
       },
     ],
   },
+  {
+    type: ESetting.DATAGRID,
+    key: 'attributes',
+    name: 'Attributes',
+    label: 'Attributes',
+    titleProperty: 'Attribute',
+    data: [
+      {
+        key: 'Attribute',
+        label: 'Attribute',
+        type: ESetting.TEXT_FIELD,
+        defaultValue: '',
+      },
+    ],
+  },
 ];
 
 const Settings: TSetting[] = [

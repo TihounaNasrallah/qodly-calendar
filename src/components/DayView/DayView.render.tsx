@@ -1,4 +1,4 @@
-import { useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
+import { splitDatasourceID, useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
@@ -16,6 +16,7 @@ const DayView: FC<IDayViewProps> = ({
   todayButton,
   colorProp,
   colors = [],
+  attributes = [],
   selectedDate,
   property,
   headerPosition,
@@ -225,8 +226,18 @@ const DayView: FC<IDayViewProps> = ({
     [value.length],
   );
 
+  let attributeList = attributes?.map((e) => e.Attribute);
+
   const data = useMemo(
-    () => value.map((obj, index) => ({ ...obj, color: obj[colorProp] || colorgenerated[index] })),
+    () =>
+      value.map((obj, index) => ({
+        ...obj,
+        color: obj[colorProp] || colorgenerated[index],
+        attributes: attributeList?.reduce((acc: { [key: string]: any }, e) => {
+          acc[e] = obj[e];
+          return acc;
+        }, {}),
+      })),
     [value],
   );
 
@@ -240,7 +251,9 @@ const DayView: FC<IDayViewProps> = ({
 
   const handleDateClick = async (value: Date) => {
     if (!selectedDate) return;
-    const ds = window.DataSource.getSource(selectedDate, path);
+    const { id, namespace } = splitDatasourceID(selectedDate);
+    const ds =
+      window.DataSource.getSource(id, namespace) || window.DataSource.getSource(selectedDate, path);
     ds?.setValue(null, value);
     const ce = await ds?.getValue();
     setSelDate(ce);
@@ -268,18 +281,18 @@ const DayView: FC<IDayViewProps> = ({
       >
         {format(date, 'dd MMMM yyyy', locale)}
       </div>
-      <div className="dayview-container w-full h-full">
+      <div className="dayview w-full h-full">
         <table className="table-fixed w-full h-full border-collapse">
           <thead>
             <tr className="dayview-header">
               <th
                 className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
               >
-                <div className="nav-buttons w-full flex items-center justify-center">
+                <div className="navigation w-full flex items-center justify-center">
                   <button
                     title="Previous Day"
                     onClick={handlePrevDay}
-                    className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                    className="nav-button last-day p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                   >
                     <MdKeyboardArrowLeft />
                   </button>
@@ -293,7 +306,7 @@ const DayView: FC<IDayViewProps> = ({
                   <button
                     title="Next Day"
                     onClick={handleNextDay}
-                    className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                    className="nav-button next-day p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                   >
                     <MdKeyboardArrowRight />
                   </button>
@@ -333,7 +346,7 @@ const DayView: FC<IDayViewProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="dayview-body">
             {timeList.map(({ hour, minutes }, hourIndex) => {
               const events = data.filter((event) => {
                 const eventStartTime = timeToFloat(
@@ -359,7 +372,7 @@ const DayView: FC<IDayViewProps> = ({
                 );
               });
               return (
-                <tr key={checkHours(hourIndex)} className="w-36 h-16">
+                <tr key={checkHours(hourIndex)} className="dayview-row w-36 h-16">
                   <td className="flex items-center justify-center">
                     <span
                       className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
@@ -394,7 +407,7 @@ const DayView: FC<IDayViewProps> = ({
                         <div
                           title={event[property]}
                           key={index}
-                          className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
+                          className="event px-2 border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
                           style={{
                             backgroundColor: colorToHex(event.color) + '40',
                             borderTopColor: colorToHex(event.color),
@@ -406,6 +419,19 @@ const DayView: FC<IDayViewProps> = ({
                           >
                             {event[property]}
                           </span>
+                          <div key={`attributes-${index}`} className="attributes flex flex-wrap">
+                            {attributeList?.map((e) => {
+                              return (
+                                <span
+                                  key={`attribute-${index}-${e}`}
+                                  className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
+                                  title={event?.attributes[e]?.toString()}
+                                >
+                                  {event.attributes[e]}
+                                </span>
+                              );
+                            })}
+                          </div>
                         </div>
                       ))}
                     </div>

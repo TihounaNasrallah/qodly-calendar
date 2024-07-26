@@ -135,7 +135,7 @@ self .day-container:hover {
 
 [**Back To Top**](#top)
 
-![Scheduler Component](./public/week-view.png)
+![Week-View Component](./public/scheduler.png)
 
 ### Properties :
 
@@ -164,6 +164,7 @@ self .day-container:hover {
 | `Date`           | String                          | ✅                                                  | Will contain the date attribute of the events                                                                             | date                                                                                                                                                                                               |
 | `Start Time`     | String                          | ✅                                                  | Will contain the attribute of the start time in our array                                                                 | startTime                                                                                                                                                                                          |
 | `End Time`       | String                          | ✅                                                  | Will contain the attribute of the end time in our array                                                                   | endTime                                                                                                                                                                                            |
+| `Attributes`     | Array of Strings                | ❌                                                  | Sets the additional properties to be displayed                                                                            | [`Room`, `startTime`]                                                                                                                                                                              |
 | `Color Property` | String                          | ❌                                                  | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto-generated randomly) | `color`                                                                                                                                                                                            |
 
 ### Events :
@@ -176,29 +177,60 @@ self .day-container:hover {
 
 ### Custom CSS
 
-The Scheduler Componant is divided to two main parts, we can access each one through the **"scheduler-header"** and **"scheduler-body"** css classes :
+The Scheduler Componant is divided to three main parts :
 
-![Scheduler CSS](./public/week-view-css.png)
+#### scheduler-navigation :
 
-Here is a basic example :
+![Scheduler Navigation](./public/scheduler-navigation.png)
 
 ```css
-/* Make the header disappear */
-self .scheduler-header {
+/*Hide the scheduler navigation*/
+self .scheduler-navigation {
   display: none;
 }
+```
 
-/* Style the navigation buttons */
-self .nav-button {
+#### scheduler-header :
+
+![Scheduler Header](./public/scheduler-header-2.png)
+
+```css
+/* Style the days of the week (Display only the first letter of the day) */
+self .weekday-day {
+  font-size: 0px;
+}
+self .weekday-day::first-letter {
+  font-size: 16px;
+}
+
+/* Style the next week navigation button */
+self .nav-button .next-week {
   border: 1px solid blue;
   border-radius: 50%;
   color: blue;
 }
+```
 
-/* Style the month title */
-self .month-title {
-  color: blue;
-  font-size: 26px;
+#### scheduler-body :
+
+![Scheduler Body](./public/scheduler-body.png)
+
+```css
+/* Style the events depending on their room */
+
+self .event:has(span[title='Room 0']) {
+  border-color: #cc0000 !important;
+  background-color: #cc000050 !important;
+}
+
+self .event:has(span[title='Room 1']) {
+  border-color: #38761d !important;
+  background-color: #38761d50 !important;
+}
+
+self .event:has(span[title='Room 2']) {
+  border-color: #0b5394 !important;
+  background-color: #0b539450 !important;
 }
 ```
 
@@ -206,7 +238,7 @@ self .month-title {
 
 [**Back To Top**](#top)
 
-![Day-View Component](public/dayView.png)
+![Day-View Component](./public/dayview.png)
 
 ### Properties :
 
@@ -232,6 +264,7 @@ self .month-title {
 | `Date`           | String                          | ✅                                                  | Will contain the date attribute of the events                                                                             | date                                                                                                                                                                                               |
 | `Start Time`     | String                          | ✅                                                  | Will contain the attribute of the start time in our array                                                                 | startTime                                                                                                                                                                                          |
 | `End Time`       | String                          | ✅                                                  | Will contain the attribute of the end time in our array                                                                   | endTime                                                                                                                                                                                            |
+| `Attributes`     | Array of Strings                | ❌                                                  | Sets the additional properties to be displayed                                                                            | [`Room`, `startTime`]                                                                                                                                                                              |
 | `Color Property` | String                          | ❌                                                  | Will contain the color attribute in our array (if not set, the colors of the displayed events is auto generated randomly) | `color`                                                                                                                                                                                            |
 
 ### Events :
@@ -244,11 +277,13 @@ self .month-title {
 
 ### Custom CSS
 
-The DayView Componant's main part can be accessed through the **"dayview-container"** css class :
+The DayView Componant is formed of two main parts :
 
-![Day-View Classes](<public/dayView classes.png>)
+#### dayview-header :
 
-Here is a basic example :
+![Current Day](./public/current-day.png)
+
+![Day-View Header](./public/dayView-navigation.png)
 
 ```css
 /* Make the header disappear */
@@ -256,16 +291,30 @@ self .current-day {
   display: none;
 }
 
-/* Style the navigation buttons */
-self .nav-button {
+/* Style the next day navigation button */
+self .nav-button .next-day {
   border: 1px solid blue;
   border-radius: 50%;
   color: blue;
 }
+```
 
-/* Style the month title */
+#### dayview-body :
+
+![Day-View Body](./public/dayView-body.png)
+
+```css
+/* Style the time (timeline)*/
 self .timeline {
   color: blue;
   font-size: 26px;
+}
+
+/* Style the event title (display only the first line of the title)*/
+self .event-title {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 }
 ```

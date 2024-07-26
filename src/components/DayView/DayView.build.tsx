@@ -14,6 +14,7 @@ import { fr, es, de } from 'date-fns/locale';
 import { TinyColor } from '@ctrl/tinycolor';
 
 const DayView: FC<IDayViewProps> = ({
+  attributes = [],
   minutes,
   property,
   language,
@@ -141,21 +142,21 @@ const DayView: FC<IDayViewProps> = ({
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div
-        className={`current-day text-center ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+        className={`dayview-header current-day text-center ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
       >
         {format(date, 'dd MMMM yyyy', locale)}
       </div>
-      <div className="dayview-container w-full h-full">
+      <div className="dayview w-full h-full">
         <table className="table-fixed w-full h-full border-collapse">
-          <thead>
-            <tr className="dayview-header">
+          <thead className="dayview-header">
+            <tr>
               <th
                 className={`w-40 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
               >
-                <div className="nav-buttons flex items-center justify-center ">
+                <div className="navigation flex items-center justify-center ">
                   <button
                     title="Previous Day"
-                    className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                    className="nav-button last-day p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                   >
                     <MdKeyboardArrowLeft />
                   </button>
@@ -167,7 +168,7 @@ const DayView: FC<IDayViewProps> = ({
                   </button>
                   <button
                     title="Next Day"
-                    className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                    className="nav-button next-day p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                   >
                     <MdKeyboardArrowRight />
                   </button>
@@ -205,9 +206,12 @@ const DayView: FC<IDayViewProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="dayview-body">
             {timeList.map(({ hour, minutes }, hourIndex) => (
-              <tr key={`${hour}-${minutes}`} className="w-36 h-16">
+              <tr
+                key={`${hour}-${minutes}`}
+                className={`dayview-row ${isEqual(firstHour, checkHours(hourIndex)) ? 'h-20' : 'h-14'}`}
+              >
                 <td className="flex items-center justify-center">
                   <span
                     className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
@@ -240,7 +244,7 @@ const DayView: FC<IDayViewProps> = ({
                   <div className="time-content flex flex-col flex-wrap w-1/3 h-full gap-1 overflow-x-auto">
                     {isToday(date) && isEqual(firstHour, checkHours(hourIndex)) ? (
                       <div
-                        className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
+                        className="event p-2 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
                         style={{
                           backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
                           borderTopColor: new TinyColor('#C084FC').toHexString(),
@@ -251,6 +255,16 @@ const DayView: FC<IDayViewProps> = ({
                         >
                           {property ? '{' + property + '}' : 'No Property Set'}
                         </span>
+                        <div className="attributes flex flex-wrap">
+                          {attributes?.map((attribute, index) => (
+                            <span
+                              key={index}
+                              className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
+                            >
+                              {attribute.Attribute}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     ) : null}
                   </div>

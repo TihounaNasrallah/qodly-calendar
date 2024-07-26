@@ -37,6 +37,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   timeFormat,
   headerPosition,
   color,
+  attributes = [],
   style,
   className,
   classNames = [],
@@ -171,20 +172,20 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="scheduler-container flex flex-col gap-4 h-full">
+      <div className="flex flex-col gap-4 h-full">
         <div
-          className={`flex items-center justify-center gap-2 ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
+          className={`scheduler-navigation flex items-center justify-center gap-2 ${style?.fontSize ? style?.fontSize : 'text-xl'}`}
         >
           <button
             title="Previous year"
-            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button last-year rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
           >
             <MdKeyboardDoubleArrowLeft />
           </button>
           <button
             title="Previous month"
-            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button last-month rounded-full p-1 hover:bg-gray-300 duration-300"
           >
             <MdKeyboardArrowLeft />
           </button>
@@ -196,29 +197,29 @@ const Scheduler: FC<ISchedulerProps> = ({
           </span>
           <button
             title="Next month"
-            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button next-month rounded-full p-1 hover:bg-gray-300 duration-300"
           >
             <MdKeyboardArrowRight />
           </button>
           <button
             title="Next year"
-            className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
+            className="nav-button next-year rounded-full p-1 hover:bg-gray-300 duration-300"
             style={{ display: yearNav ? 'block' : 'none' }}
           >
             <MdKeyboardDoubleArrowRight />
           </button>
         </div>
-        <div className="scheduler-grid w-full h-full flex justify-center">
+        <div className="scheduler w-full h-full flex justify-center">
           <table className="table-fixed w-full h-full border-collapse">
             <thead>
-              <tr>
+              <tr className="scheduler-header-row">
                 <th
-                  className={`scheduler-header w-36 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
+                  className={`scheduler-header time-column w-24 ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                 >
                   <div className="nav-buttons w-full flex items-center justify-center">
                     <button
                       title="Previous week"
-                      className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                      className="nav-button last-week p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                     >
                       <MdKeyboardArrowLeft />
                     </button>
@@ -230,7 +231,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                     </button>
                     <button
                       title="Next week"
-                      className="nav-button p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
+                      className="nav-button next-week p-1 text-2xl rounded-full hover:bg-gray-300 duration-300"
                     >
                       <MdKeyboardArrowRight />
                     </button>
@@ -242,7 +243,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                 {weekDates.map((day, index) => (
                   <th
                     key={index}
-                    className={`scheduler-header ${isMonday(day) ? ' w-32' : ' w-24'} ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
+                    className={`scheduler-header ${isMonday(day) ? 'w-32' : 'w-24'} ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                   >
                     <div
                       title={format(day, 'EEEE', locale)}
@@ -274,12 +275,12 @@ const Scheduler: FC<ISchedulerProps> = ({
               {timeList.map(({ hour, minutes }, hourIndex) => (
                 <tr
                   key={`${hour}-${minutes}`}
-                  className="w-36"
+                  className="w-32"
                   style={{
                     height: height,
                   }}
                 >
-                  <td className="timeline flex items-center justify-center">
+                  <td className="flex items-center justify-center">
                     <span
                       className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
                     >
@@ -297,7 +298,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                   {weekDates.map((day, dayIndex) => (
                     <td
                       key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                      className="time-content border border-gray-200 p-1"
+                      className={`time-content border border-gray-200 p-1 ${isEqual(firstHour, checkHours(hourIndex)) ? 'h-20' : 'h-12'}`}
                       style={{
                         backgroundColor:
                           isToday(day) && isCurrentHour(checkHours(hour), minutes)
@@ -312,7 +313,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       <div className="time-content flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
                         {isMonday(day) && isEqual(firstHour, checkHours(hourIndex)) ? (
                           <div
-                            className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
+                            className="event px-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
                             style={{
                               backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
                               borderTopColor: new TinyColor('#C084FC').toHexString(),
@@ -323,6 +324,16 @@ const Scheduler: FC<ISchedulerProps> = ({
                             >
                               {property ? '{' + property + '}' : 'No Property Set'}
                             </span>
+                            <div className="attributes flex flex-wrap">
+                              {attributes?.map((attribute, index) => (
+                                <span
+                                  key={index}
+                                  className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
+                                >
+                                  {attribute.Attribute}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         ) : null}
                       </div>

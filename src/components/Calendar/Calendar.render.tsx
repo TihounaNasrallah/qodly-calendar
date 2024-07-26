@@ -1,4 +1,4 @@
-import { useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
+import { splitDatasourceID, useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
@@ -34,7 +34,6 @@ import { fr, es, de } from 'date-fns/locale';
 const Calendar: FC<ICalendarProps> = ({
   type,
   language,
-  attributes,
   selectedDate,
   property,
   startDate,
@@ -43,6 +42,7 @@ const Calendar: FC<ICalendarProps> = ({
   color,
   selectedColor,
   colors = [],
+  attributes = [],
   colorProp,
   yearNav,
   borderRadius,
@@ -120,7 +120,9 @@ const Calendar: FC<ICalendarProps> = ({
 
   const handleDateClick = async (value: Date) => {
     if (!selectedDate) return;
-    const ds = window.DataSource.getSource(selectedDate, path);
+    const { id, namespace } = splitDatasourceID(selectedDate);
+    const ds =
+      window.DataSource.getSource(id, namespace) || window.DataSource.getSource(selectedDate, path);
     ds?.setValue(null, value);
     const ce = await ds?.getValue();
     setSelDate(ce);
@@ -371,7 +373,7 @@ const Calendar: FC<ICalendarProps> = ({
                               <span
                                 key={`attribute-${index}-${e}`}
                                 className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
-                                title={conge?.attributes[e].toString()}
+                                title={conge?.attributes[e]?.toString()}
                               >
                                 {conge.attributes[e]}
                               </span>
