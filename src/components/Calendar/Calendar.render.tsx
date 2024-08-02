@@ -1,19 +1,23 @@
-import { splitDatasourceID, useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
+import {
+  DataLoader,
+  splitDatasourceID,
+  useRenderer,
+  useSources,
+  useWebformPath,
+} from '@ws-ui/webform-editor';
+
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo, useRef } from 'react';
-
+import { FC, useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { BsFillInfoCircleFill } from 'react-icons/bs';
-
 import {
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
   MdKeyboardDoubleArrowLeft,
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
-
 import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
-
 import {
+  subDays,
   isEqual,
   startOfWeek,
   endOfWeek,
@@ -26,10 +30,10 @@ import {
   format,
   isSameMonth,
 } from 'date-fns';
-
 import { ICalendarProps } from './Calendar.config';
-
 import { fr, es, de } from 'date-fns/locale';
+import { updateEntity } from '../hooks/useDsChangeHandler';
+import findIndex from 'lodash/findIndex';
 
 const Calendar: FC<ICalendarProps> = ({
   type,
@@ -55,40 +59,74 @@ const Calendar: FC<ICalendarProps> = ({
     sources: { datasource: ds, currentElement: selectedElement },
   } = useSources();
 
-  const [value, setValue] = useState<any[]>([]);
   const [date, setDate] = useState(new Date());
-  const [, setSelectedData] = useState<Object>();
+  const [value, setValue] = useState<any[]>([]);
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
 
-  useEffect(() => {
+  const colorgenerated = useMemo(
+    () => generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor())),
+    [value.length],
+  );
+
+  let attributeList = attributes?.map((e) => e.Attribute);
+
+  const loader = useMemo<DataLoader | any>(() => {
     if (!ds) return;
+    return DataLoader.create(ds, [
+      property,
+      startDate,
+      endDate,
+      colorProp,
+      ...attributes.map((a) => a.Attribute as string),
+    ]);
+  }, [ds, property, startDate, endDate, colorProp, attributes]);
 
-    const listener = async (/* event */) => {
-      const v = await ds.getValue<any>();
-      setValue(v);
-    };
+  const updateFromLoader = useCallback(() => {
+    if (!loader) return;
+    setValue(loader.page);
+  }, [ds, loader]);
 
-    listener();
+  switch (ds.type) {
+    case 'scalar':
+      useEffect(() => {
+        if (!ds) return;
 
-    ds.addListener('changed', listener);
+        const listener = async (/* event */) => {
+          const v = await ds.getValue<any>();
+          setValue(v);
+        };
 
-    return () => {
-      ds.removeListener('changed', listener);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds]);
+        listener();
 
-  useEffect(() => {
-    if (hasMounted.current) {
-      emit('onMonthChange', { currentDate: date });
-    } else {
-      hasMounted.current = true;
-    }
-  }, [date]);
+        ds.addListener('changed', listener);
 
-  const checkParams = useMemo(() => {
+        return () => {
+          ds.removeListener('changed', listener);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [ds]);
+      break;
+
+    case 'entitysel':
+      useEffect(() => {
+        if (!loader || !ds) return;
+
+        const dsListener = () => {
+          loader.sourceHasChanged().then(() => {
+            updateFromLoader();
+          });
+        };
+        ds.addListener('changed', dsListener);
+        return () => {
+          ds.removeListener('changed', dsListener);
+        };
+      }, [ds]);
+      break;
+  }
+
+  let checkParams = useMemo(() => {
     if (!ds) {
       return 'Please set "Datasource"';
     } else if (!value[0] || !value.length) {
@@ -113,6 +151,13 @@ const Calendar: FC<ICalendarProps> = ({
     return '';
   }, [ds, value, property, startDate, endDate]);
 
+  useEffect(() => {
+    if (hasMounted.current) {
+      emit('onMonthChange');
+    } else {
+      hasMounted.current = true;
+    }
+  }, [date]);
   const prevMonth = () => setDate(subMonths(date, 1));
   const nextMonth = () => setDate(addMonths(date, 1));
   const nextYear = () => setDate(addMonths(date, 12));
@@ -129,21 +174,23 @@ const Calendar: FC<ICalendarProps> = ({
     emit('onDateClick', { selectedDate: ce });
   };
 
-  const handleItemClick = async (value: Object) => {
+  const handleItemClick = async (item: { [key: string]: any }) => {
     if (!selectedElement) return;
-    selectedElement.setValue(null, value);
-    const ce = await selectedElement.getValue<any>();
-    setSelectedData(ce);
-    emit('onItemClick', { selectedData: ce });
+    switch (selectedElement.type) {
+      case 'scalar':
+        selectedElement.setValue(null, item);
+        emit('onItemClick');
+        break;
+
+      case 'entity':
+        // TODO : Find a better way (with __KEY for example)
+        const index = findIndex(value, (e) => e[property] === item[property]);
+        await updateEntity({ index, datasource: ds, currentElement: selectedElement });
+        emit('onItemClick');
+        break;
+    }
   };
-
-  const colorgenerated = useMemo(
-    () => generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor())),
-    [value.length],
-  );
-
-  let attributeList = attributes?.map((e) => e.Attribute);
-
+        
   let coloredData = useMemo(
     () =>
       value.map((obj, index) => ({
@@ -306,7 +353,9 @@ const Calendar: FC<ICalendarProps> = ({
             const data = coloredData.filter((item) => {
               const itemStartDate = new Date(item.startDate);
               const itemEndDate = new Date(item.endDate);
-              return day >= itemStartDate && day <= itemEndDate;
+              return ds.type === 'scalar'
+                ? day >= itemStartDate && day <= itemEndDate
+                : day >= subDays(itemStartDate, 1) && day <= itemEndDate;
             });
             return (
               <div
