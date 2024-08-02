@@ -1,4 +1,9 @@
-import { EComponentKind, T4DComponentConfig } from '@ws-ui/webform-editor';
+import {
+  EComponentKind,
+  splitDatasourceID,
+  T4DComponentConfig,
+  T4DComponentDatasourceDeclaration,
+} from '@ws-ui/webform-editor';
 import { Settings } from '@ws-ui/webform-editor';
 import { MdOutlineCalendarMonth } from 'react-icons/md';
 
@@ -41,6 +46,50 @@ export default {
     ],
     datasources: {
       accept: ['array', 'entitysel'],
+      declarations: (props: any) => {
+        const {
+          property,
+          startDate,
+          endDate,
+          colorProp,
+          attributes,
+          datasource = '',
+        } = props as ICalendarProps;
+        const declarations: T4DComponentDatasourceDeclaration[] = [
+          { path: datasource, iterable: true },
+        ];
+
+        const { id: ds, namespace } = splitDatasourceID(datasource?.trim()) || {};
+
+        if (property) {
+          const propertySrc = `${ds}.[].${property}`;
+          declarations.push({ path: namespace ? `${namespace}:${propertySrc}` : propertySrc });
+        }
+
+        if (startDate) {
+          const startDateSrc = `${ds}.[].${startDate}`;
+          declarations.push({ path: namespace ? `${namespace}:${startDateSrc}` : startDateSrc });
+        }
+
+        if (endDate) {
+          const endDateSrc = `${ds}.[].${endDate}`;
+          declarations.push({ path: namespace ? `${namespace}:${endDateSrc}` : endDateSrc });
+        }
+
+        if (colorProp) {
+          const colorPropSrc = `${ds}.[].${colorProp}`;
+          declarations.push({ path: namespace ? `${namespace}:${colorPropSrc}` : colorPropSrc });
+        }
+
+        if (attributes) {
+          attributes.forEach((attr) => {
+            const attrSrc = `${ds}.[].${attr.Attribute}`;
+            declarations.push({ path: namespace ? `${namespace}:${attrSrc}` : attrSrc });
+          });
+        }
+
+        return declarations;
+      },
     },
   },
   defaultProps: {

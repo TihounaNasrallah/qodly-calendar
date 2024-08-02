@@ -71,6 +71,22 @@ const Calendar: FC<ICalendarProps> = ({
 
   let attributeList = attributes?.map((e) => e.Attribute);
 
+  const loader = useMemo<DataLoader | any>(() => {
+    if (!ds) return;
+    return DataLoader.create(ds, [
+      property,
+      startDate,
+      endDate,
+      colorProp,
+      ...attributes.map((a) => a.Attribute as string),
+    ]);
+  }, [ds, property, startDate, endDate, colorProp, attributes]);
+
+  const updateFromLoader = useCallback(() => {
+    if (!loader) return;
+    setValue(loader.page);
+  }, [ds, loader]);
+
   switch (ds.type) {
     case 'scalar':
       useEffect(() => {
@@ -93,28 +109,19 @@ const Calendar: FC<ICalendarProps> = ({
       break;
 
     case 'entitysel':
-      const loader = useMemo<DataLoader | any>(() => {
-        if (!ds) return;
-        return DataLoader.create(ds, [
-          property,
-          startDate,
-          endDate,
-          colorProp,
-          ...attributes.map((a) => a.Attribute as string),
-        ]);
-      }, [ds, property, startDate, endDate, colorProp, attributes]);
-
-      const updateFromLoader = useCallback(() => {
-        if (!loader) return;
-        setValue(loader.page);
-      }, [ds, loader]);
-
       useEffect(() => {
         if (!loader || !ds) return;
 
-        loader.sourceHasChanged().then(updateFromLoader);
+        const dsListener = () => {
+          loader.sourceHasChanged().then(() => {
+            updateFromLoader();
+          });
+        };
+        ds.addListener('changed', dsListener);
+        return () => {
+          ds.removeListener('changed', dsListener);
+        };
       }, [ds]);
-      console.log(value);
       break;
   }
 
