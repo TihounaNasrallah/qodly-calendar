@@ -5,6 +5,7 @@ import {
   useSources,
   useWebformPath,
 } from '@ws-ui/webform-editor';
+
 import cn from 'classnames';
 import { FC, useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { BsFillInfoCircleFill } from 'react-icons/bs';
@@ -37,7 +38,6 @@ import findIndex from 'lodash/findIndex';
 const Calendar: FC<ICalendarProps> = ({
   type,
   language,
-  attributes = [],
   selectedDate,
   property,
   startDate,
@@ -46,6 +46,7 @@ const Calendar: FC<ICalendarProps> = ({
   color,
   selectedColor,
   colors = [],
+  attributes = [],
   colorProp,
   yearNav,
   borderRadius,
@@ -138,12 +139,12 @@ const Calendar: FC<ICalendarProps> = ({
       return `"${property}" does not exist as an attribute`;
     }
     if (!startDate) {
-      return 'Please set the Start Date attribute';
+      return 'Please set the "Start Date"';
     } else if (!(startDate in value[0])) {
       return `"${startDate}" does not exist as an attribute`;
     }
     if (!endDate) {
-      return 'Please set the End Date attribute';
+      return 'Please set the "End Date"';
     } else if (!(endDate in value[0])) {
       return `"${endDate}" does not exist as an attribute`;
     }
@@ -157,6 +158,10 @@ const Calendar: FC<ICalendarProps> = ({
       hasMounted.current = true;
     }
   }, [date]);
+  const prevMonth = () => setDate(subMonths(date, 1));
+  const nextMonth = () => setDate(addMonths(date, 1));
+  const nextYear = () => setDate(addMonths(date, 12));
+  const prevYear = () => setDate(subMonths(date, 12));
 
   const handleDateClick = async (value: Date) => {
     if (!selectedDate) return;
@@ -166,7 +171,7 @@ const Calendar: FC<ICalendarProps> = ({
     ds?.setValue(null, value);
     const ce = await ds?.getValue();
     setSelDate(ce);
-    emit('onDateClick');
+    emit('onDateClick', { selectedDate: ce });
   };
 
   const handleItemClick = async (item: { [key: string]: any }) => {
@@ -185,7 +190,7 @@ const Calendar: FC<ICalendarProps> = ({
         break;
     }
   };
-
+        
   let coloredData = useMemo(
     () =>
       value.map((obj, index) => ({
@@ -207,11 +212,6 @@ const Calendar: FC<ICalendarProps> = ({
       }),
     [date],
   );
-
-  const prevMonth = () => setDate(subMonths(date, 1));
-  const nextMonth = () => setDate(addMonths(date, 1));
-  const nextYear = () => setDate(addMonths(date, 12));
-  const prevYear = () => setDate(subMonths(date, 12));
 
   const isSelected = (date: Date) => {
     return isEqual(date, selDate);
@@ -422,6 +422,7 @@ const Calendar: FC<ICalendarProps> = ({
                               <span
                                 key={`attribute-${index}-${e}`}
                                 className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
+                                title={conge?.attributes[e]?.toString()}
                               >
                                 {conge.attributes[e]}
                               </span>

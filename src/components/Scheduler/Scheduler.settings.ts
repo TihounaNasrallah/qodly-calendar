@@ -21,6 +21,17 @@ const commonSettings: TSetting[] = [
     defaultValue: 'en',
   },
   {
+    key: 'minutes',
+    label: 'Minutes Interval',
+    type: ESetting.SELECT,
+    options: [
+      { value: '60', label: '60 min' },
+      { value: '30', label: '30 min' },
+      { value: '15', label: '15 min' },
+    ],
+    defaultValue: '60',
+  },
+  {
     key: 'hours',
     label: 'Day Hours',
     type: ESetting.SELECT,
@@ -45,10 +56,10 @@ const commonSettings: TSetting[] = [
     label: 'Time Format',
     type: ESetting.SELECT,
     options: [
-      { value: '12', label: '12 Hours' },
       { value: '24', label: '24 Hours' },
+      { value: '12', label: '12 Hours' },
     ],
-    defaultValue: '12',
+    defaultValue: '24',
   },
   {
     key: 'headerPosition',
@@ -73,6 +84,12 @@ const commonSettings: TSetting[] = [
     type: ESetting.CHECKBOX,
     defaultValue: true,
   },
+  {
+    key: 'yearNav',
+    label: 'Year Navigation',
+    type: ESetting.CHECKBOX,
+    defaultValue: true,
+  },
 ];
 
 const dataAccessSettings: TSetting[] = [
@@ -86,6 +103,20 @@ const dataAccessSettings: TSetting[] = [
     label: 'Selected Item',
     type: ESetting.DS_AUTO_SUGGEST,
   },
+  {
+    key: 'selectedDate',
+    label: 'Selected Date',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'serverSideRef',
+    label: 'Server Side',
+    type: ESetting.TEXT_FIELD,
+    validateOnEnter: true,
+  },
+];
+
+const attributesSettings: TSetting[] = [
   {
     key: 'property',
     label: 'Property',
@@ -131,10 +162,19 @@ const dataAccessSettings: TSetting[] = [
     ],
   },
   {
-    key: 'serverSideRef',
-    label: 'Server Side',
-    type: ESetting.TEXT_FIELD,
-    validateOnEnter: true,
+    type: ESetting.DATAGRID,
+    key: 'attributes',
+    name: 'Attributes',
+    label: 'Attributes',
+    titleProperty: 'Attribute',
+    data: [
+      {
+        key: 'Attribute',
+        label: 'Attribute',
+        type: ESetting.TEXT_FIELD,
+        defaultValue: '',
+      },
+    ],
   },
 ];
 
@@ -150,6 +190,12 @@ const Settings: TSetting[] = [
     label: 'Data Access',
     type: ESetting.GROUP,
     components: dataAccessSettings,
+  },
+  {
+    key: 'attributes',
+    label: 'Data Attributes',
+    type: ESetting.GROUP,
+    components: attributesSettings,
   },
   ...load(DEFAULT_SETTINGS).filter('dataAccess'),
 ];
