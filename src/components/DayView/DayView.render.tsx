@@ -1,15 +1,25 @@
-import { splitDatasourceID, useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
+import {
+  DataLoader,
+  dateTo4DFormat,
+  splitDatasourceID,
+  useRenderer,
+  useSources,
+  useWebformPath,
+} from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo, useRef } from 'react';
+import { FC, useEffect, useState, useMemo, useRef, useCallback } from 'react';
 
 import { format, setHours, isToday, setMinutes, isEqual } from 'date-fns';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { BsFillInfoCircleFill } from 'react-icons/bs';
 import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
 
+import findIndex from 'lodash/findIndex';
+
 import { IDayViewProps } from './DayView.config';
 
 import { fr, es, de } from 'date-fns/locale';
+import { updateEntity } from '../hooks/useDsChangeHandler';
 
 const DayView: FC<IDayViewProps> = ({
   language,
@@ -36,30 +46,177 @@ const DayView: FC<IDayViewProps> = ({
     sources: { datasource: ds, currentElement: ce },
   } = useSources();
 
-  useEffect(() => {
-    if (!ds) return;
-
-    const listener = async (/* event */) => {
-      const v = await ds.getValue<any>();
-      setValue(v);
-    };
-
-    listener();
-
-    ds.addListener('changed', listener);
-
-    return () => {
-      ds.removeListener('changed', listener);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds]);
-
-  const [, setSelectedData] = useState<any>({});
   const [value, setValue] = useState<any[]>([]);
   const [date, setDate] = useState(new Date());
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
+
+  function convertMilliseconds(ms: number): string {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    const remainingSeconds = seconds % 60;
+    const remainingMinutes = minutes % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
+  const currentDsNewPosition = async () => {
+    switch (ds?.type) {
+      case 'scalar':
+        if (!ds) return;
+
+        const listener = async () => {
+          const v = await ds.getValue<any>();
+          setValue(v);
+        };
+
+        listener();
+
+        ds.addListener('changed', listener);
+
+        return () => {
+          ds.removeListener('changed', listener);
+        };
+
+      case 'entitysel':
+        if (!loader || !ds) {
+          return;
+        }
+
+        const dsListener = () => {
+          loader.sourceHasChanged().then(() => {
+            updateFromLoader();
+          });
+        };
+
+        ds.addListener('changed', dsListener);
+        return () => {
+          ds.removeListener('changed', dsListener);
+        };
+    }
+  };
+
+  const loader = useMemo<DataLoader | any>(() => {
+    if (!ds) return;
+    return DataLoader.create(ds, [
+      property,
+      eventDate,
+      startTime,
+      endTime,
+      colorProp || '',
+      ...attributes.map((a) => a.Attribute as string),
+    ]);
+  }, [ds, property, eventDate, startTime, endTime, colorProp, attributes]);
+
+  const updateFromLoader = useCallback(() => {
+    if (!loader) return;
+    setValue(loader.page);
+  }, [ds, loader]);
+
+  useEffect(() => {
+    if (!loader || !ds) {
+      return;
+    }
+    loader.sourceHasChanged().then(() => updateFromLoader());
+  }, [ds]);
+
+  useEffect(() => {
+    if (!loader || !ds) {
+      return;
+    }
+    const dsListener = () => {
+      loader.sourceHasChanged().then(() => {
+        updateFromLoader();
+        currentDsNewPosition();
+      });
+    };
+    ds.addListener('changed', dsListener);
+    return () => {
+      ds.removeListener('changed', dsListener);
+    };
+  }, [ds]);
+
+  useEffect(() => {
+    const updatePosition = async () => {
+      await currentDsNewPosition();
+    };
+    updatePosition();
+  }, [ds]);
+
+  let checkParams = useMemo(() => {
+    if (!ds) {
+      return 'Please set "Datasource"';
+    } else if (!value[0] || !value.length) {
+      return '';
+    }
+
+    if (!property) {
+      return 'Please set "Property"';
+    } else if (!(property in value[0]) || value[0][property] === undefined) {
+      return `${property} does not exist as an attribute`;
+    }
+    if (!eventDate) {
+      return 'Please set "event date"';
+    } else if (!(eventDate in value[0]) || value[0][eventDate] === undefined) {
+      return `${eventDate} does not exist as an attribute`;
+    }
+    if (!startTime) {
+      return 'Please set the "start time"';
+    } else if (!(startTime in value[0]) || value[0][startTime] === undefined) {
+      return `${startTime} does not exist as an attribute`;
+    }
+    if (!endTime) {
+      return 'Please set the "end time"';
+    } else if (!(endTime in value[0]) || value[0][endTime] === undefined) {
+      return `${endTime} does not exist as an attribute`;
+    }
+
+    return '';
+  }, [ds, value, property, eventDate, startTime, endTime]);
+
+  switch (ds?.type) {
+    case 'scalar':
+      useEffect(() => {
+        if (!ds) return;
+
+        const listener = async (/* event */) => {
+          const v = await ds.getValue<any>();
+          setValue(v);
+        };
+
+        listener();
+
+        ds.addListener('changed', listener);
+
+        return () => {
+          ds.removeListener('changed', listener);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [ds, date]);
+      break;
+
+    case 'entitysel':
+      useEffect(() => {
+        if (!loader || !ds) {
+          return;
+        }
+
+        const dsListener = () => {
+          loader.sourceHasChanged().then(() => {
+            updateFromLoader();
+          });
+        };
+
+        ds.addListener('changed', dsListener);
+        return () => {
+          ds.removeListener('changed', dsListener);
+        };
+      }, [ds]);
+      break;
+  }
 
   useEffect(() => {
     if (hasMounted.current) {
@@ -106,13 +263,13 @@ const DayView: FC<IDayViewProps> = ({
   const numberMin = useMemo(() => {
     switch (minutes) {
       case '15': {
-        return 15;
+        return 0.25;
       }
       case '30': {
-        return 30;
+        return 0.5;
       }
       case '60': {
-        return 60;
+        return 1;
       }
     }
   }, [minutes]);
@@ -190,37 +347,6 @@ const DayView: FC<IDayViewProps> = ({
     setDate(nextDate);
   };
 
-  const checkParams = useMemo(() => {
-    if (!ds) {
-      return 'Please set "Datasource"';
-    } else if (!value[0] || !value.length) {
-      return '';
-    }
-
-    if (!property) {
-      return 'Please set "Property"';
-    } else if (!(property in value[0])) {
-      return `${property} does not exist as an attribute`;
-    }
-    if (!eventDate) {
-      return 'Please set "event date"';
-    } else if (!(eventDate in value[0])) {
-      return `${eventDate} does not exist as an attribute`;
-    }
-    if (!startTime) {
-      return 'Please set the "start time"';
-    } else if (!(startTime in value[0])) {
-      return `${startTime} does not exist as an attribute`;
-    }
-    if (!endTime) {
-      return 'Please set the "end time"';
-    } else if (!(endTime in value[0])) {
-      return `${endTime} does not exist as an attribute`;
-    }
-
-    return '';
-  }, [ds, value, property, eventDate, startTime, endTime]);
-
   const colorgenerated = useMemo(
     () => generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor())),
     [value.length],
@@ -241,22 +367,33 @@ const DayView: FC<IDayViewProps> = ({
     [value],
   );
 
-  const handleItemClick = async (value: Object) => {
+  const handleItemClick = async (item: { [key: string]: any }) => {
     if (!ce) return;
-    ce.setValue(null, value);
-    const selItem = await ce.getValue();
-    setSelectedData(selItem);
-    emit('onItemClick', { selectedData: selItem });
+    switch (ce.type) {
+      case 'scalar':
+        ce.setValue(null, item);
+        emit('onItemClick', { selectedData: ce });
+        break;
+      case 'entity':
+        // TODO : find a better way
+        const index = findIndex(value, (e) => e[property] === item[property]);
+        await updateEntity({ index, datasource: ds, currentElement: ce });
+        emit('onItemClick', { selectedData: ce });
+        break;
+    }
   };
 
   const handleDateClick = async (value: Date) => {
+    setSelDate(value);
     if (!selectedDate) return;
     const { id, namespace } = splitDatasourceID(selectedDate);
     const ds =
       window.DataSource.getSource(id, namespace) || window.DataSource.getSource(selectedDate, path);
-    ds?.setValue(null, value);
+    ds?.setValue(
+      null,
+      value instanceof Date && !isNaN(value.valueOf()) ? dateTo4DFormat(value) : value,
+    );
     const ce = await ds?.getValue();
-    setSelDate(ce);
     emit('onDateClick', { selectedDate: ce });
   };
 
@@ -331,7 +468,7 @@ const DayView: FC<IDayViewProps> = ({
                         format(date, 'EEE', locale).slice(1)}
                     </span>
                     <span
-                      className="weekday-number rounded-full text-xl mb-1 h-10 w-10 flex items-center justify-center font-medium"
+                      className="weekday-number rounded-full text-xl mb-1 h-10 w-10 flex items-center justify-center font-medium cursor-pointer"
                       style={{
                         backgroundColor: isToday(date) ? color : '',
                         border: isSelected(date) ? `2px solid ${colorToHex(color)}` : '',
@@ -349,26 +486,39 @@ const DayView: FC<IDayViewProps> = ({
           <tbody className="dayview-body">
             {timeList.map(({ hour, minutes }, hourIndex) => {
               const events = data.filter((event) => {
-                const eventStartTime = timeToFloat(
-                  parseInt(event[startTime].split(':')[0]),
-                  parseInt(event[startTime].split(':')[1]),
-                );
-                const eventEndTime = timeToFloat(
-                  parseInt(event[endTime].split(':')[0]),
-                  parseInt(event[endTime].split(':')[1]),
-                );
+                const eventStartHour =
+                  ds.type === 'scalar'
+                    ? parseInt(event[startTime].split(':')[0])
+                    : parseInt(convertMilliseconds(event[startTime]).split(':')[0]);
+                const eventStartMinutes =
+                  ds.type === 'scalar'
+                    ? parseInt(event[startTime].split(':')[1])
+                    : parseInt(convertMilliseconds(event[startTime]).split(':')[1]);
+                const eventEndHour =
+                  ds.type === 'scalar'
+                    ? parseInt(event[endTime].split(':')[0])
+                    : parseInt(convertMilliseconds(event[endTime]).split(':')[0]);
+                const eventEndMinutes =
+                  ds.type === 'scalar'
+                    ? parseInt(event[endTime].split(':')[1])
+                    : parseInt(convertMilliseconds(event[endTime]).split(':')[1]);
+
+                const eventStartTime = timeToFloat(eventStartHour, eventStartMinutes);
+                const eventEndTime = timeToFloat(eventEndHour, eventEndMinutes);
 
                 return (
-                  (format(new Date(event[eventDate]), 'yyyy-MM-dd') ===
-                    format(date, 'yyyy-MM-dd') &&
-                    timeToFloat(checkHours(hour), minutes) >= eventStartTime &&
-                    timeToFloat(checkHours(hour), minutes) <= eventEndTime) ||
-                  (format(new Date(event[eventDate]), 'yyyy-MM-dd') ===
-                    format(date, 'yyyy-MM-dd') &&
-                    checkHours(hour) >= parseInt(event[startTime].split(':')[0]) &&
-                    minutes <= parseInt(event[startTime].split(':')[1]) &&
-                    parseInt(event[startTime].split(':')[1]) <= minutes + numberMin &&
-                    checkHours(hour) <= parseInt(event[endTime].split(':')[0]))
+                  format(new Date(event[eventDate]), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd') &&
+                  timeToFloat(checkHours(hour), minutes) > eventStartTime - numberMin &&
+                  timeToFloat(checkHours(hour), minutes) <= eventEndTime
+
+                  // ? Back Up
+                  // ||
+                  // (format(new Date(event[eventDate]), 'yyyy-MM-dd') ===
+                  //   format(date, 'yyyy-MM-dd') &&
+                  //   checkHours(hour) >= eventStartHour &&
+                  //   eventStartMinutes >= minutes &&
+                  //   eventStartMinutes <= minutes + numberMin &&
+                  //   checkHours(hour) <= eventEndHour)
                 );
               });
               return (

@@ -1,5 +1,6 @@
 import {
   DataLoader,
+  dateTo4DFormat,
   splitDatasourceID,
   useRenderer,
   useSources,
@@ -17,8 +18,6 @@ import {
 } from 'react-icons/md';
 import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
 import {
-  subDays,
-  isEqual,
   startOfWeek,
   endOfWeek,
   endOfMonth,
@@ -72,6 +71,39 @@ const Calendar: FC<ICalendarProps> = ({
 
   let attributeList = attributes?.map((e) => e.Attribute);
 
+  const currentDsNewPosition = async () => {
+    switch (ds?.type) {
+      case 'scalar':
+        if (!ds) return;
+
+        const listener = async () => {
+          const v = await ds.getValue<any>();
+          setValue(v);
+        };
+
+        listener();
+
+        ds.addListener('changed', listener);
+
+        return () => {
+          ds.removeListener('changed', listener);
+        };
+
+      case 'entitysel':
+        if (!loader || !ds) return;
+
+        const dsListener = () => {
+          loader.sourceHasChanged().then(() => {
+            updateFromLoader();
+          });
+        };
+        ds.addListener('changed', dsListener);
+        return () => {
+          ds.removeListener('changed', dsListener);
+        };
+    }
+  };
+
   const loader = useMemo<DataLoader | any>(() => {
     if (!ds) return;
     return DataLoader.create(ds, [
@@ -86,45 +118,37 @@ const Calendar: FC<ICalendarProps> = ({
   const updateFromLoader = useCallback(() => {
     if (!loader) return;
     setValue(loader.page);
-  }, [ds, loader]);
+  }, [loader]);
 
-  switch (ds.type) {
-    case 'scalar':
-      useEffect(() => {
-        if (!ds) return;
+  useEffect(() => {
+    if (!loader || !ds) {
+      return;
+    }
+    loader.sourceHasChanged().then(() => updateFromLoader());
+  }, [ds]);
 
-        const listener = async (/* event */) => {
-          const v = await ds.getValue<any>();
-          setValue(v);
-        };
+  useEffect(() => {
+    if (!loader || !ds) {
+      return;
+    }
+    const dsListener = () => {
+      loader.sourceHasChanged().then(() => {
+        updateFromLoader();
+        currentDsNewPosition();
+      });
+    };
+    ds.addListener('changed', dsListener);
+    return () => {
+      ds.removeListener('changed', dsListener);
+    };
+  }, [loader]);
 
-        listener();
-
-        ds.addListener('changed', listener);
-
-        return () => {
-          ds.removeListener('changed', listener);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [ds]);
-      break;
-
-    case 'entitysel':
-      useEffect(() => {
-        if (!loader || !ds) return;
-
-        const dsListener = () => {
-          loader.sourceHasChanged().then(() => {
-            updateFromLoader();
-          });
-        };
-        ds.addListener('changed', dsListener);
-        return () => {
-          ds.removeListener('changed', dsListener);
-        };
-      }, [ds]);
-      break;
-  }
+  useEffect(() => {
+    const updatePosition = async () => {
+      await currentDsNewPosition();
+    };
+    updatePosition();
+  }, [currentDsNewPosition]);
 
   let checkParams = useMemo(() => {
     if (!ds) {
@@ -132,20 +156,19 @@ const Calendar: FC<ICalendarProps> = ({
     } else if (!value[0] || !value.length) {
       return '';
     }
-
     if (!property) {
       return 'Please set "Property"';
-    } else if (!(property in value[0])) {
+    } else if (!(property in value[0]) || value[0][property] === undefined) {
       return `"${property}" does not exist as an attribute`;
     }
     if (!startDate) {
       return 'Please set the "Start Date"';
-    } else if (!(startDate in value[0])) {
+    } else if (!(startDate in value[0]) || value[0][startDate] === undefined) {
       return `"${startDate}" does not exist as an attribute`;
     }
     if (!endDate) {
       return 'Please set the "End Date"';
-    } else if (!(endDate in value[0])) {
+    } else if (!(endDate in value[0]) || value[0][endDate] === undefined) {
       return `"${endDate}" does not exist as an attribute`;
     }
     return '';
@@ -153,24 +176,28 @@ const Calendar: FC<ICalendarProps> = ({
 
   useEffect(() => {
     if (hasMounted.current) {
-      emit('onMonthChange');
+      emit('onMonthChange', { currentDate: date });
     } else {
       hasMounted.current = true;
     }
   }, [date]);
+
   const prevMonth = () => setDate(subMonths(date, 1));
   const nextMonth = () => setDate(addMonths(date, 1));
   const nextYear = () => setDate(addMonths(date, 12));
   const prevYear = () => setDate(subMonths(date, 12));
 
   const handleDateClick = async (value: Date) => {
+    setSelDate(value);
     if (!selectedDate) return;
     const { id, namespace } = splitDatasourceID(selectedDate);
     const ds =
       window.DataSource.getSource(id, namespace) || window.DataSource.getSource(selectedDate, path);
-    ds?.setValue(null, value);
+    ds?.setValue(
+      null,
+      value instanceof Date && !isNaN(value.valueOf()) ? dateTo4DFormat(value) : value,
+    );
     const ce = await ds?.getValue();
-    setSelDate(ce);
     emit('onDateClick', { selectedDate: ce });
   };
 
@@ -179,18 +206,18 @@ const Calendar: FC<ICalendarProps> = ({
     switch (selectedElement.type) {
       case 'scalar':
         selectedElement.setValue(null, item);
-        emit('onItemClick');
+        emit('onItemClick', { selectedData: selectedElement });
         break;
 
       case 'entity':
-        // TODO : Find a better way (with __KEY for example)
+        // TODO : find a better way
         const index = findIndex(value, (e) => e[property] === item[property]);
         await updateEntity({ index, datasource: ds, currentElement: selectedElement });
-        emit('onItemClick');
+        emit('onItemClick', { selectedData: selectedElement });
         break;
     }
   };
-        
+
   let coloredData = useMemo(
     () =>
       value.map((obj, index) => ({
@@ -212,10 +239,6 @@ const Calendar: FC<ICalendarProps> = ({
       }),
     [date],
   );
-
-  const isSelected = (date: Date) => {
-    return isEqual(date, selDate);
-  };
 
   const languageList = {
     en: [
@@ -351,11 +374,12 @@ const Calendar: FC<ICalendarProps> = ({
           ))}
           {filteredDays.map((day) => {
             const data = coloredData.filter((item) => {
-              const itemStartDate = new Date(item.startDate);
-              const itemEndDate = new Date(item.endDate);
+              const itemStartDate = new Date(item[startDate]);
+              const itemEndDate = new Date(item[endDate]);
               return ds.type === 'scalar'
                 ? day >= itemStartDate && day <= itemEndDate
-                : day >= subDays(itemStartDate, 1) && day <= itemEndDate;
+                : day >= new Date(dateTo4DFormat(itemStartDate)) &&
+                    day <= new Date(dateTo4DFormat(itemEndDate));
             });
             return (
               <div
@@ -381,7 +405,7 @@ const Calendar: FC<ICalendarProps> = ({
                   <span
                     className={`day-number h-7 w-7 flex items-center justify-center ${style?.fontWeight ? style?.fontWeight : 'font-medium'} rounded-full cursor-pointer hover:bg-gray-300 duration-300`}
                     style={{
-                      border: isSelected(day) ? `2px solid ${colorToHex(selectedColor)}` : '',
+                      border: day === selDate ? `2px solid ${colorToHex(selectedColor)}` : '',
                       backgroundColor: isToday(day) ? color : '',
                       color: isToday(day) ? 'white' : '',
                     }}

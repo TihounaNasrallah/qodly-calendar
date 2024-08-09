@@ -77,7 +77,7 @@ const dataAccessSettings: TSetting[] = [
   },
   {
     key: 'currentElement',
-    label: 'Selected Item',
+    label: 'Selected Element',
     type: ESetting.DS_AUTO_SUGGEST,
   },
   {
