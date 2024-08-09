@@ -1,6 +1,13 @@
-import { splitDatasourceID, useRenderer, useSources, useWebformPath } from '@ws-ui/webform-editor';
+import {
+  DataLoader,
+  dateTo4DFormat,
+  splitDatasourceID,
+  useRenderer,
+  useSources,
+  useWebformPath,
+} from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo, useRef } from 'react';
+import { FC, useEffect, useState, useMemo, useRef, useCallback } from 'react';
 
 import {
   isEqual,
@@ -26,7 +33,10 @@ import {
 } from 'react-icons/md';
 import { ISchedulerProps } from './Scheduler.config';
 
+import findIndex from 'lodash/findIndex';
+
 import { fr, es, de } from 'date-fns/locale';
+import { updateEntity } from '../hooks/useDsChangeHandler';
 
 const Scheduler: FC<ISchedulerProps> = ({
   todayButton,
@@ -58,29 +68,135 @@ const Scheduler: FC<ISchedulerProps> = ({
   } = useSources();
 
   const [value, setValue] = useState<any[]>([]);
-  const [, setSelectedData] = useState<any>({});
   const [date, setDate] = useState<Date>(new Date());
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
 
-  useEffect(() => {
+  function convertMilliseconds(ms: number): string {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    const remainingSeconds = seconds % 60;
+    const remainingMinutes = minutes % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
+  const currentDsNewPosition = async () => {
+    switch (ds?.type) {
+      case 'scalar':
+        if (!ds) return;
+
+        const listener = async () => {
+          const v = await ds.getValue<any>();
+          setValue(v);
+        };
+
+        listener();
+
+        ds.addListener('changed', listener);
+
+        return () => {
+          ds.removeListener('changed', listener);
+        };
+
+      case 'entitysel':
+        if (!loader || !ds) {
+          return;
+        }
+
+        const dsListener = () => {
+          loader.sourceHasChanged().then(() => {
+            updateFromLoader();
+          });
+        };
+
+        ds.addListener('changed', dsListener);
+        return () => {
+          ds.removeListener('changed', dsListener);
+        };
+    }
+  };
+
+  const loader = useMemo<DataLoader | any>(() => {
     if (!ds) return;
+    return DataLoader.create(ds, [
+      property,
+      startDate,
+      startTime,
+      endTime,
+      colorProp || '',
+      ...attributes.map((a) => a.Attribute as string),
+    ]);
+  }, [ds, property, startDate, startTime, endTime, colorProp, attributes]);
 
-    const listener = async (/* event */) => {
-      const v = await ds.getValue<any>();
-      setValue(v);
+  const updateFromLoader = useCallback(() => {
+    if (!loader) return;
+    setValue(loader.page);
+  }, [ds, loader]);
+
+  useEffect(() => {
+    if (!loader || !ds) {
+      return;
+    }
+    loader.sourceHasChanged().then(() => updateFromLoader());
+  }, [ds]);
+
+  useEffect(() => {
+    if (!loader || !ds) {
+      return;
+    }
+    const dsListener = () => {
+      loader.sourceHasChanged().then(() => {
+        updateFromLoader();
+        currentDsNewPosition();
+      });
     };
-
-    listener();
-
-    ds.addListener('changed', listener);
-
+    ds.addListener('changed', dsListener);
     return () => {
-      ds.removeListener('changed', listener);
+      ds.removeListener('changed', dsListener);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ds, date]);
+  }, [ds]);
+
+  useEffect(() => {
+    const updatePosition = async () => {
+      await currentDsNewPosition();
+    };
+    updatePosition();
+  }, [ds]);
+
+  let checkParams = useMemo(() => {
+    if (!ds) {
+      return 'Please set "Datasource"';
+    } else if (!value[0] || !value.length) {
+      return '';
+    }
+
+    if (!property) {
+      return 'Please set "Property"';
+    } else if (!(property in value[0]) || value[0][property] === undefined) {
+      return `${property} does not exist as an attribute`;
+    }
+    if (!startDate) {
+      return 'Please set "event date"';
+    } else if (!(startDate in value[0]) || value[0][startDate] === undefined) {
+      return `${startDate} does not exist as an attribute`;
+    }
+    if (!startTime) {
+      return 'Please set "start time"';
+    } else if (!(startTime in value[0]) || value[0][startTime] === undefined) {
+      return `${startTime} does not exist as an attribute`;
+    }
+    if (!endTime) {
+      return 'Please set "end time"';
+    } else if (!(endTime in value[0]) || value[0][endTime] === undefined) {
+      return `${endTime} does not exist as an attribute`;
+    }
+
+    return '';
+  }, [ds, value, property, startDate, startTime, endTime]);
 
   useEffect(() => {
     if (hasMounted.current) {
@@ -90,11 +206,11 @@ const Scheduler: FC<ISchedulerProps> = ({
     }
   }, [date]);
 
-  let attributeList = attributes?.map((e) => e.Attribute);
-
   const colorgenerated = useMemo(() => {
     return generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor()));
   }, [value.length]);
+
+  let attributeList = attributes?.map((e) => e.Attribute);
 
   const data = useMemo(() => {
     return value.map((obj, index) => ({
@@ -105,38 +221,7 @@ const Scheduler: FC<ISchedulerProps> = ({
         return acc;
       }, {}),
     }));
-  }, [value]);
-
-  const checkParams = useMemo(() => {
-    if (!ds) {
-      return 'Please set "Datasource"';
-    } else if (!value[0] || !value.length) {
-      return '';
-    }
-
-    if (!property) {
-      return 'Please set "Property"';
-    } else if (!(property in value[0])) {
-      return `${property} does not exist as an attribute`;
-    }
-    if (!startDate) {
-      return 'Please set "event date"';
-    } else if (!(startDate in value[0])) {
-      return `${startDate} does not exist as an attribute`;
-    }
-    if (!startTime) {
-      return 'Please set "start time"';
-    } else if (!(startTime in value[0])) {
-      return `${startTime} does not exist as an attribute`;
-    }
-    if (!endTime) {
-      return 'Please set "end time"';
-    } else if (!(endTime in value[0])) {
-      return `${endTime} does not exist as an attribute`;
-    }
-
-    return '';
-  }, [ds, value, property, startDate, startTime, endTime]);
+  }, [value, colorgenerated, colorProp, attributeList]);
 
   const getWeekDates = (startDate: Date) => {
     const dates = [];
@@ -183,22 +268,33 @@ const Scheduler: FC<ISchedulerProps> = ({
   const nextYear = () => setDate(addMonths(date, 12));
   const prevYear = () => setDate(subMonths(date, 12));
 
-  const handleItemClick = async (value: Object) => {
+  const handleItemClick = async (item: { [key: string]: any }) => {
     if (!ce) return;
-    ce.setValue(null, value);
-    const selItem = await ce.getValue();
-    setSelectedData(selItem);
-    emit('onItemClick', { selectedData: selItem });
+    switch (ce.type) {
+      case 'scalar':
+        ce.setValue(null, item);
+        emit('onItemClick', { selectedData: ce });
+        break;
+      case 'entity':
+        // TODO : find a better way
+        const index = findIndex(value, (e) => e[property] === item[property]);
+        await updateEntity({ index, datasource: ds, currentElement: ce });
+        emit('onItemClick', { selectedData: ce });
+        break;
+    }
   };
 
   const handleDateClick = async (value: Date) => {
+    setSelDate(value);
     if (!selectedDate) return;
     const { id, namespace } = splitDatasourceID(selectedDate);
     const ds =
       window.DataSource.getSource(id, namespace) || window.DataSource.getSource(selectedDate, path);
-    ds?.setValue(null, value);
+    ds?.setValue(
+      null,
+      value instanceof Date && !isNaN(value.valueOf()) ? dateTo4DFormat(value) : value,
+    );
     const ce = await ds?.getValue();
-    setSelDate(ce);
     emit('onDateClick', { selectedDate: ce });
   };
 
@@ -212,13 +308,13 @@ const Scheduler: FC<ISchedulerProps> = ({
   const numberMin = useMemo(() => {
     switch (minutes) {
       case '15': {
-        return 15;
+        return 0.25;
       }
       case '30': {
-        return 30;
+        return 0.5;
       }
       case '60': {
-        return 60;
+        return 1;
       }
     }
   }, [minutes]);
@@ -403,8 +499,8 @@ const Scheduler: FC<ISchedulerProps> = ({
                       <span
                         className="weekday-number rounded-full text-xl mb-1 h-10 w-10 flex items-center justify-center font-medium cursor-pointer"
                         style={{
-                          backgroundColor: isToday(day) ? color : '',
                           border: isSelected(day) ? `2px solid ${colorToHex(color)}` : '',
+                          backgroundColor: isToday(day) ? color : '',
                           color: isToday(day) ? 'white' : '',
                         }}
                         onClick={() => handleDateClick(day)}
@@ -442,26 +538,39 @@ const Scheduler: FC<ISchedulerProps> = ({
                   </td>
                   {weekDates.map((day, dayIndex) => {
                     const events = data.filter((event) => {
-                      const eventStartTime = timeToFloat(
-                        parseInt(event[startTime].split(':')[0]),
-                        parseInt(event[startTime].split(':')[1]),
-                      );
-                      const eventEndTime = timeToFloat(
-                        parseInt(event[endTime].split(':')[0]),
-                        parseInt(event[endTime].split(':')[1]),
-                      );
+                      const eventStartHour =
+                        ds.type === 'scalar'
+                          ? parseInt(event[startTime].split(':')[0])
+                          : parseInt(convertMilliseconds(event[startTime]).split(':')[0]);
+                      const eventStartMinutes =
+                        ds.type === 'scalar'
+                          ? parseInt(event[startTime].split(':')[1])
+                          : parseInt(convertMilliseconds(event[startTime]).split(':')[1]);
+                      const eventEndHour =
+                        ds.type === 'scalar'
+                          ? parseInt(event[endTime].split(':')[0])
+                          : parseInt(convertMilliseconds(event[endTime]).split(':')[0]);
+                      const eventEndMinutes =
+                        ds.type === 'scalar'
+                          ? parseInt(event[endTime].split(':')[1])
+                          : parseInt(convertMilliseconds(event[endTime]).split(':')[1]);
 
+                      const eventStartTime = timeToFloat(eventStartHour, eventStartMinutes);
+                      const eventEndTime = timeToFloat(eventEndHour, eventEndMinutes);
                       return (
-                        (format(new Date(event[startDate]), 'yyyy-MM-dd') ===
+                        format(new Date(event[startDate]), 'yyyy-MM-dd') ===
                           format(day, 'yyyy-MM-dd') &&
-                          timeToFloat(checkHours(hour), minutes) >= eventStartTime &&
-                          timeToFloat(checkHours(hour), minutes) <= eventEndTime) ||
-                        (format(new Date(event[startDate]), 'yyyy-MM-dd') ===
-                          format(day, 'yyyy-MM-dd') &&
-                          checkHours(hour) >= parseInt(event[startTime].split(':')[0]) &&
-                          minutes <= parseInt(event[startTime].split(':')[1]) &&
-                          parseInt(event[startTime].split(':')[1]) <= minutes + numberMin &&
-                          checkHours(hour) <= parseInt(event[endTime].split(':')[0]))
+                        timeToFloat(checkHours(hour), minutes) > eventStartTime - numberMin &&
+                        timeToFloat(checkHours(hour), minutes) <= eventEndTime
+
+                        // ? Back Up
+                        // ||
+                        // (format(new Date(event[eventDate]), 'yyyy-MM-dd') ===
+                        //   format(date, 'yyyy-MM-dd') &&
+                        //   checkHours(hour) >= eventStartHour &&
+                        //   eventStartMinutes >= minutes &&
+                        //   eventStartMinutes <= minutes + numberMin &&
+                        //   checkHours(hour) <= eventEndHour)
                       );
                     });
                     return (
