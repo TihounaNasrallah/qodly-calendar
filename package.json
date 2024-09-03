@@ -18,23 +18,32 @@
   },
   "overrides": {
     "@ws-ui/webform-editor": {
-      "@ws-ui/code-editor": "0.2.0",
-      "@ws-ui/craftjs-core": "0.2.10",
+      "@ws-ui/code-editor": "0.2.3",
+      "@ws-ui/craftjs-core": "0.2.11",
       "@ws-ui/craftjs-layers": "0.2.4",
       "@ws-ui/craftjs-utils": "0.2.2",
-      "@ws-ui/icons": "0.0.20",
-      "@ws-ui/shared": "0.2.0",
-      "@ws-ui/store": "0.2.1"
+      "@ws-ui/icons": "0.0.21",
+      "@ws-ui/shared": "0.2.3",
+      "@ws-ui/store": "0.2.4"
+    },
+    "@ws-ui/store": {
+      "@ws-ui/icons": "0.0.21"
+    },
+    "@ws-ui/shared": {
+      "@ws-ui/icons": "0.0.21"
     }
   },
   "dependencies": {
     "@ctrl/tinycolor": "^4.1.0",
-    "@ws-ui/webform-editor": "^0.3.8",
+    "@ws-ui/craftjs-core": "0.2.11",
+    "@ws-ui/craftjs-layers": "0.2.4",
+    "@ws-ui/craftjs-utils": "0.2.2",
+    "@ws-ui/webform-editor": "0.3.13",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@qodly/cli": "^0.2.8",
+    "@qodly/cli": "^0.2.10",
     "@types/react": "^18.2.65",
     "@types/react-dom": "^18.2.21",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
