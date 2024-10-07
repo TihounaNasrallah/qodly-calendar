@@ -123,6 +123,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   const loader = useMemo<DataLoader | any>(() => {
     if (!ds) return;
     return DataLoader.create(ds, [
+      '_private.key',
       property,
       startDate,
       startTime,
@@ -276,8 +277,7 @@ const Scheduler: FC<ISchedulerProps> = ({
         emit('onItemClick', { selectedData: ce });
         break;
       case 'entity':
-        // TODO : find a better way
-        const index = findIndex(value, (e) => e[property] === item[property]);
+        const index = findIndex(value, (e) => e['_private.key'] === item['_private.key']);
         await updateEntity({ index, datasource: ds, currentElement: ce });
         emit('onItemClick', { selectedData: ce });
         break;
