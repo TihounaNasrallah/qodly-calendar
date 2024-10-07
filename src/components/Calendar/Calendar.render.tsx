@@ -107,6 +107,7 @@ const Calendar: FC<ICalendarProps> = ({
   const loader = useMemo<DataLoader | any>(() => {
     if (!ds) return;
     return DataLoader.create(ds, [
+      '_private.key',
       property,
       startDate,
       endDate,
@@ -210,8 +211,7 @@ const Calendar: FC<ICalendarProps> = ({
         break;
 
       case 'entity':
-        // TODO : find a better way
-        const index = findIndex(value, (e) => e[property] === item[property]);
+        const index = findIndex(value, (e) => e['_private.key'] === item['_private.key']);
         await updateEntity({ index, datasource: ds, currentElement: selectedElement });
         emit('onItemClick', { selectedData: selectedElement });
         break;
