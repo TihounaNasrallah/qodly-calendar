@@ -34,6 +34,7 @@ import { fr, es, de } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
 import findIndex from 'lodash/findIndex';
 import { cloneDeep } from 'lodash';
+import Spinner from '../shared/Spinner';
 
 const Calendar: FC<ICalendarProps> = ({
   type,
@@ -63,6 +64,7 @@ const Calendar: FC<ICalendarProps> = ({
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
+  const [loading, setLoading] = useState(false);
 
   const ds = useMemo(() => {
     if (datasource) {
@@ -79,7 +81,7 @@ const Calendar: FC<ICalendarProps> = ({
     [ds],
   );
 
-  let { entities, fetchIndex } = useDataLoader({ source: ds });
+  let { entities, fetchIndex, setStep } = useDataLoader({ source: ds });
 
   const colorgenerated = useMemo(
     () => generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor())),
@@ -90,6 +92,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   const monthQuery = useCallback(
     async (source: datasources.DataSource, newMonth: Date) => {
+      setLoading(true);
       if (!source) return;
       if (source.type === 'entitysel') {
         if (attrs.includes(startDate)) {
@@ -104,7 +107,12 @@ const Calendar: FC<ICalendarProps> = ({
           checkParams = `"${startDate}" does not exist as an attribute`;
         }
       }
-      fetchIndex(0);
+
+      let selLength = await source.getValue('length');
+      setStep({ start: 0, end: selLength });
+      await fetchIndex(0);
+
+      setLoading(false);
     },
     [ds, startDate],
   );
@@ -284,6 +292,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
+      {loading && <Spinner />}
       <div className="calendar-container flex flex-col gap-4 w-full h-full">
         <div
           className={`calendar-header w-full flex justify-center gap-2 items-center ${style?.fontSize ? style?.fontSize : 'text-xl'}`}

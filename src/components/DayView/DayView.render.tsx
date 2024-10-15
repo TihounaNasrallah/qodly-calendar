@@ -21,6 +21,7 @@ import { IDayViewProps } from './DayView.config';
 import { fr, es, de } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
 import { cloneDeep } from 'lodash';
+import Spinner from '../shared/Spinner';
 
 const DayView: FC<IDayViewProps> = ({
   language,
@@ -51,6 +52,7 @@ const DayView: FC<IDayViewProps> = ({
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
+  const [loading, setLoading] = useState(false);
 
   const ds = useMemo(() => {
     if (datasource) {
@@ -67,7 +69,7 @@ const DayView: FC<IDayViewProps> = ({
     [ds],
   );
 
-  let { entities, fetchIndex } = useDataLoader({ source: ds });
+  let { entities, fetchIndex, setStep } = useDataLoader({ source: ds });
 
   function convertMilliseconds(ms: number): string {
     const seconds = Math.floor(ms / 1000);
@@ -82,6 +84,7 @@ const DayView: FC<IDayViewProps> = ({
 
   const dayQuery = useCallback(
     async (source: datasources.DataSource, date: Date) => {
+      setLoading(true);
       if (!source) return;
       if (source.type === 'entitysel') {
         if (attrs.includes(eventDate)) {
@@ -97,7 +100,10 @@ const DayView: FC<IDayViewProps> = ({
         }
       }
 
-      fetchIndex(0);
+      let selLength = await source.getValue('length');
+      setStep({ start: 0, end: selLength });
+      await fetchIndex(0);
+      setLoading(false);
     },
     [ds, eventDate],
   );
@@ -340,6 +346,7 @@ const DayView: FC<IDayViewProps> = ({
 
   return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
+      {loading && <Spinner />}
       <div
         className={`current-day text-center ${style?.fontSize ? style?.fontSize : 'text-xl'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
       >

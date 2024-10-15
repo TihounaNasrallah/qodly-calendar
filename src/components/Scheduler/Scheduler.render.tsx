@@ -39,6 +39,7 @@ import findIndex from 'lodash/findIndex';
 import { fr, es, de } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
 import { cloneDeep } from 'lodash';
+import Spinner from '../shared/Spinner';
 
 const Scheduler: FC<ISchedulerProps> = ({
   todayButton,
@@ -73,6 +74,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
+  const [loading, setLoading] = useState(false);
 
   const ds = useMemo(() => {
     if (datasource) {
@@ -89,7 +91,7 @@ const Scheduler: FC<ISchedulerProps> = ({
     [ds],
   );
 
-  let { entities, fetchIndex } = useDataLoader({ source: ds });
+  let { entities, fetchIndex, setStep } = useDataLoader({ source: ds });
 
   function convertMilliseconds(ms: number): string {
     const seconds = Math.floor(ms / 1000);
@@ -104,6 +106,7 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   const weekQuery = useCallback(
     async (source: datasources.DataSource, date: Date) => {
+      setLoading(true);
       if (!source) return;
       if (source.type === 'entitysel') {
         if (attrs.includes(startDate)) {
@@ -119,7 +122,10 @@ const Scheduler: FC<ISchedulerProps> = ({
         }
       }
 
-      fetchIndex(0);
+      let selLength = await source.getValue('length');
+      setStep({ start: 0, end: selLength });
+      await fetchIndex(0);
+      setLoading(false);
     },
     [ds, startDate],
   );
@@ -246,7 +252,6 @@ const Scheduler: FC<ISchedulerProps> = ({
             e[endTime] === item[endTime],
         );
         await updateEntity({ index, datasource: ds, currentElement: ce });
-        console.log(item);
         emit('onItemClick', { selectedData: ce });
         break;
     }
@@ -370,6 +375,7 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
+      {loading && <Spinner />}
       <div className="flex flex-col gap-4 h-full">
         <div
           className={`scheduler-navigation flex items-center justify-center gap-2 ${style?.fontSize ? style?.fontSize : 'text-xl'}`}

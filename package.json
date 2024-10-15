@@ -16,29 +16,9 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,jsx,html,css}\""
   },
-  "overrides": {
-    "@ws-ui/webform-editor": {
-      "@ws-ui/code-editor": "0.2.3",
-      "@ws-ui/craftjs-core": "0.2.11",
-      "@ws-ui/craftjs-layers": "0.2.4",
-      "@ws-ui/craftjs-utils": "0.2.2",
-      "@ws-ui/icons": "0.0.21",
-      "@ws-ui/shared": "0.2.3",
-      "@ws-ui/store": "0.2.4"
-    },
-    "@ws-ui/store": {
-      "@ws-ui/icons": "0.0.21"
-    },
-    "@ws-ui/shared": {
-      "@ws-ui/icons": "0.0.21"
-    }
-  },
   "dependencies": {
     "@ctrl/tinycolor": "^4.1.0",
-    "@ws-ui/craftjs-core": "0.2.11",
-    "@ws-ui/craftjs-layers": "0.2.4",
-    "@ws-ui/craftjs-utils": "0.2.2",
-    "@ws-ui/webform-editor": "0.3.13",
+    "@ws-ui/webform-editor": "0.3.28",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
