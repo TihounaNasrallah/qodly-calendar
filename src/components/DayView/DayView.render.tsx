@@ -1,7 +1,7 @@
 import {
-  DataLoader,
   dateTo4DFormat,
   splitDatasourceID,
+  useDataLoader,
   useRenderer,
   useSources,
   useWebformPath,
@@ -20,6 +20,7 @@ import { IDayViewProps } from './DayView.config';
 
 import { fr, es, de } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
+import { cloneDeep } from 'lodash';
 
 const DayView: FC<IDayViewProps> = ({
   language,
@@ -43,14 +44,30 @@ const DayView: FC<IDayViewProps> = ({
 }) => {
   const { connect, emit } = useRenderer();
   const {
-    sources: { datasource: ds, currentElement: ce },
+    sources: { datasource, currentElement: ce },
   } = useSources();
 
-  const [value, setValue] = useState<any[]>([]);
   const [date, setDate] = useState(new Date());
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
+
+  const ds = useMemo(() => {
+    if (datasource) {
+      const clone: any = cloneDeep(datasource);
+      clone.id = `${clone.id}_clone`;
+      clone.children = {};
+      return clone;
+    }
+    return null;
+  }, [datasource?.id, (datasource as any)?.entitysel]);
+
+  const attrs = useMemo(
+    () => (ds?.dataclass ? Object.keys(ds.dataclass._private.attributes) : []),
+    [ds],
+  );
+
+  let { entities, fetchIndex } = useDataLoader({ source: ds });
 
   function convertMilliseconds(ms: number): string {
     const seconds = Math.floor(ms / 1000);
@@ -63,161 +80,58 @@ const DayView: FC<IDayViewProps> = ({
     return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
-  const currentDsNewPosition = async () => {
-    switch (ds?.type) {
-      case 'scalar':
-        if (!ds) return;
-
-        const listener = async () => {
-          const v = await ds.getValue<any>();
-          setValue(v);
-        };
-
-        listener();
-
-        ds.addListener('changed', listener);
-
-        return () => {
-          ds.removeListener('changed', listener);
-        };
-
-      case 'entitysel':
-        if (!loader || !ds) {
-          return;
-        }
-
-        const dsListener = () => {
-          loader.sourceHasChanged().then(() => {
-            updateFromLoader();
+  const dayQuery = useCallback(
+    async (source: datasources.DataSource, date: Date) => {
+      if (!source) return;
+      if (source.type === 'entitysel') {
+        if (attrs.includes(eventDate)) {
+          const { entitysel } = source as any;
+          const dataSetName = entitysel?.getServerRef();
+          const queryStr = `${eventDate} == ${format(date, 'yyyy-MM-dd')}`;
+          (source as any).entitysel = source.dataclass.query(queryStr, {
+            dataSetName,
+            filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
           });
-        };
+        } else {
+          checkParams = `${eventDate} does not exist as an attribute`;
+        }
+      }
 
-        ds.addListener('changed', dsListener);
-        return () => {
-          ds.removeListener('changed', dsListener);
-        };
-    }
-  };
-
-  const loader = useMemo<DataLoader | any>(() => {
-    if (!ds) return;
-    return DataLoader.create(ds, [
-      '_private.key',
-      property,
-      eventDate,
-      startTime,
-      endTime,
-      colorProp || '',
-      ...attributes.map((a) => a.Attribute as string),
-    ]);
-  }, [ds, property, eventDate, startTime, endTime, colorProp, attributes]);
-
-  const updateFromLoader = useCallback(() => {
-    if (!loader) return;
-    setValue(loader.page);
-  }, [ds, loader]);
-
-  useEffect(() => {
-    if (!loader || !ds) {
-      return;
-    }
-    loader.sourceHasChanged().then(() => updateFromLoader());
-  }, [ds]);
-
-  useEffect(() => {
-    if (!loader || !ds) {
-      return;
-    }
-    const dsListener = () => {
-      loader.sourceHasChanged().then(() => {
-        updateFromLoader();
-        currentDsNewPosition();
-      });
-    };
-    ds.addListener('changed', dsListener);
-    return () => {
-      ds.removeListener('changed', dsListener);
-    };
-  }, [ds]);
-
-  useEffect(() => {
-    const updatePosition = async () => {
-      await currentDsNewPosition();
-    };
-    updatePosition();
-  }, [ds]);
+      fetchIndex(0);
+    },
+    [ds, eventDate],
+  );
 
   let checkParams = useMemo(() => {
     if (!ds) {
       return 'Please set "Datasource"';
-    } else if (!value[0] || !value.length) {
+    } else if (!entities[0] || !entities.length) {
       return '';
     }
 
     if (!property) {
       return 'Please set "Property"';
-    } else if (!(property in value[0]) || value[0][property] === undefined) {
+    } else if (!attrs.includes(property)) {
       return `${property} does not exist as an attribute`;
     }
     if (!eventDate) {
       return 'Please set "event date"';
-    } else if (!(eventDate in value[0]) || value[0][eventDate] === undefined) {
+    } else if (!attrs.includes(eventDate)) {
       return `${eventDate} does not exist as an attribute`;
     }
     if (!startTime) {
       return 'Please set the "start time"';
-    } else if (!(startTime in value[0]) || value[0][startTime] === undefined) {
+    } else if (!attrs.includes(startTime)) {
       return `${startTime} does not exist as an attribute`;
     }
     if (!endTime) {
       return 'Please set the "end time"';
-    } else if (!(endTime in value[0]) || value[0][endTime] === undefined) {
+    } else if (!attrs.includes(endTime)) {
       return `${endTime} does not exist as an attribute`;
     }
 
     return '';
-  }, [ds, value, property, eventDate, startTime, endTime]);
-
-  switch (ds?.type) {
-    case 'scalar':
-      useEffect(() => {
-        if (!ds) return;
-
-        const listener = async (/* event */) => {
-          const v = await ds.getValue<any>();
-          setValue(v);
-        };
-
-        listener();
-
-        ds.addListener('changed', listener);
-
-        return () => {
-          ds.removeListener('changed', listener);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [ds, date]);
-      break;
-
-    case 'entitysel':
-      useEffect(() => {
-        if (!loader || !ds) {
-          return;
-        }
-
-        const dsListener = () => {
-          loader.sourceHasChanged().then(() => {
-            updateFromLoader();
-          });
-        };
-
-        ds.addListener('changed', dsListener);
-        return () => {
-          ds.removeListener('changed', dsListener);
-        };
-      }, [ds]);
-      break;
-  }
+  }, [ds, entities, property, eventDate, startTime, endTime]);
 
   useEffect(() => {
     if (hasMounted.current) {
@@ -225,6 +139,11 @@ const DayView: FC<IDayViewProps> = ({
     } else {
       hasMounted.current = true;
     }
+  }, [date]);
+
+  useEffect(() => {
+    if (!date) return;
+    dayQuery(ds, date);
   }, [date]);
 
   const isCurrentHour = (hourIndex: number, mins: number) => {
@@ -349,15 +268,15 @@ const DayView: FC<IDayViewProps> = ({
   };
 
   const colorgenerated = useMemo(
-    () => generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor())),
-    [value.length],
+    () => generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor())),
+    [entities.length],
   );
 
   let attributeList = attributes?.map((e) => e.Attribute);
 
   const data = useMemo(
     () =>
-      value.map((obj, index) => ({
+      entities.map((obj: any, index) => ({
         ...obj,
         color: obj[colorProp] || colorgenerated[index],
         attributes: attributeList?.reduce((acc: { [key: string]: any }, e) => {
@@ -365,7 +284,7 @@ const DayView: FC<IDayViewProps> = ({
           return acc;
         }, {}),
       })),
-    [value],
+    [entities],
   );
 
   const handleItemClick = async (item: { [key: string]: any }) => {
@@ -377,7 +296,14 @@ const DayView: FC<IDayViewProps> = ({
         break;
       case 'entity':
         // TODO : find a better way
-        const index = findIndex(value, (e) => e['_private.key'] === item['_private.key']);
+        const index = findIndex(
+          entities,
+          (e: any) =>
+            e[property] === item[property] &&
+            e[eventDate] === item[eventDate] &&
+            e[startTime] === item[startTime] &&
+            e[endTime] === item[endTime],
+        );
         await updateEntity({ index, datasource: ds, currentElement: ce });
         emit('onItemClick', { selectedData: ce });
         break;

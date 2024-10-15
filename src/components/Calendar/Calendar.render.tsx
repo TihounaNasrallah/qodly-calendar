@@ -1,14 +1,14 @@
 import {
-  DataLoader,
   dateTo4DFormat,
   splitDatasourceID,
+  useDataLoader,
   useRenderer,
   useSources,
   useWebformPath,
 } from '@ws-ui/webform-editor';
 
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { FC, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { BsFillInfoCircleFill } from 'react-icons/bs';
 import {
   MdKeyboardArrowLeft,
@@ -33,6 +33,7 @@ import { ICalendarProps } from './Calendar.config';
 import { fr, es, de } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
 import findIndex from 'lodash/findIndex';
+import { cloneDeep } from 'lodash';
 
 const Calendar: FC<ICalendarProps> = ({
   type,
@@ -55,126 +56,84 @@ const Calendar: FC<ICalendarProps> = ({
 }) => {
   const { connect, emit } = useRenderer();
   const {
-    sources: { datasource: ds, currentElement: selectedElement },
+    sources: { datasource, currentElement: selectedElement },
   } = useSources();
 
   const [date, setDate] = useState(new Date());
-  const [value, setValue] = useState<any[]>([]);
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
 
+  const ds = useMemo(() => {
+    if (datasource) {
+      const clone: any = cloneDeep(datasource);
+      clone.id = `${clone.id}_clone`;
+      clone.children = {};
+      return clone;
+    }
+    return null;
+  }, [datasource?.id, (datasource as any)?.entitysel]);
+
+  const attrs = useMemo(
+    () => (ds?.dataclass ? Object.keys(ds.dataclass._private.attributes) : []),
+    [ds],
+  );
+
+  let { entities, fetchIndex } = useDataLoader({ source: ds });
+
   const colorgenerated = useMemo(
-    () => generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor())),
-    [value.length],
+    () => generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor())),
+    [entities.length, colors],
   );
 
   let attributeList = attributes?.map((e) => e.Attribute);
 
-  const currentDsNewPosition = async () => {
-    switch (ds?.type) {
-      case 'scalar':
-        if (!ds) return;
-
-        const listener = async () => {
-          const v = await ds.getValue<any>();
-          setValue(v);
-        };
-
-        listener();
-
-        ds.addListener('changed', listener);
-
-        return () => {
-          ds.removeListener('changed', listener);
-        };
-
-      case 'entitysel':
-        if (!loader || !ds) return;
-
-        const dsListener = () => {
-          loader.sourceHasChanged().then(() => {
-            updateFromLoader();
+  const monthQuery = useCallback(
+    async (source: datasources.DataSource, newMonth: Date) => {
+      if (!source) return;
+      if (source.type === 'entitysel') {
+        if (attrs.includes(startDate)) {
+          const { entitysel } = source as any;
+          const dataSetName = entitysel?.getServerRef();
+          const queryStr = `${startDate} >= ${format(startOfWeek(startOfMonth(newMonth), { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(endOfMonth(newMonth), { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
+          (source as any).entitysel = source.dataclass.query(queryStr, {
+            dataSetName,
+            filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
           });
-        };
-        ds.addListener('changed', dsListener);
-        return () => {
-          ds.removeListener('changed', dsListener);
-        };
-    }
-  };
-
-  const loader = useMemo<DataLoader | any>(() => {
-    if (!ds) return;
-    return DataLoader.create(ds, [
-      '_private.key',
-      property,
-      startDate,
-      endDate,
-      colorProp,
-      ...attributes.map((a) => a.Attribute as string),
-    ]);
-  }, [ds, property, startDate, endDate, colorProp, attributes]);
-
-  const updateFromLoader = useCallback(() => {
-    if (!loader) return;
-    setValue(loader.page);
-  }, [loader]);
-
-  useEffect(() => {
-    if (!loader || !ds) {
-      return;
-    }
-    loader.sourceHasChanged().then(() => updateFromLoader());
-  }, [ds]);
-
-  useEffect(() => {
-    if (!loader || !ds) {
-      return;
-    }
-    const dsListener = () => {
-      loader.sourceHasChanged().then(() => {
-        updateFromLoader();
-        currentDsNewPosition();
-      });
-    };
-    ds.addListener('changed', dsListener);
-    return () => {
-      ds.removeListener('changed', dsListener);
-    };
-  }, [loader]);
-
-  useEffect(() => {
-    const updatePosition = async () => {
-      await currentDsNewPosition();
-    };
-    updatePosition();
-  }, [currentDsNewPosition]);
+        } else {
+          checkParams = `"${startDate}" does not exist as an attribute`;
+        }
+      }
+      fetchIndex(0);
+    },
+    [ds, startDate],
+  );
 
   let checkParams = useMemo(() => {
     if (!ds) {
       return 'Please set "Datasource"';
-    } else if (!value[0] || !value.length) {
+    } else if (!entities[0] || !entities.length) {
       return '';
     }
     if (!property) {
       return 'Please set "Property"';
-    } else if (!(property in value[0]) || value[0][property] === undefined) {
+    } else if (!attrs.includes(property)) {
       return `"${property}" does not exist as an attribute`;
     }
     if (!startDate) {
       return 'Please set the "Start Date"';
-    } else if (!(startDate in value[0]) || value[0][startDate] === undefined) {
+    } else if (!attrs.includes(startDate)) {
       return `"${startDate}" does not exist as an attribute`;
     }
     if (!endDate) {
       return 'Please set the "End Date"';
-    } else if (!(endDate in value[0]) || value[0][endDate] === undefined) {
+    } else if (!attrs.includes(endDate)) {
       return `"${endDate}" does not exist as an attribute`;
     }
     return '';
-  }, [ds, value, property, startDate, endDate]);
+  }, [ds, entities, property, startDate, endDate]);
 
+  // * Prevent onMonthChange from executing from the get-Go
   useEffect(() => {
     if (hasMounted.current) {
       emit('onMonthChange', { currentDate: date });
@@ -183,10 +142,28 @@ const Calendar: FC<ICalendarProps> = ({
     }
   }, [date]);
 
+  useEffect(() => {
+    if (date) monthQuery(ds, date);
+  }, [date, ds]);
+
   const prevMonth = () => setDate(subMonths(date, 1));
   const nextMonth = () => setDate(addMonths(date, 1));
   const nextYear = () => setDate(addMonths(date, 12));
   const prevYear = () => setDate(subMonths(date, 12));
+
+  // TODO : See if we can use something else other than "any"
+  let coloredData = useMemo(
+    () =>
+      entities.map((obj: any, index) => ({
+        ...obj,
+        color: obj[colorProp] || colorgenerated[index],
+        attributes: attributeList?.reduce((acc: { [key: string]: any }, e) => {
+          acc[e] = obj[e];
+          return acc;
+        }, {}),
+      })),
+    [entities, colorgenerated, colorProp, attributeList],
+  );
 
   const handleDateClick = async (value: Date) => {
     setSelDate(value);
@@ -202,34 +179,26 @@ const Calendar: FC<ICalendarProps> = ({
     emit('onDateClick', { selectedDate: ce });
   };
 
-  const handleItemClick = async (item: { [key: string]: any }) => {
+  const handleItemClick = async (item: any) => {
     if (!selectedElement) return;
     switch (selectedElement.type) {
       case 'scalar':
         selectedElement.setValue(null, item);
         emit('onItemClick', { selectedData: selectedElement });
         break;
-
       case 'entity':
-        const index = findIndex(value, (e) => e['_private.key'] === item['_private.key']);
+        const index = findIndex(
+          entities,
+          (e: any) =>
+            e[property] === item[property] &&
+            e[startDate] === item[startDate] &&
+            e[endDate] === item[endDate],
+        );
         await updateEntity({ index, datasource: ds, currentElement: selectedElement });
         emit('onItemClick', { selectedData: selectedElement });
         break;
     }
   };
-
-  let coloredData = useMemo(
-    () =>
-      value.map((obj, index) => ({
-        ...obj,
-        color: obj[colorProp] || colorgenerated[index],
-        attributes: attributeList?.reduce((acc: { [key: string]: any }, e) => {
-          acc[e] = obj[e];
-          return acc;
-        }, {}),
-      })),
-    [value, colorgenerated, colorProp, attributeList],
-  );
 
   const daysInMonth = useMemo(
     () =>
@@ -417,27 +386,27 @@ const Calendar: FC<ICalendarProps> = ({
                 <div
                   className={`date-content w-full grid grid-cols-1 gap-1 overflow-hidden overflow-y-auto`}
                 >
-                  {data.map((conge, index) => {
+                  {data.map((item, index) => {
                     return (
                       <div
-                        key={`${conge[property]}-${conge[startDate]}`}
+                        key={`${item[property]}-${item[startDate]}`}
                         className={`element-container cursor-pointer px-2 py-1 flex flex-col w-full border-l-4 text-black`}
                         style={{
                           color: isSameMonth(day, date) ? 'black' : '#969696',
                           backgroundColor: isSameMonth(day, date)
-                            ? colorToHex(conge?.color) + '50'
+                            ? colorToHex(item?.color) + '50'
                             : '#E3E3E3',
                           borderRadius: borderRadius,
-                          borderLeftColor: isSameMonth(day, date) ? conge?.color : '#C0C0C0',
+                          borderLeftColor: isSameMonth(day, date) ? item?.color : '#C0C0C0',
                         }}
-                        onClick={() => handleItemClick(conge)}
+                        onClick={() => handleItemClick(item)}
                       >
                         <span
-                          title={conge[property]}
+                          title={item[property]}
                           key={index}
                           className={`element-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'} line-clamp-2`}
                         >
-                          {conge[property]}
+                          {item[property]}
                         </span>
 
                         <div key={`attributes-${index}`} className="element-detail flex flex-wrap">
@@ -446,9 +415,9 @@ const Calendar: FC<ICalendarProps> = ({
                               <span
                                 key={`attribute-${index}-${e}`}
                                 className={`attribute ${style?.fontSize ? style?.fontSize : 'text-sm'} basis-1/2 text-start`}
-                                title={conge?.attributes[e]?.toString()}
+                                title={item?.attributes[e]?.toString()}
                               >
-                                {conge.attributes[e]}
+                                {item.attributes[e]}
                               </span>
                             );
                           })}
