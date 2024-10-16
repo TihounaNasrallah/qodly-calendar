@@ -118,6 +118,14 @@ self .month-title {
   color: blue;
   font-size: 26px;
 }
+
+/* Change the colors of the loading spinner */
+self .calendar-outer-spinner {
+  border-top-color: red;
+}
+self .calendar-inner-spinner {
+  border-top-color: blue;
+}
 ```
 
 ![calendar-grid](https://github.com/TihounaNasrallah/qodly-calendar/assets/73143827/4229c329-0304-4a05-a3d4-9c36188d4a5a)
@@ -208,6 +216,11 @@ self .nav-button .next-week {
   border: 1px solid blue;
   border-radius: 50%;
   color: blue;
+}
+
+/* Change the background of the loading spinner */
+self .calendar-spinner {
+  background-color: black;
 }
 ```
 

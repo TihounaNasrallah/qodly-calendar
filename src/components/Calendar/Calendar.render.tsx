@@ -65,8 +65,11 @@ const Calendar: FC<ICalendarProps> = ({
   const hasMounted = useRef(false);
   const path = useWebformPath();
   const [loading, setLoading] = useState(false);
+  const [value, setValue] = useState<any[]>([]);
 
   const ds = useMemo(() => {
+    console.log('ds', datasource);
+
     if (datasource) {
       const clone: any = cloneDeep(datasource);
       clone.id = `${clone.id}_clone`;
@@ -77,7 +80,12 @@ const Calendar: FC<ICalendarProps> = ({
   }, [datasource?.id, (datasource as any)?.entitysel]);
 
   const attrs = useMemo(
-    () => (ds?.dataclass ? Object.keys(ds.dataclass._private.attributes) : []),
+    () =>
+      ds?.dataclass || ds?.value
+        ? ds.type === 'entitysel'
+          ? Object.keys(ds.dataclass._private.attributes)
+          : Object.keys(ds.value[0])
+        : [],
     [ds],
   );
 
@@ -106,6 +114,8 @@ const Calendar: FC<ICalendarProps> = ({
         } else {
           checkParams = `"${startDate}" does not exist as an attribute`;
         }
+      } else if (source.dataType === 'array') {
+        setValue(await source.getValue());
       }
 
       let selLength = await source.getValue('length');
@@ -151,6 +161,7 @@ const Calendar: FC<ICalendarProps> = ({
   }, [date]);
 
   useEffect(() => {
+    if (!ds) return;
     if (date) monthQuery(ds, date);
   }, [date, ds]);
 
@@ -159,10 +170,9 @@ const Calendar: FC<ICalendarProps> = ({
   const nextYear = () => setDate(addMonths(date, 12));
   const prevYear = () => setDate(subMonths(date, 12));
 
-  // TODO : See if we can use something else other than "any"
   let coloredData = useMemo(
     () =>
-      entities.map((obj: any, index) => ({
+      (datasource.dataType === 'array' ? value : entities).map((obj: any, index) => ({
         ...obj,
         color: obj[colorProp] || colorgenerated[index],
         attributes: attributeList?.reduce((acc: { [key: string]: any }, e) => {

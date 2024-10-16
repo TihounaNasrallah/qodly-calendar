@@ -53,6 +53,7 @@ const DayView: FC<IDayViewProps> = ({
   const hasMounted = useRef(false);
   const path = useWebformPath();
   const [loading, setLoading] = useState(false);
+  const [value, setValue] = useState<any[]>([]);
 
   const ds = useMemo(() => {
     if (datasource) {
@@ -65,7 +66,12 @@ const DayView: FC<IDayViewProps> = ({
   }, [datasource?.id, (datasource as any)?.entitysel]);
 
   const attrs = useMemo(
-    () => (ds?.dataclass ? Object.keys(ds.dataclass._private.attributes) : []),
+    () =>
+      ds?.dataclass || ds?.value
+        ? ds.type === 'entitysel'
+          ? Object.keys(ds.dataclass._private.attributes)
+          : Object.keys(ds.value[0])
+        : [],
     [ds],
   );
 
@@ -98,6 +104,8 @@ const DayView: FC<IDayViewProps> = ({
         } else {
           checkParams = `${eventDate} does not exist as an attribute`;
         }
+      } else if (source.dataType === 'array') {
+        setValue(await source.getValue());
       }
 
       let selLength = await source.getValue('length');
@@ -282,7 +290,7 @@ const DayView: FC<IDayViewProps> = ({
 
   const data = useMemo(
     () =>
-      entities.map((obj: any, index) => ({
+      (datasource.dataType === 'array' ? value : entities).map((obj: any, index) => ({
         ...obj,
         color: obj[colorProp] || colorgenerated[index],
         attributes: attributeList?.reduce((acc: { [key: string]: any }, e) => {
