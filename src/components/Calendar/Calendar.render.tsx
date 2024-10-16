@@ -1,6 +1,7 @@
 import {
   dateTo4DFormat,
   splitDatasourceID,
+  unsubscribeFromDatasource,
   useDataLoader,
   useRenderer,
   useSources,
@@ -64,12 +65,10 @@ const Calendar: FC<ICalendarProps> = ({
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [value, setValue] = useState<any[]>([]);
 
   const ds = useMemo(() => {
-    console.log('ds', datasource);
-
     if (datasource) {
       const clone: any = cloneDeep(datasource);
       clone.id = `${clone.id}_clone`;
@@ -100,7 +99,6 @@ const Calendar: FC<ICalendarProps> = ({
 
   const monthQuery = useCallback(
     async (source: datasources.DataSource, newMonth: Date) => {
-      setLoading(true);
       if (!source) return;
       if (source.type === 'entitysel') {
         if (attrs.includes(startDate)) {
@@ -165,10 +163,35 @@ const Calendar: FC<ICalendarProps> = ({
     if (date) monthQuery(ds, date);
   }, [date, ds]);
 
-  const prevMonth = () => setDate(subMonths(date, 1));
-  const nextMonth = () => setDate(addMonths(date, 1));
-  const nextYear = () => setDate(addMonths(date, 12));
-  const prevYear = () => setDate(subMonths(date, 12));
+  useEffect(() => {
+    if (!datasource) {
+      return;
+    }
+    const cb = () => {
+      monthQuery(ds, date);
+    };
+    datasource.addListener('changed', cb);
+    return () => {
+      unsubscribeFromDatasource(ds, cb);
+    };
+  }, [datasource]);
+
+  const prevMonth = () => {
+    setLoading(true);
+    setDate(subMonths(date, 1));
+  };
+  const nextMonth = () => {
+    setLoading(true);
+    setDate(addMonths(date, 1));
+  };
+  const nextYear = () => {
+    setLoading(true);
+    setDate(addMonths(date, 12));
+  };
+  const prevYear = () => {
+    setLoading(true);
+    setDate(subMonths(date, 12));
+  };
 
   let coloredData = useMemo(
     () =>
