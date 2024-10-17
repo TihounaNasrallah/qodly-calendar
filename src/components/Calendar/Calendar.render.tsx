@@ -82,7 +82,7 @@ const Calendar: FC<ICalendarProps> = ({
     () =>
       ds?.dataclass || ds?.value
         ? ds.type === 'entitysel'
-          ? Object.keys(ds.dataclass._private.attributes)
+          ? ds.entitysel._private.filterAttributes.split(',')
           : Object.keys(ds.value[0])
         : [],
     [ds],
@@ -134,17 +134,17 @@ const Calendar: FC<ICalendarProps> = ({
     }
     if (!property) {
       return 'Please set "Property"';
-    } else if (!attrs.includes(property.split('.')[0])) {
+    } else if (!attrs.includes(property)) {
       return `"${property}" does not exist as an attribute`;
     }
     if (!startDate) {
       return 'Please set the "Start Date"';
-    } else if (!attrs.includes(startDate.split('.')[0])) {
+    } else if (!attrs.includes(startDate)) {
       return `"${startDate}" does not exist as an attribute`;
     }
     if (!endDate) {
       return 'Please set the "End Date"';
-    } else if (!attrs.includes(endDate.split('.')[0])) {
+    } else if (!attrs.includes(endDate)) {
       return `"${endDate}" does not exist as an attribute`;
     }
     return '';
