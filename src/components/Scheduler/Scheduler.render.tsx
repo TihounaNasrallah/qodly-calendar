@@ -116,7 +116,7 @@ const Scheduler: FC<ISchedulerProps> = ({
       setLoading(true);
       if (!source) return;
       if (source.type === 'entitysel') {
-        if (attrs.includes(startDate)) {
+        if (attrs.includes(startDate.split('.')[0])) {
           const { entitysel } = source as any;
           const dataSetName = entitysel?.getServerRef();
           const queryStr = `${startDate} >= ${format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
@@ -148,22 +148,22 @@ const Scheduler: FC<ISchedulerProps> = ({
 
     if (!property) {
       return 'Please set "Property"';
-    } else if (!attrs.includes(property)) {
+    } else if (!attrs.includes(property.split('.')[0])) {
       return `${property} does not exist as an attribute`;
     }
     if (!startDate) {
       return 'Please set "event date"';
-    } else if (!attrs.includes(startDate)) {
+    } else if (!attrs.includes(startDate.split('.')[0])) {
       return `${startDate} does not exist as an attribute`;
     }
     if (!startTime) {
       return 'Please set "start time"';
-    } else if (!attrs.includes(startTime)) {
+    } else if (!attrs.includes(startTime.split('.')[0])) {
       return `${startTime} does not exist as an attribute`;
     }
     if (!endTime) {
       return 'Please set "end time"';
-    } else if (!attrs.includes(endTime)) {
+    } else if (!attrs.includes(endTime.split('.')[0])) {
       return `${endTime} does not exist as an attribute`;
     }
 

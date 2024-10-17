@@ -94,7 +94,7 @@ const DayView: FC<IDayViewProps> = ({
       setLoading(true);
       if (!source) return;
       if (source.type === 'entitysel') {
-        if (attrs.includes(eventDate)) {
+        if (attrs.includes(eventDate.split('.')[0])) {
           const { entitysel } = source as any;
           const dataSetName = entitysel?.getServerRef();
           const queryStr = `${eventDate} == ${format(date, 'yyyy-MM-dd')}`;
@@ -126,22 +126,22 @@ const DayView: FC<IDayViewProps> = ({
 
     if (!property) {
       return 'Please set "Property"';
-    } else if (!attrs.includes(property)) {
+    } else if (!attrs.includes(property.split('.')[0])) {
       return `${property} does not exist as an attribute`;
     }
     if (!eventDate) {
       return 'Please set "event date"';
-    } else if (!attrs.includes(eventDate)) {
+    } else if (!attrs.includes(eventDate.split('.')[0])) {
       return `${eventDate} does not exist as an attribute`;
     }
     if (!startTime) {
       return 'Please set the "start time"';
-    } else if (!attrs.includes(startTime)) {
+    } else if (!attrs.includes(startTime.split('.')[0])) {
       return `${startTime} does not exist as an attribute`;
     }
     if (!endTime) {
       return 'Please set the "end time"';
-    } else if (!attrs.includes(endTime)) {
+    } else if (!attrs.includes(endTime.split('.')[0])) {
       return `${endTime} does not exist as an attribute`;
     }
 
