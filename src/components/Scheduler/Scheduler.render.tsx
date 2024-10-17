@@ -1,6 +1,7 @@
 import {
   dateTo4DFormat,
   splitDatasourceID,
+  unsubscribeFromDatasource,
   useDataLoader,
   useRenderer,
   useSources,
@@ -74,7 +75,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [value, setValue] = useState<any[]>([]);
 
   const ds = useMemo(() => {
@@ -178,8 +179,22 @@ const Scheduler: FC<ISchedulerProps> = ({
   }, [date]);
 
   useEffect(() => {
+    if (!ds) return;
     if (date) weekQuery(ds, date);
   }, [ds, date]);
+
+  useEffect(() => {
+    if (!datasource) {
+      return;
+    }
+    const cb = () => {
+      weekQuery(ds, date);
+    };
+    datasource.addListener('changed', cb);
+    return () => {
+      unsubscribeFromDatasource(datasource, cb);
+    };
+  }, [datasource, date]);
 
   const colorgenerated = useMemo(() => {
     return generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor()));
@@ -234,14 +249,26 @@ const Scheduler: FC<ISchedulerProps> = ({
     return isEqual(date, selDate);
   };
 
-  const goToPreviousWeek = () => setDate(subWeeks(date, 1));
+  const goToPreviousWeek = () => {
+    setDate(subWeeks(date, 1));
+  };
 
-  const goToNextWeek = () => setDate(addWeeks(date, 1));
+  const goToNextWeek = () => {
+    setDate(addWeeks(date, 1));
+  };
 
-  const prevMonth = () => setDate(subMonths(date, 1));
-  const nextMonth = () => setDate(addMonths(date, 1));
-  const nextYear = () => setDate(addMonths(date, 12));
-  const prevYear = () => setDate(subMonths(date, 12));
+  const prevMonth = () => {
+    setDate(subMonths(date, 1));
+  };
+  const nextMonth = () => {
+    setDate(addMonths(date, 1));
+  };
+  const nextYear = () => {
+    setDate(addMonths(date, 12));
+  };
+  const prevYear = () => {
+    setDate(subMonths(date, 12));
+  };
 
   const handleItemClick = async (item: { [key: string]: any }) => {
     if (!ce) return;

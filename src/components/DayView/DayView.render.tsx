@@ -1,6 +1,7 @@
 import {
   dateTo4DFormat,
   splitDatasourceID,
+  unsubscribeFromDatasource,
   useDataLoader,
   useRenderer,
   useSources,
@@ -52,7 +53,7 @@ const DayView: FC<IDayViewProps> = ({
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [value, setValue] = useState<any[]>([]);
 
   const ds = useMemo(() => {
@@ -156,9 +157,22 @@ const DayView: FC<IDayViewProps> = ({
   }, [date]);
 
   useEffect(() => {
-    if (!date) return;
-    dayQuery(ds, date);
+    if (!ds) return;
+    if (date) dayQuery(ds, date);
   }, [date]);
+
+  useEffect(() => {
+    if (!datasource) {
+      return;
+    }
+    const cb = () => {
+      dayQuery(ds, date);
+    };
+    datasource.addListener('changed', cb);
+    return () => {
+      unsubscribeFromDatasource(datasource, cb);
+    };
+  }, [datasource, date]);
 
   const isCurrentHour = (hourIndex: number, mins: number) => {
     const currentHour = new Date().getHours();

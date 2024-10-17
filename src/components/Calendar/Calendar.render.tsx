@@ -99,6 +99,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   const monthQuery = useCallback(
     async (source: datasources.DataSource, newMonth: Date) => {
+      setLoading(true);
       if (!source) return;
       if (source.type === 'entitysel') {
         if (attrs.includes(startDate)) {
@@ -172,24 +173,20 @@ const Calendar: FC<ICalendarProps> = ({
     };
     datasource.addListener('changed', cb);
     return () => {
-      unsubscribeFromDatasource(ds, cb);
+      unsubscribeFromDatasource(datasource, cb);
     };
-  }, [datasource]);
+  }, [datasource, date]);
 
   const prevMonth = () => {
-    setLoading(true);
     setDate(subMonths(date, 1));
   };
   const nextMonth = () => {
-    setLoading(true);
     setDate(addMonths(date, 1));
   };
   const nextYear = () => {
-    setLoading(true);
     setDate(addMonths(date, 12));
   };
   const prevYear = () => {
-    setLoading(true);
     setDate(subMonths(date, 12));
   };
 
