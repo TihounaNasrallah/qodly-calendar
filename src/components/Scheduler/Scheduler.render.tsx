@@ -1,7 +1,8 @@
 import {
-  DataLoader,
   dateTo4DFormat,
   splitDatasourceID,
+  unsubscribeFromDatasource,
+  useDataLoader,
   useRenderer,
   useSources,
   useWebformPath,
@@ -21,6 +22,7 @@ import {
   isToday,
   setHours,
   setMinutes,
+  endOfWeek,
 } from 'date-fns';
 import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
 
@@ -37,6 +39,8 @@ import findIndex from 'lodash/findIndex';
 
 import { fr, es, de } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
+import { cloneDeep } from 'lodash';
+import Spinner from '../shared/Spinner';
 
 const Scheduler: FC<ISchedulerProps> = ({
   todayButton,
@@ -64,14 +68,37 @@ const Scheduler: FC<ISchedulerProps> = ({
   const { connect, emit } = useRenderer();
 
   const {
-    sources: { datasource: ds, currentElement: ce },
+    sources: { datasource, currentElement: ce },
   } = useSources();
 
-  const [value, setValue] = useState<any[]>([]);
   const [date, setDate] = useState<Date>(new Date());
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
+  const [loading, setLoading] = useState(true);
+  const [value, setValue] = useState<any[]>([]);
+
+  const ds = useMemo(() => {
+    if (datasource) {
+      const clone: any = cloneDeep(datasource);
+      clone.id = `${clone.id}_clone`;
+      clone.children = {};
+      return clone;
+    }
+    return null;
+  }, [datasource?.id, (datasource as any)?.entitysel]);
+
+  const attrs = useMemo(
+    () =>
+      ds?.dataclass || ds?.value
+        ? ds.type === 'entitysel'
+          ? Object.keys(ds.dataclass._private.attributes)
+          : Object.keys(ds.value[0])
+        : [],
+    [ds],
+  );
+
+  let { entities, fetchIndex, setStep } = useDataLoader({ source: ds });
 
   function convertMilliseconds(ms: number): string {
     const seconds = Math.floor(ms / 1000);
@@ -84,120 +111,64 @@ const Scheduler: FC<ISchedulerProps> = ({
     return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
-  const currentDsNewPosition = async () => {
-    switch (ds?.type) {
-      case 'scalar':
-        if (!ds) return;
-
-        const listener = async () => {
-          const v = await ds.getValue<any>();
-          setValue(v);
-        };
-
-        listener();
-
-        ds.addListener('changed', listener);
-
-        return () => {
-          ds.removeListener('changed', listener);
-        };
-
-      case 'entitysel':
-        if (!loader || !ds) {
-          return;
-        }
-
-        const dsListener = () => {
-          loader.sourceHasChanged().then(() => {
-            updateFromLoader();
+  const weekQuery = useCallback(
+    async (source: datasources.DataSource, date: Date) => {
+      setLoading(true);
+      if (!source) return;
+      if (source.type === 'entitysel') {
+        if (attrs.includes(startDate)) {
+          const { entitysel } = source as any;
+          const dataSetName = entitysel?.getServerRef();
+          const queryStr = `${startDate} >= ${format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
+          (source as any).entitysel = source.dataclass.query(queryStr, {
+            dataSetName,
+            filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
           });
-        };
+        } else {
+          checkParams = `"${startDate}" does not exist as an attribute`;
+        }
+      } else if (source.dataType === 'array') {
+        setValue(await source.getValue());
+      }
 
-        ds.addListener('changed', dsListener);
-        return () => {
-          ds.removeListener('changed', dsListener);
-        };
-    }
-  };
-
-  const loader = useMemo<DataLoader | any>(() => {
-    if (!ds) return;
-    return DataLoader.create(ds, [
-      '_private.key',
-      property,
-      startDate,
-      startTime,
-      endTime,
-      colorProp || '',
-      ...attributes.map((a) => a.Attribute as string),
-    ]);
-  }, [ds, property, startDate, startTime, endTime, colorProp, attributes]);
-
-  const updateFromLoader = useCallback(() => {
-    if (!loader) return;
-    setValue(loader.page);
-  }, [ds, loader]);
-
-  useEffect(() => {
-    if (!loader || !ds) {
-      return;
-    }
-    loader.sourceHasChanged().then(() => updateFromLoader());
-  }, [ds]);
-
-  useEffect(() => {
-    if (!loader || !ds) {
-      return;
-    }
-    const dsListener = () => {
-      loader.sourceHasChanged().then(() => {
-        updateFromLoader();
-        currentDsNewPosition();
-      });
-    };
-    ds.addListener('changed', dsListener);
-    return () => {
-      ds.removeListener('changed', dsListener);
-    };
-  }, [ds]);
-
-  useEffect(() => {
-    const updatePosition = async () => {
-      await currentDsNewPosition();
-    };
-    updatePosition();
-  }, [ds]);
+      let selLength = await source.getValue('length');
+      setStep({ start: 0, end: selLength });
+      await fetchIndex(0);
+      setLoading(false);
+    },
+    [ds, startDate],
+  );
 
   let checkParams = useMemo(() => {
     if (!ds) {
       return 'Please set "Datasource"';
-    } else if (!value[0] || !value.length) {
+    } else if (!entities[0] || !entities.length) {
       return '';
     }
 
     if (!property) {
       return 'Please set "Property"';
-    } else if (!(property in value[0]) || value[0][property] === undefined) {
+    } else if (!attrs.includes(property)) {
       return `${property} does not exist as an attribute`;
     }
     if (!startDate) {
       return 'Please set "event date"';
-    } else if (!(startDate in value[0]) || value[0][startDate] === undefined) {
+    } else if (!attrs.includes(startDate)) {
       return `${startDate} does not exist as an attribute`;
     }
     if (!startTime) {
       return 'Please set "start time"';
-    } else if (!(startTime in value[0]) || value[0][startTime] === undefined) {
+    } else if (!attrs.includes(startTime)) {
       return `${startTime} does not exist as an attribute`;
     }
     if (!endTime) {
       return 'Please set "end time"';
-    } else if (!(endTime in value[0]) || value[0][endTime] === undefined) {
+    } else if (!attrs.includes(endTime)) {
       return `${endTime} does not exist as an attribute`;
     }
 
     return '';
-  }, [ds, value, property, startDate, startTime, endTime]);
+  }, [ds, entities, property, startDate, startTime, endTime]);
 
   useEffect(() => {
     if (hasMounted.current) {
@@ -207,14 +178,32 @@ const Scheduler: FC<ISchedulerProps> = ({
     }
   }, [date]);
 
+  useEffect(() => {
+    if (!ds) return;
+    if (date) weekQuery(ds, date);
+  }, [ds, date]);
+
+  useEffect(() => {
+    if (!datasource) {
+      return;
+    }
+    const cb = () => {
+      weekQuery(ds, date);
+    };
+    datasource.addListener('changed', cb);
+    return () => {
+      unsubscribeFromDatasource(datasource, cb);
+    };
+  }, [datasource, date]);
+
   const colorgenerated = useMemo(() => {
-    return generateColorPalette(value.length, ...colors.map((e) => e.color || randomColor()));
-  }, [value.length]);
+    return generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor()));
+  }, [entities.length]);
 
   let attributeList = attributes?.map((e) => e.Attribute);
 
   const data = useMemo(() => {
-    return value.map((obj, index) => ({
+    return (datasource.dataType === 'array' ? value : entities).map((obj: any, index) => ({
       ...obj,
       color: obj[colorProp] || colorgenerated[index],
       attributes: attributeList?.reduce((acc: { [key: string]: any }, e) => {
@@ -222,7 +211,7 @@ const Scheduler: FC<ISchedulerProps> = ({
         return acc;
       }, {}),
     }));
-  }, [value, colorgenerated, colorProp, attributeList]);
+  }, [entities, colorgenerated, colorProp, attributeList]);
 
   const getWeekDates = (startDate: Date) => {
     const dates = [];
@@ -260,14 +249,26 @@ const Scheduler: FC<ISchedulerProps> = ({
     return isEqual(date, selDate);
   };
 
-  const goToPreviousWeek = () => setDate(subWeeks(date, 1));
+  const goToPreviousWeek = () => {
+    setDate(subWeeks(date, 1));
+  };
 
-  const goToNextWeek = () => setDate(addWeeks(date, 1));
+  const goToNextWeek = () => {
+    setDate(addWeeks(date, 1));
+  };
 
-  const prevMonth = () => setDate(subMonths(date, 1));
-  const nextMonth = () => setDate(addMonths(date, 1));
-  const nextYear = () => setDate(addMonths(date, 12));
-  const prevYear = () => setDate(subMonths(date, 12));
+  const prevMonth = () => {
+    setDate(subMonths(date, 1));
+  };
+  const nextMonth = () => {
+    setDate(addMonths(date, 1));
+  };
+  const nextYear = () => {
+    setDate(addMonths(date, 12));
+  };
+  const prevYear = () => {
+    setDate(subMonths(date, 12));
+  };
 
   const handleItemClick = async (item: { [key: string]: any }) => {
     if (!ce) return;
@@ -277,7 +278,14 @@ const Scheduler: FC<ISchedulerProps> = ({
         emit('onItemClick', { selectedData: ce });
         break;
       case 'entity':
-        const index = findIndex(value, (e) => e['_private.key'] === item['_private.key']);
+        const index = findIndex(
+          entities,
+          (e: any) =>
+            e[property] === item[property] &&
+            e[startDate] === item[startDate] &&
+            e[startTime] === item[startTime] &&
+            e[endTime] === item[endTime],
+        );
         await updateEntity({ index, datasource: ds, currentElement: ce });
         emit('onItemClick', { selectedData: ce });
         break;
@@ -402,6 +410,7 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   return !checkParams ? (
     <div ref={connect} style={style} className={cn(className, classNames)}>
+      {loading && <Spinner />}
       <div className="flex flex-col gap-4 h-full">
         <div
           className={`scheduler-navigation flex items-center justify-center gap-2 ${style?.fontSize ? style?.fontSize : 'text-xl'}`}

@@ -118,7 +118,7 @@ const attributesSettings: TSetting[] = [
 const dataAccessSettings: TSetting[] = [
   {
     key: 'datasource',
-    label: 'Data Source',
+    label: 'Qodly Source',
     type: ESetting.DS_AUTO_SUGGEST,
   },
   {
