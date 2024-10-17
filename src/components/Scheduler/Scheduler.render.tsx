@@ -92,7 +92,7 @@ const Scheduler: FC<ISchedulerProps> = ({
     () =>
       ds?.dataclass || ds?.value
         ? ds.type === 'entitysel'
-          ? Object.keys(ds.dataclass._private.attributes)
+          ? ds.entitysel._private.filterAttributes.split(',')
           : Object.keys(ds.value[0])
         : [],
     [ds],
@@ -148,22 +148,22 @@ const Scheduler: FC<ISchedulerProps> = ({
 
     if (!property) {
       return 'Please set "Property"';
-    } else if (!attrs.includes(property.split('.')[0])) {
+    } else if (!attrs.includes(property)) {
       return `${property} does not exist as an attribute`;
     }
     if (!startDate) {
       return 'Please set "event date"';
-    } else if (!attrs.includes(startDate.split('.')[0])) {
+    } else if (!attrs.includes(startDate)) {
       return `${startDate} does not exist as an attribute`;
     }
     if (!startTime) {
       return 'Please set "start time"';
-    } else if (!attrs.includes(startTime.split('.')[0])) {
+    } else if (!attrs.includes(startTime)) {
       return `${startTime} does not exist as an attribute`;
     }
     if (!endTime) {
       return 'Please set "end time"';
-    } else if (!attrs.includes(endTime.split('.')[0])) {
+    } else if (!attrs.includes(endTime)) {
       return `${endTime} does not exist as an attribute`;
     }
 
