@@ -45,6 +45,7 @@ import Spinner from '../shared/Spinner';
 const Scheduler: FC<ISchedulerProps> = ({
   todayButton,
   language,
+  weekStart,
   yearNav,
   minutes,
   hours,
@@ -77,6 +78,8 @@ const Scheduler: FC<ISchedulerProps> = ({
   const path = useWebformPath();
   const [loading, setLoading] = useState(true);
   const [value, setValue] = useState<any[]>([]);
+
+  const startOfWeekInt = parseInt(weekStart, 10) as 0 | 1;
 
   const ds = useMemo(() => {
     if (datasource) {
@@ -215,7 +218,7 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   const getWeekDates = (startDate: Date) => {
     const dates = [];
-    const startOfCurrentWeek = startOfWeek(startDate, { weekStartsOn: 1 });
+    const startOfCurrentWeek = startOfWeek(startDate, { weekStartsOn: startOfWeekInt });
     for (let i = 0; i < 7; i++) {
       dates.push(addDays(startOfCurrentWeek, i));
     }

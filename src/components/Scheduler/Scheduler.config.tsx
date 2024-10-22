@@ -100,6 +100,7 @@ export default {
   },
   defaultProps: {
     language: 'en',
+    weekStart: '1',
     yearNav: true,
     minutes: '60',
     days: 'full',
@@ -113,6 +114,7 @@ export default {
 
 export interface ISchedulerProps extends webforms.ComponentProps {
   color: string;
+  weekStart: string;
   language: string;
   yearNav: boolean;
   minutes: '60' | '15' | '30';

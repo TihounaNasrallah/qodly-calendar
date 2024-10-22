@@ -10,16 +10,7 @@ import {
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 
-import {
-  isMonday,
-  format,
-  startOfWeek,
-  addDays,
-  isToday,
-  setHours,
-  isEqual,
-  setMinutes,
-} from 'date-fns';
+import { format, startOfWeek, addDays, isToday, setHours, isEqual, setMinutes } from 'date-fns';
 import { colorToHex } from '../shared/colorUtils';
 
 import { fr, es, de } from 'date-fns/locale';
@@ -29,6 +20,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   yearNav,
   property,
   todayButton,
+  weekStart,
   language,
   minutes,
   days,
@@ -47,7 +39,8 @@ const Scheduler: FC<ISchedulerProps> = ({
   } = useEnhancedNode();
 
   const date = new Date();
-
+  const startOfWeekInt = parseInt(weekStart, 10) as 0 | 1;
+  const firstDayOfWeek = startOfWeek(date, { weekStartsOn: startOfWeekInt });
   const firstHour = useMemo(() => {
     if (hours === 'work') {
       return 8;
@@ -57,7 +50,7 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   const getWeekDates = (startDate: Date) => {
     const dates = [];
-    const startOfCurrentWeek = startOfWeek(startDate, { weekStartsOn: 1 });
+    const startOfCurrentWeek = startOfWeek(startDate, { weekStartsOn: startOfWeekInt });
     for (let i = 0; i < 7; i++) {
       dates.push(addDays(startOfCurrentWeek, i));
     }
@@ -243,7 +236,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                 {weekDates.map((day, index) => (
                   <th
                     key={index}
-                    className={`scheduler-header ${isMonday(day) ? 'w-32' : 'w-24'} ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
+                    className={`scheduler-header ${isEqual(day, firstDayOfWeek) && isEqual(firstHour, checkHours(index)) ? 'w-32' : 'w-24'} ${headerPosition === 'sticky' ? 'sticky' : ''} top-0 z-[1] ${style?.backgroundColor ? style?.backgroundColor : 'bg-white'}`}
                   >
                     <div
                       title={format(day, 'EEEE', locale)}
@@ -298,7 +291,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                   {weekDates.map((day, dayIndex) => (
                     <td
                       key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                      className={`time-content border border-gray-200 p-1 ${isEqual(firstHour, checkHours(hourIndex)) ? 'h-20' : 'h-12'}`}
+                      className={`time-content border border-gray-200 p-1 ${isEqual(day, firstDayOfWeek) && isEqual(firstHour, checkHours(hourIndex)) ? 'h-20' : 'h-12'}`}
                       style={{
                         backgroundColor:
                           isToday(day) && isCurrentHour(checkHours(hour), minutes)
@@ -311,7 +304,8 @@ const Scheduler: FC<ISchedulerProps> = ({
                       }}
                     >
                       <div className="time-content flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
-                        {isMonday(day) && isEqual(firstHour, checkHours(hourIndex)) ? (
+                        {isEqual(day, firstDayOfWeek) &&
+                        isEqual(firstHour, checkHours(hourIndex)) ? (
                           <div
                             className="event px-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
                             style={{
