@@ -29,9 +29,10 @@ import {
   eachDayOfInterval,
   format,
   isSameMonth,
+  addDays,
 } from 'date-fns';
 import { ICalendarProps } from './Calendar.config';
-import { fr, es, de } from 'date-fns/locale';
+import { fr, es, de, enUS } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
 import findIndex from 'lodash/findIndex';
 import { cloneDeep } from 'lodash';
@@ -39,6 +40,7 @@ import Spinner from '../shared/Spinner';
 
 const Calendar: FC<ICalendarProps> = ({
   type,
+  weekStart,
   language,
   selectedDate,
   property,
@@ -238,75 +240,29 @@ const Calendar: FC<ICalendarProps> = ({
     }
   };
 
+  const startOfWeekInt = parseInt(weekStart, 10) as 0 | 1;
+
   const daysInMonth = useMemo(
     () =>
       eachDayOfInterval({
-        start: startOfWeek(startOfMonth(date), { weekStartsOn: 1 }),
-        end: endOfWeek(endOfMonth(date), { weekStartsOn: 1 }),
+        start: startOfWeek(startOfMonth(date), { weekStartsOn: startOfWeekInt }),
+        end: endOfWeek(endOfMonth(date), { weekStartsOn: startOfWeekInt }),
       }),
     [date],
   );
+  let localeVar = language === 'fr' ? fr : language === 'es' ? es : language === 'de' ? de : enUS;
 
-  const languageList = {
-    en: [
-      { title: 'Mon', day: 'Monday' },
-      { title: 'Tue', day: 'Tuesday' },
-      { title: 'Wed', day: 'Wednesday' },
-      { title: 'Thu', day: 'Thursday' },
-      { title: 'Fri', day: 'Friday' },
-      { title: 'Sat', day: 'Saturday' },
-      { title: 'Sun', day: 'Sunday' },
-    ],
-    fr: [
-      { title: 'Lun', day: 'Lundi' },
-      { title: 'Mar', day: 'Mardi' },
-      { title: 'Mer', day: 'Mercredi' },
-      { title: 'Jeu', day: 'Jeudi' },
-      { title: 'Ven', day: 'Vendredi' },
-      { title: 'Sam', day: 'Samedi' },
-      { title: 'Dim', day: 'Dimanche' },
-    ],
-    es: [
-      { title: 'Lun', day: 'Lunes' },
-      { title: 'Mar', day: 'Martes' },
-      { title: 'Mie', day: 'Miercoles' },
-      { title: 'Jue', day: 'Jueves' },
-      { title: 'Vie', day: 'Viernes' },
-      { title: 'Sab', day: 'Sabado' },
-      { title: 'Dom', day: 'Domingo' },
-    ],
-    de: [
-      { title: 'Mo', day: 'Montag' },
-      { title: 'Di', day: 'Dienstag' },
-      { title: 'Mi', day: 'Mittwoch' },
-      { title: 'Do', day: 'Donnerstag' },
-      { title: 'Fr', day: 'Freitag' },
-      { title: 'Sa', day: 'Samstag' },
-      { title: 'So', day: 'Sonntag' },
-    ],
-  };
-
-  const [weekdays, locale] = useMemo(() => {
-    let weekdays = languageList.en;
-    let locale = {};
-
-    if (language === 'fr') {
-      weekdays = languageList.fr;
-      locale = { locale: fr };
-    } else if (language === 'es') {
-      weekdays = languageList.es;
-      locale = { locale: es };
-    } else if (language === 'de') {
-      weekdays = languageList.de;
-      locale = { locale: de };
-    }
-
-    if (type === 'work') {
-      weekdays = weekdays.slice(0, 5);
-    }
-
-    return [weekdays, locale];
-  }, [language, type]);
+  let weekDays = Array.from({ length: type === 'work' ? 5 : 7 }, (_, i) => {
+    return {
+      index: addDays(startOfWeek(date, { weekStartsOn: startOfWeekInt }), i),
+      title: format(addDays(startOfWeek(date, { weekStartsOn: startOfWeekInt }), i), 'EE', {
+        locale: localeVar,
+      }),
+      day: format(addDays(startOfWeek(date, { weekStartsOn: startOfWeekInt }), i), 'EEEE', {
+        locale: localeVar,
+      }),
+    };
+  });
 
   const filteredDays = useMemo(
     () =>
@@ -345,8 +301,8 @@ const Calendar: FC<ICalendarProps> = ({
           <h2
             className={`month-title w-44 text-center ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
           >
-            {format(date, 'MMMM yyyy', locale).charAt(0).toUpperCase() +
-              format(date, 'MMMM yyyy', locale).slice(1)}
+            {format(date, 'MMMM yyyy', { locale: localeVar }).charAt(0).toUpperCase() +
+              format(date, 'MMMM yyyy', { locale: localeVar }).slice(1)}
           </h2>
           <button
             title="Next month"
@@ -368,16 +324,17 @@ const Calendar: FC<ICalendarProps> = ({
         <div
           className="calendar-grid w-full grid justify-center"
           style={{
-            gridTemplateColumns: `repeat(${weekdays.length}, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(${weekDays.length}, minmax(0, 1fr))`,
           }}
         >
-          {weekdays.map((day) => (
+          {weekDays.map((day) => (
             <span
               key={day.title}
               title={day.day}
               className={`weekday-title ${style?.fontWeight ? style?.fontWeight : 'font-medium'} ${style?.fontSize ? style?.fontSize : 'text-lg'} text-center`}
             >
-              {day.title}
+              {format(day.index, 'EEE', { locale: localeVar }).charAt(0).toUpperCase() +
+                format(day.index, 'EEE', { locale: localeVar }).slice(1)}
             </span>
           ))}
           {filteredDays.map((day) => {

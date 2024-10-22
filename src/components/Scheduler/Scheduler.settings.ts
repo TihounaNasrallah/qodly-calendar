@@ -9,6 +9,16 @@ const commonSettings: TSetting[] = [
     defaultValue: '#1a73e8',
   },
   {
+    key: 'weekStart',
+    label: 'First Day of Week',
+    type: ESetting.SELECT,
+    defaultValue: '1',
+    options: [
+      { value: '1', label: 'Monday' },
+      { value: '0', label: 'Sunday' },
+    ],
+  },
+  {
     key: 'language',
     label: 'Language',
     type: ESetting.SELECT,

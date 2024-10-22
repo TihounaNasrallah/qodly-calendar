@@ -93,6 +93,7 @@ export default {
     },
   },
   defaultProps: {
+    weekStart: '1',
     color: '#4169E1',
     language: 'en',
     type: 'full',
@@ -117,6 +118,7 @@ export interface ICalendarProps extends webforms.ComponentProps {
   colorProp: string;
   colors?: IColors[];
   language?: string;
+  weekStart: string;
   type?: string;
   attributes: IAttributes[];
 }
