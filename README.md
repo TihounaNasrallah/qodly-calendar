@@ -64,6 +64,7 @@ exposed function listSessions()
 
 | Name                 | Type             | Default        | Description                                                      |
 | -------------------- | ---------------- | -------------- | ---------------------------------------------------------------- |
+| `First Day of Week`  | String           | Monday         | Sets the first day of the week (Monday or Sunday)                |
 | `Language`           | String           | English        | Sets the language of the calendar (English, French or Spanish)   |
 | `Week Days`          | String           | All            | If 'Business Days' is selected, only the work days are displayed |
 | `Current Day Color`  | String           | #4169E1        | Sets the background color of the current day number              |
@@ -150,6 +151,7 @@ self .day-container:hover {
 | Name                | Type             | Default        | Description                                                              |
 | ------------------- | ---------------- | -------------- | ------------------------------------------------------------------------ |
 | `Current Day Color` | String           | #1a73e8        | Sets the background color of the current day number                      |
+| `First Day of Week` | String           | Monday         | Sets the first day of the week (Monday or Sunday)                        |
 | `Language`          | String           | English        | Sets the language of the calendar (English, French or Spanish)           |
 | `Minutes Interval`  | String           | 60 min         | Sets the interval between the displayed minutes (60 min, 30 min, 15 min) |
 | `Hours`             | String           | All            | If 'Work Hours' is selected, only the work hours are displayed           |

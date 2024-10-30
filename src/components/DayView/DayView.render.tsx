@@ -1,5 +1,6 @@
 import {
   dateTo4DFormat,
+  isLocalArrayDataSource,
   splitDatasourceID,
   unsubscribeFromDatasource,
   useDataLoader,
@@ -8,9 +9,9 @@ import {
   useWebformPath,
 } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
-import { format, setHours, isToday, setMinutes, isEqual } from 'date-fns';
+import { format, setHours, isToday, setMinutes, isEqual, subDays, addDays } from 'date-fns';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import { BsFillInfoCircleFill } from 'react-icons/bs';
 import { colorToHex, generateColorPalette, randomColor } from '../shared/colorUtils';
@@ -21,7 +22,6 @@ import { IDayViewProps } from './DayView.config';
 
 import { fr, es, de } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
-import { cloneDeep } from 'lodash';
 import Spinner from '../shared/Spinner';
 
 const DayView: FC<IDayViewProps> = ({
@@ -49,34 +49,24 @@ const DayView: FC<IDayViewProps> = ({
     sources: { datasource, currentElement: ce },
   } = useSources();
 
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState<Date>(new Date());
   const [selDate, setSelDate] = useState(new Date());
   const hasMounted = useRef(false);
   const path = useWebformPath();
   const [loading, setLoading] = useState(true);
   const [value, setValue] = useState<any[]>([]);
 
-  const ds = useMemo(() => {
-    if (datasource) {
-      const clone: any = cloneDeep(datasource);
-      clone.id = `${clone.id}_clone`;
-      clone.children = {};
-      return clone;
-    }
-    return null;
-  }, [datasource?.id, (datasource as any)?.entitysel]);
-
   const attrs = useMemo(
     () =>
-      ds?.dataclass || ds?.value
-        ? ds.type === 'entitysel'
-          ? ds.entitysel._private.filterAttributes.split(',')
-          : Object.keys(ds.value[0])
-        : [],
-    [ds],
+      datasource?.type === 'entitysel'
+        ? Object.keys(datasource.dataclass)
+        : isLocalArrayDataSource(datasource)
+          ? Object.keys((datasource as any).value[0])
+          : [],
+    [datasource],
   );
 
-  let { entities, fetchIndex, setStep } = useDataLoader({ source: ds });
+  let { entities, fetchIndex, setStep } = useDataLoader({ source: datasource });
 
   function convertMilliseconds(ms: number): string {
     const seconds = Math.floor(ms / 1000);
@@ -89,36 +79,33 @@ const DayView: FC<IDayViewProps> = ({
     return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
-  const dayQuery = useCallback(
-    async (source: datasources.DataSource, date: Date) => {
-      setLoading(true);
-      if (!source) return;
-      if (source.type === 'entitysel') {
-        if (attrs.includes(eventDate.split('.')[0])) {
-          const { entitysel } = source as any;
-          const dataSetName = entitysel?.getServerRef();
-          const queryStr = `${eventDate} == ${format(date, 'yyyy-MM-dd')}`;
-          (source as any).entitysel = source.dataclass.query(queryStr, {
-            dataSetName,
-            filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
-          });
-        } else {
-          checkParams = `${eventDate} does not exist as an attribute`;
-        }
-      } else if (source.dataType === 'array') {
-        setValue(await source.getValue());
-      }
+  const dayQuery = async (source: datasources.DataSource, date: Date) => {
+    setLoading(true);
+    if (!source) return;
+    if (source.type === 'entitysel') {
+      if (attrs.includes(eventDate.split('.')[0])) {
+        const { entitysel } = source as any;
+        const dataSetName = entitysel?.getServerRef();
+        const queryStr = `${eventDate} == ${format(date, 'yyyy-MM-dd')}`;
+        (source as any).entitysel = source.dataclass.query(queryStr, {
+          dataSetName,
+          filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
+        });
 
-      let selLength = await source.getValue('length');
-      setStep({ start: 0, end: selLength });
-      await fetchIndex(0);
-      setLoading(false);
-    },
-    [ds, eventDate],
-  );
+        let selLength = await source.getValue('length');
+        setStep({ start: 0, end: selLength });
+        await fetchIndex(0);
+      } else {
+        checkParams = `${eventDate} does not exist as an attribute`;
+      }
+    } else if (source.dataType === 'array') {
+      setValue(await source.getValue());
+    }
+    setLoading(false);
+  };
 
   let checkParams = useMemo(() => {
-    if (!ds) {
+    if (!datasource) {
       return 'Please set "Datasource"';
     } else if (!entities[0] || !entities.length) {
       return '';
@@ -146,8 +133,9 @@ const DayView: FC<IDayViewProps> = ({
     }
 
     return '';
-  }, [ds, entities, property, eventDate, startTime, endTime]);
+  }, [entities, property]);
 
+  // * Prevent onDayChange from executing from the get-Go
   useEffect(() => {
     if (hasMounted.current) {
       emit('onDayChange', { currentDate: date });
@@ -157,16 +145,20 @@ const DayView: FC<IDayViewProps> = ({
   }, [date]);
 
   useEffect(() => {
-    if (!ds) return;
-    if (date) dayQuery(ds, date);
-  }, [date]);
+    if (!datasource) return;
+
+    const fetch = async () => {
+      await fetchIndex(0);
+      dayQuery(datasource, date);
+    };
+
+    fetch();
+  }, []);
 
   useEffect(() => {
-    if (!datasource) {
-      return;
-    }
+    if (!datasource) return;
     const cb = () => {
-      dayQuery(ds, date);
+      dayQuery(datasource, date);
     };
     datasource.addListener('changed', cb);
     return () => {
@@ -284,15 +276,13 @@ const DayView: FC<IDayViewProps> = ({
   }, [hours, minutes]);
 
   const handlePrevDay = () => {
-    const prevDate = new Date(date);
-    prevDate.setDate(date.getDate() - 1);
-    setDate(prevDate);
+    dayQuery(datasource, subDays(date, 1));
+    setDate(subDays(date, 1));
   };
 
   const handleNextDay = () => {
-    const nextDate = new Date(date);
-    nextDate.setDate(date.getDate() + 1);
-    setDate(nextDate);
+    dayQuery(datasource, addDays(date, 1));
+    setDate(addDays(date, 1));
   };
 
   const colorgenerated = useMemo(
@@ -323,7 +313,6 @@ const DayView: FC<IDayViewProps> = ({
         emit('onItemClick', { selectedData: ce });
         break;
       case 'entity':
-        // TODO : find a better way
         const index = findIndex(
           entities,
           (e: any) =>
@@ -332,7 +321,7 @@ const DayView: FC<IDayViewProps> = ({
             e[startTime] === item[startTime] &&
             e[endTime] === item[endTime],
         );
-        await updateEntity({ index, datasource: ds, currentElement: ce });
+        await updateEntity({ index, datasource, currentElement: ce });
         emit('onItemClick', { selectedData: ce });
         break;
     }
@@ -443,19 +432,19 @@ const DayView: FC<IDayViewProps> = ({
             {timeList.map(({ hour, minutes }, hourIndex) => {
               const events = data.filter((event) => {
                 const eventStartHour =
-                  ds.type === 'scalar'
+                  datasource.type === 'scalar'
                     ? parseInt(event[startTime].split(':')[0])
                     : parseInt(convertMilliseconds(event[startTime]).split(':')[0]);
                 const eventStartMinutes =
-                  ds.type === 'scalar'
+                  datasource.type === 'scalar'
                     ? parseInt(event[startTime].split(':')[1])
                     : parseInt(convertMilliseconds(event[startTime]).split(':')[1]);
                 const eventEndHour =
-                  ds.type === 'scalar'
+                  datasource.type === 'scalar'
                     ? parseInt(event[endTime].split(':')[0])
                     : parseInt(convertMilliseconds(event[endTime]).split(':')[0]);
                 const eventEndMinutes =
-                  ds.type === 'scalar'
+                  datasource.type === 'scalar'
                     ? parseInt(event[endTime].split(':')[1])
                     : parseInt(convertMilliseconds(event[endTime]).split(':')[1]);
 
@@ -466,15 +455,6 @@ const DayView: FC<IDayViewProps> = ({
                   format(new Date(event[eventDate]), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd') &&
                   timeToFloat(checkHours(hour), minutes) > eventStartTime - numberMin &&
                   timeToFloat(checkHours(hour), minutes) <= eventEndTime
-
-                  // ? Back Up
-                  // ||
-                  // (format(new Date(event[eventDate]), 'yyyy-MM-dd') ===
-                  //   format(date, 'yyyy-MM-dd') &&
-                  //   checkHours(hour) >= eventStartHour &&
-                  //   eventStartMinutes >= minutes &&
-                  //   eventStartMinutes <= minutes + numberMin &&
-                  //   checkHours(hour) <= eventEndHour)
                 );
               });
               return (
