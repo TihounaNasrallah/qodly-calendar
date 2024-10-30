@@ -94,7 +94,7 @@ const Calendar: FC<ICalendarProps> = ({
           <button
             title="Previous year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
-            style={{ display: yearNav ? 'block' : 'none' }}
+            style={{ display: yearNav ? '' : 'none' }}
           >
             <MdKeyboardDoubleArrowLeft />
           </button>
@@ -119,7 +119,7 @@ const Calendar: FC<ICalendarProps> = ({
           <button
             title="Next year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
-            style={{ display: yearNav ? 'block' : 'none' }}
+            style={{ display: yearNav ? '' : 'none' }}
           >
             <MdKeyboardDoubleArrowRight />
           </button>

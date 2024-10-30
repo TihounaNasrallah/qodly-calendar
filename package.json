@@ -2,7 +2,7 @@
   "app_id": "qodly_37629285cf887b8497da",
   "name": "qodly-calendar",
   "private": true,
-  "version": "0.5.2",
+  "version": "0.5.3",
   "type": "module",
   "author": {
     "name": "Qodly Team",
@@ -29,6 +29,7 @@
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react-swc": "^3.6.0",
+    "@ws-ui/vite-plugins": "^1.0.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
