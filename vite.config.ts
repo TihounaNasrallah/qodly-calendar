@@ -1,5 +1,8 @@
 import { PluginOption, defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import importMetaUrlPlugin from '@ws-ui/vite-plugins/dist/esbuild-plugin-import-meta-url';
+
+const isDevEnv = process.env.NODE_ENV === 'development';
 
 import { initProxy } from './proxy.config';
 
@@ -40,6 +43,11 @@ export default defineConfig(({ mode = 'local' }) => {
     ],
     define: {
       'process.env': {},
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        plugins: isDevEnv ? [importMetaUrlPlugin] : [],
+      },
     },
     server: {
       host,

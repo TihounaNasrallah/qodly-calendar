@@ -1,5 +1,6 @@
 import {
   dateTo4DFormat,
+  isLocalArrayDataSource,
   splitDatasourceID,
   unsubscribeFromDatasource,
   useDataLoader,
@@ -8,7 +9,7 @@ import {
   useWebformPath,
 } from '@ws-ui/webform-editor';
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { FC, useEffect, useState, useMemo, useRef } from 'react';
 
 import {
   isEqual,
@@ -39,7 +40,6 @@ import findIndex from 'lodash/findIndex';
 
 import { fr, es, de } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
-import { cloneDeep } from 'lodash';
 import Spinner from '../shared/Spinner';
 
 const Scheduler: FC<ISchedulerProps> = ({
@@ -81,27 +81,17 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   const startOfWeekInt = parseInt(weekStart, 10) as 0 | 1;
 
-  const ds = useMemo(() => {
-    if (datasource) {
-      const clone: any = cloneDeep(datasource);
-      clone.id = `${clone.id}_clone`;
-      clone.children = {};
-      return clone;
-    }
-    return null;
-  }, [datasource?.id, (datasource as any)?.entitysel]);
-
   const attrs = useMemo(
     () =>
-      ds?.dataclass || ds?.value
-        ? ds.type === 'entitysel'
-          ? ds.entitysel._private.filterAttributes.split(',')
-          : Object.keys(ds.value[0])
-        : [],
-    [ds],
+      datasource?.type === 'entitysel'
+        ? Object.keys(datasource.dataclass)
+        : isLocalArrayDataSource(datasource)
+          ? Object.keys((datasource as any).value[0])
+          : [],
+    [datasource],
   );
 
-  let { entities, fetchIndex, setStep } = useDataLoader({ source: ds });
+  let { entities, fetchIndex, setStep } = useDataLoader({ source: datasource });
 
   function convertMilliseconds(ms: number): string {
     const seconds = Math.floor(ms / 1000);
@@ -114,36 +104,32 @@ const Scheduler: FC<ISchedulerProps> = ({
     return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
-  const weekQuery = useCallback(
-    async (source: datasources.DataSource, date: Date) => {
-      setLoading(true);
-      if (!source) return;
-      if (source.type === 'entitysel') {
-        if (attrs.includes(startDate.split('.')[0])) {
-          const { entitysel } = source as any;
-          const dataSetName = entitysel?.getServerRef();
-          const queryStr = `${startDate} >= ${format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
-          (source as any).entitysel = source.dataclass.query(queryStr, {
-            dataSetName,
-            filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
-          });
-        } else {
-          checkParams = `"${startDate}" does not exist as an attribute`;
-        }
-      } else if (source.dataType === 'array') {
-        setValue(await source.getValue());
+  const weekQuery = async (source: datasources.DataSource, date: Date) => {
+    setLoading(true);
+    if (!source) return;
+    if (source.type === 'entitysel') {
+      if (attrs.includes(startDate.split('.')[0])) {
+        const { entitysel } = source as any;
+        const dataSetName = entitysel?.getServerRef();
+        const queryStr = `${startDate} >= ${format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
+        (source as any).entitysel = source.dataclass.query(queryStr, {
+          dataSetName,
+          filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
+        });
+
+        let selLength = await source.getValue('length');
+        setStep({ start: 0, end: selLength });
+        await fetchIndex(0);
+      } else {
+        checkParams = `"${startDate}" does not exist as an attribute`;
       }
-
-      let selLength = await source.getValue('length');
-      setStep({ start: 0, end: selLength });
-      await fetchIndex(0);
-      setLoading(false);
-    },
-    [ds, startDate],
-  );
-
+    } else if (source.dataType === 'array') {
+      setValue(await source.getValue());
+    }
+    setLoading(false);
+  };
   let checkParams = useMemo(() => {
-    if (!ds) {
+    if (!datasource) {
       return 'Please set "Datasource"';
     } else if (!entities[0] || !entities.length) {
       return '';
@@ -171,8 +157,9 @@ const Scheduler: FC<ISchedulerProps> = ({
     }
 
     return '';
-  }, [ds, entities, property, startDate, startTime, endTime]);
+  }, [datasource, entities]);
 
+  // * Prevent onWeekChange from executing from the get-Go
   useEffect(() => {
     if (hasMounted.current) {
       emit('onWeekChange', { currentDate: date });
@@ -182,16 +169,20 @@ const Scheduler: FC<ISchedulerProps> = ({
   }, [date]);
 
   useEffect(() => {
-    if (!ds) return;
-    if (date) weekQuery(ds, date);
-  }, [ds, date]);
+    if (!datasource) return;
+
+    const fetch = async () => {
+      await fetchIndex(0);
+      weekQuery(datasource, date);
+    };
+
+    fetch();
+  }, []);
 
   useEffect(() => {
-    if (!datasource) {
-      return;
-    }
+    if (!datasource) return;
     const cb = () => {
-      weekQuery(ds, date);
+      weekQuery(datasource, date);
     };
     datasource.addListener('changed', cb);
     return () => {
@@ -253,23 +244,29 @@ const Scheduler: FC<ISchedulerProps> = ({
   };
 
   const goToPreviousWeek = () => {
+    weekQuery(datasource, subWeeks(date, 1));
     setDate(subWeeks(date, 1));
   };
 
   const goToNextWeek = () => {
+    weekQuery(datasource, addWeeks(date, 1));
     setDate(addWeeks(date, 1));
   };
 
   const prevMonth = () => {
+    weekQuery(datasource, subMonths(date, 1));
     setDate(subMonths(date, 1));
   };
   const nextMonth = () => {
+    weekQuery(datasource, addMonths(date, 1));
     setDate(addMonths(date, 1));
   };
   const nextYear = () => {
+    weekQuery(datasource, addMonths(date, 12));
     setDate(addMonths(date, 12));
   };
   const prevYear = () => {
+    weekQuery(datasource, subMonths(date, 12));
     setDate(subMonths(date, 12));
   };
 
@@ -289,7 +286,7 @@ const Scheduler: FC<ISchedulerProps> = ({
             e[startTime] === item[startTime] &&
             e[endTime] === item[endTime],
         );
-        await updateEntity({ index, datasource: ds, currentElement: ce });
+        await updateEntity({ index, datasource, currentElement: ce });
         emit('onItemClick', { selectedData: ce });
         break;
     }
@@ -551,19 +548,19 @@ const Scheduler: FC<ISchedulerProps> = ({
                   {weekDates.map((day, dayIndex) => {
                     const events = data.filter((event) => {
                       const eventStartHour =
-                        ds.type === 'scalar'
+                        datasource.type === 'scalar'
                           ? parseInt(event[startTime].split(':')[0])
                           : parseInt(convertMilliseconds(event[startTime]).split(':')[0]);
                       const eventStartMinutes =
-                        ds.type === 'scalar'
+                        datasource.type === 'scalar'
                           ? parseInt(event[startTime].split(':')[1])
                           : parseInt(convertMilliseconds(event[startTime]).split(':')[1]);
                       const eventEndHour =
-                        ds.type === 'scalar'
+                        datasource.type === 'scalar'
                           ? parseInt(event[endTime].split(':')[0])
                           : parseInt(convertMilliseconds(event[endTime]).split(':')[0]);
                       const eventEndMinutes =
-                        ds.type === 'scalar'
+                        datasource.type === 'scalar'
                           ? parseInt(event[endTime].split(':')[1])
                           : parseInt(convertMilliseconds(event[endTime]).split(':')[1]);
 
@@ -574,15 +571,6 @@ const Scheduler: FC<ISchedulerProps> = ({
                           format(day, 'yyyy-MM-dd') &&
                         timeToFloat(checkHours(hour), minutes) > eventStartTime - numberMin &&
                         timeToFloat(checkHours(hour), minutes) <= eventEndTime
-
-                        // ? Back Up
-                        // ||
-                        // (format(new Date(event[eventDate]), 'yyyy-MM-dd') ===
-                        //   format(date, 'yyyy-MM-dd') &&
-                        //   checkHours(hour) >= eventStartHour &&
-                        //   eventStartMinutes >= minutes &&
-                        //   eventStartMinutes <= minutes + numberMin &&
-                        //   checkHours(hour) <= eventEndHour)
                       );
                     });
                     return (

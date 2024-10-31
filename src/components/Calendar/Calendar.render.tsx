@@ -1,5 +1,6 @@
 import {
   dateTo4DFormat,
+  isLocalArrayDataSource,
   splitDatasourceID,
   unsubscribeFromDatasource,
   useDataLoader,
@@ -9,7 +10,7 @@ import {
 } from '@ws-ui/webform-editor';
 
 import cn from 'classnames';
-import { FC, useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { FC, useEffect, useState, useMemo, useRef } from 'react';
 import { BsFillInfoCircleFill } from 'react-icons/bs';
 import {
   MdKeyboardArrowLeft,
@@ -35,7 +36,6 @@ import { ICalendarProps } from './Calendar.config';
 import { fr, es, de, enUS } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
 import findIndex from 'lodash/findIndex';
-import { cloneDeep } from 'lodash';
 import Spinner from '../shared/Spinner';
 
 const Calendar: FC<ICalendarProps> = ({
@@ -70,27 +70,17 @@ const Calendar: FC<ICalendarProps> = ({
   const [loading, setLoading] = useState(true);
   const [value, setValue] = useState<any[]>([]);
 
-  const ds = useMemo(() => {
-    if (datasource) {
-      const clone: any = cloneDeep(datasource);
-      clone.id = `${clone.id}_clone`;
-      clone.children = {};
-      return clone;
-    }
-    return null;
-  }, [datasource?.id, (datasource as any)?.entitysel]);
-
   const attrs = useMemo(
     () =>
-      ds?.dataclass || ds?.value
-        ? ds.type === 'entitysel'
-          ? ds.entitysel._private.filterAttributes.split(',')
-          : Object.keys(ds.value[0])
-        : [],
-    [ds],
+      datasource?.type === 'entitysel'
+        ? Object.keys(datasource.dataclass)
+        : isLocalArrayDataSource(datasource)
+          ? Object.keys((datasource as any).value[0])
+          : [],
+    [datasource],
   );
 
-  let { entities, fetchIndex, setStep } = useDataLoader({ source: ds });
+  let { entities, fetchIndex, setStep } = useDataLoader({ source: datasource });
 
   const colorgenerated = useMemo(
     () => generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor())),
@@ -99,37 +89,33 @@ const Calendar: FC<ICalendarProps> = ({
 
   let attributeList = attributes?.map((e) => e.Attribute);
 
-  const monthQuery = useCallback(
-    async (source: datasources.DataSource, newMonth: Date) => {
-      setLoading(true);
-      if (!source) return;
-      if (source.type === 'entitysel') {
-        if (attrs.includes(startDate.split('.')[0])) {
-          const { entitysel } = source as any;
-          const dataSetName = entitysel?.getServerRef();
-          const queryStr = `${startDate} >= ${format(startOfWeek(startOfMonth(newMonth), { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(endOfMonth(newMonth), { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
-          (source as any).entitysel = source.dataclass.query(queryStr, {
-            dataSetName,
-            filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
-          });
-        } else {
-          checkParams = `"${startDate}" does not exist as an attribute`;
-        }
-      } else if (source.dataType === 'array') {
-        setValue(await source.getValue());
+  const monthQuery = async (source: datasources.DataSource, newMonth: Date) => {
+    setLoading(true);
+    if (!source) return;
+    if (source.type === 'entitysel') {
+      if (attrs.includes(startDate.split('.')[0])) {
+        const { entitysel } = source as any;
+        const dataSetName = entitysel?.getServerRef();
+        const queryStr = `${startDate} >= ${format(startOfWeek(startOfMonth(newMonth), { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(endOfMonth(newMonth), { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
+        (source as any).entitysel = source.dataclass.query(queryStr, {
+          dataSetName,
+          filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
+        });
+
+        let selLength = await source.getValue('length');
+        setStep({ start: 0, end: selLength });
+        await fetchIndex(0);
+      } else {
+        checkParams = `"${startDate}" does not exist as an attribute`;
       }
-
-      let selLength = await source.getValue('length');
-      setStep({ start: 0, end: selLength });
-      await fetchIndex(0);
-
-      setLoading(false);
-    },
-    [ds, startDate],
-  );
+    } else if (source.dataType === 'array') {
+      setValue(await source.getValue());
+    }
+    setLoading(false);
+  };
 
   let checkParams = useMemo(() => {
-    if (!ds) {
+    if (!datasource) {
       return 'Please set "Datasource"';
     } else if (!entities[0] || !entities.length) {
       return '';
@@ -150,7 +136,7 @@ const Calendar: FC<ICalendarProps> = ({
       return `"${endDate}" does not exist as an attribute`;
     }
     return '';
-  }, [ds, entities, property, startDate, endDate]);
+  }, [datasource, entities]);
 
   // * Prevent onMonthChange from executing from the get-Go
   useEffect(() => {
@@ -162,16 +148,21 @@ const Calendar: FC<ICalendarProps> = ({
   }, [date]);
 
   useEffect(() => {
-    if (!ds) return;
-    if (date) monthQuery(ds, date);
-  }, [date, ds]);
+    if (!datasource) return;
+
+    const fetch = async () => {
+      await fetchIndex(0);
+      monthQuery(datasource, date);
+    };
+
+    fetch();
+  }, []);
 
   useEffect(() => {
-    if (!datasource) {
-      return;
-    }
+    if (!datasource) return;
+
     const cb = () => {
-      monthQuery(ds, date);
+      monthQuery(datasource, date);
     };
     datasource.addListener('changed', cb);
     return () => {
@@ -180,15 +171,19 @@ const Calendar: FC<ICalendarProps> = ({
   }, [datasource, date]);
 
   const prevMonth = () => {
+    monthQuery(datasource, subMonths(date, 1));
     setDate(subMonths(date, 1));
   };
   const nextMonth = () => {
+    monthQuery(datasource, addMonths(date, 1));
     setDate(addMonths(date, 1));
   };
   const nextYear = () => {
+    monthQuery(datasource, addMonths(date, 12));
     setDate(addMonths(date, 12));
   };
   const prevYear = () => {
+    monthQuery(datasource, subMonths(date, 12));
     setDate(subMonths(date, 12));
   };
 
@@ -234,7 +229,7 @@ const Calendar: FC<ICalendarProps> = ({
             e[startDate] === item[startDate] &&
             e[endDate] === item[endDate],
         );
-        await updateEntity({ index, datasource: ds, currentElement: selectedElement });
+        await updateEntity({ index, datasource, currentElement: selectedElement });
         emit('onItemClick', { selectedData: selectedElement });
         break;
     }
@@ -287,7 +282,7 @@ const Calendar: FC<ICalendarProps> = ({
             title="Previous year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={prevYear}
-            style={{ display: yearNav ? 'block' : 'none' }}
+            style={{ display: yearNav ? '' : 'none' }}
           >
             <MdKeyboardDoubleArrowLeft />
           </button>
@@ -315,7 +310,7 @@ const Calendar: FC<ICalendarProps> = ({
             title="Next year"
             className="nav-button rounded-full p-1 hover:bg-gray-300 duration-300"
             onClick={nextYear}
-            style={{ display: yearNav ? 'block' : 'none' }}
+            style={{ display: yearNav ? '' : 'none' }}
           >
             <MdKeyboardDoubleArrowRight />
           </button>
@@ -341,7 +336,7 @@ const Calendar: FC<ICalendarProps> = ({
             const data = coloredData.filter((item) => {
               const itemStartDate = new Date(item[startDate]);
               const itemEndDate = new Date(item[endDate]);
-              return ds.type === 'scalar'
+              return datasource.type === 'scalar'
                 ? day >= itemStartDate && day <= itemEndDate
                 : day >= new Date(dateTo4DFormat(itemStartDate)) &&
                     day <= new Date(dateTo4DFormat(itemEndDate));
