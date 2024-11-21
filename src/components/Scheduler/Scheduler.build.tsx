@@ -14,7 +14,6 @@ import { format, startOfWeek, addDays, isToday, setHours, isEqual, setMinutes } 
 import { colorToHex } from '../shared/colorUtils';
 
 import { fr, es, de } from 'date-fns/locale';
-import { TinyColor } from '@ctrl/tinycolor';
 
 const Scheduler: FC<ISchedulerProps> = ({
   yearNav,
@@ -29,6 +28,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   timeFormat,
   headerPosition,
   color,
+  selectedColor,
   attributes = [],
   style,
   className,
@@ -291,13 +291,13 @@ const Scheduler: FC<ISchedulerProps> = ({
                   {weekDates.map((day, dayIndex) => (
                     <td
                       key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                      className={`time-content border border-gray-200 p-1 ${isEqual(day, firstDayOfWeek) && isEqual(firstHour, checkHours(hourIndex)) ? 'h-20' : 'h-12'}`}
+                      className={`time-cell border border-gray-200 p-1 ${isEqual(day, firstDayOfWeek) && isEqual(firstHour, checkHours(hourIndex)) ? 'h-20' : 'h-12'}`}
                       style={{
                         backgroundColor:
                           isToday(day) && isCurrentHour(checkHours(hour), minutes)
-                            ? colorToHex(color) + '30'
+                            ? colorToHex(color) + '20'
                             : '',
-                        border:
+                        borderTop:
                           isToday(day) && isCurrentHour(checkHours(hour), minutes)
                             ? '2px solid ' + color
                             : '',
@@ -307,10 +307,10 @@ const Scheduler: FC<ISchedulerProps> = ({
                         {isEqual(day, firstDayOfWeek) &&
                         isEqual(firstHour, checkHours(hourIndex)) ? (
                           <div
-                            className="event px-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
+                            className="event p-1 border-t-4 overflow-y-auto h-full flex flex-col gap-1"
                             style={{
-                              backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
-                              borderTopColor: new TinyColor('#C084FC').toHexString(),
+                              backgroundColor: colorToHex(selectedColor) + '50',
+                              borderTopColor: colorToHex(selectedColor),
                             }}
                           >
                             <span

@@ -58,6 +58,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   endTime,
   timeFormat,
   color,
+  selectedColor,
   colorProp,
   colors = [],
   attributes = [],
@@ -74,6 +75,7 @@ const Scheduler: FC<ISchedulerProps> = ({
 
   const [date, setDate] = useState<Date>(new Date());
   const [selDate, setSelDate] = useState(new Date());
+  const [selEvent, setSelEvent] = useState<any>(null);
   const hasMounted = useRef(false);
   const path = useWebformPath();
   const [loading, setLoading] = useState(true);
@@ -239,8 +241,23 @@ const Scheduler: FC<ISchedulerProps> = ({
     }
   };
 
-  const isSelected = (date: Date) => {
+  const isSelectedDate = (date: Date) => {
     return isEqual(date, selDate);
+  };
+
+  const isSelectedEvent = (event: any) => {
+    return (
+      (event[property] === selEvent?.[property] &&
+        event[startDate] === selEvent?.[startDate] &&
+        event[startTime] === selEvent?.[startTime] &&
+        event[endTime] === selEvent?.[endTime]) ||
+      false
+    );
+  };
+
+  const todayButt = () => {
+    weekQuery(datasource, new Date());
+    setDate(new Date());
   };
 
   const goToPreviousWeek = () => {
@@ -271,6 +288,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   };
 
   const handleItemClick = async (item: { [key: string]: any }) => {
+    setSelEvent(item);
     if (!ce) return;
     switch (ce.type) {
       case 'scalar':
@@ -468,9 +486,11 @@ const Scheduler: FC<ISchedulerProps> = ({
                       <MdKeyboardArrowLeft />
                     </button>
                     <button
-                      onClick={() => setDate(new Date())}
+                      onClick={todayButt}
                       className="today-button p-1 rounded-lg hover:bg-gray-300 duration-300"
-                      style={{ display: todayButton ? 'block' : 'none' }}
+                      style={{
+                        display: todayButton ? 'block' : 'none',
+                      }}
                     >
                       {todayLabel}
                     </button>
@@ -508,7 +528,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                       <span
                         className="weekday-number rounded-full text-xl mb-1 h-10 w-10 flex items-center justify-center font-medium cursor-pointer"
                         style={{
-                          border: isSelected(day) ? `2px solid ${colorToHex(color)}` : '',
+                          border: isSelectedDate(day) ? `2px solid ${colorToHex(color)}` : '',
                           backgroundColor: isToday(day) ? color : '',
                           color: isToday(day) ? 'white' : '',
                         }}
@@ -576,13 +596,13 @@ const Scheduler: FC<ISchedulerProps> = ({
                     return (
                       <td
                         key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                        className="border border-gray-200 p-1"
+                        className="time-cell border border-gray-200 p-1"
                         style={{
                           backgroundColor:
                             isToday(day) && isCurrentHour(checkHours(hour), minutes)
-                              ? colorToHex(color) + '30'
+                              ? colorToHex(color) + '20'
                               : '',
-                          border:
+                          borderTop:
                             isToday(day) && isCurrentHour(checkHours(hour), minutes)
                               ? '2px solid ' + color
                               : '',
@@ -592,10 +612,14 @@ const Scheduler: FC<ISchedulerProps> = ({
                           {events.map((event, index) => (
                             <div
                               key={index}
-                              className="event px-2 w-full border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
+                              className={`event px-2 w-full border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer z-10`}
                               style={{
-                                backgroundColor: colorToHex(event.color) + '40',
-                                borderTopColor: colorToHex(event.color),
+                                backgroundColor: isSelectedEvent(event)
+                                  ? colorToHex(selectedColor) + '40'
+                                  : colorToHex(event.color) + '40',
+                                borderTopColor: isSelectedEvent(event)
+                                  ? colorToHex(selectedColor)
+                                  : colorToHex(event.color),
                               }}
                               onClick={() => handleItemClick(event)}
                             >

@@ -9,6 +9,12 @@ const commonSettings: TSetting[] = [
     defaultValue: '#1a73e8',
   },
   {
+    key: 'selectedColor',
+    label: 'Selected Element Color',
+    type: ESetting.COLOR_PICKER,
+    defaultValue: '#C084FC',
+  },
+  {
     key: 'weekStart',
     label: 'First Day of Week',
     type: ESetting.SELECT,

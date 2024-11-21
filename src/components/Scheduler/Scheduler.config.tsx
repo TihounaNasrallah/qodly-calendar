@@ -105,6 +105,7 @@ export default {
     minutes: '60',
     days: 'full',
     color: '#1a73e8',
+    selectedColor: '#C084FC',
     timeFormat: '24',
     height: '64px',
     headerPosition: '',
@@ -114,6 +115,7 @@ export default {
 
 export interface ISchedulerProps extends webforms.ComponentProps {
   color: string;
+  selectedColor: string;
   weekStart: string;
   language: string;
   yearNav: boolean;
