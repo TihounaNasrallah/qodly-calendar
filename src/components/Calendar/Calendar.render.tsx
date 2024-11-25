@@ -103,7 +103,6 @@ const Calendar: FC<ICalendarProps> = ({
           ..._settings,
           filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
         });
-
         let selLength = await source.getValue('length');
         setStep({ start: 0, end: selLength });
         await fetchIndex(0);
