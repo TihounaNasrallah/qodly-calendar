@@ -10,7 +10,7 @@ const commonSettings: TSetting[] = [
   },
   {
     key: 'selectedColor',
-    label: 'Selected Event Color',
+    label: 'Selected Element Color',
     type: ESetting.COLOR_PICKER,
     defaultValue: '#C084FC',
   },
