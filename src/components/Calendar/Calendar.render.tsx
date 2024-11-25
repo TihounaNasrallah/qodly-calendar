@@ -37,6 +37,7 @@ import { fr, es, de, enUS } from 'date-fns/locale';
 import { updateEntity } from '../hooks/useDsChangeHandler';
 import findIndex from 'lodash/findIndex';
 import Spinner from '../shared/Spinner';
+import _ from 'lodash';
 
 const Calendar: FC<ICalendarProps> = ({
   type,
@@ -65,6 +66,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   const [date, setDate] = useState(new Date());
   const [selDate, setSelDate] = useState(new Date());
+  const [selEvent, setSelEvent] = useState<any>(null);
   const hasMounted = useRef(false);
   const path = useWebformPath();
   const [loading, setLoading] = useState(true);
@@ -95,13 +97,12 @@ const Calendar: FC<ICalendarProps> = ({
     if (source.type === 'entitysel') {
       if (attrs.includes(startDate.split('.')[0])) {
         const { entitysel } = source as any;
-        const dataSetName = entitysel?.getServerRef();
         const queryStr = `${startDate} >= ${format(startOfWeek(startOfMonth(newMonth), { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(endOfMonth(newMonth), { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
+        const _settings = source.buildSelectionSettings();
         (source as any).entitysel = source.dataclass.query(queryStr, {
-          dataSetName,
+          ..._settings,
           filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
         });
-
         let selLength = await source.getValue('length');
         setStep({ start: 0, end: selLength });
         await fetchIndex(0);
@@ -170,6 +171,15 @@ const Calendar: FC<ICalendarProps> = ({
     };
   }, [datasource, date]);
 
+  const isSelectedEvent = (event: any) => {
+    return (
+      (event[property] === selEvent?.[property] &&
+        event[startDate] === selEvent?.[startDate] &&
+        event[endDate] === selEvent?.[endDate]) ||
+      false
+    );
+  };
+
   const prevMonth = () => {
     monthQuery(datasource, subMonths(date, 1));
     setDate(subMonths(date, 1));
@@ -215,6 +225,7 @@ const Calendar: FC<ICalendarProps> = ({
   };
 
   const handleItemClick = async (item: any) => {
+    setSelEvent(item);
     if (!selectedElement) return;
     switch (selectedElement.type) {
       case 'scalar':
@@ -365,7 +376,7 @@ const Calendar: FC<ICalendarProps> = ({
                   <span
                     className={`day-number h-7 w-7 flex items-center justify-center ${style?.fontWeight ? style?.fontWeight : 'font-medium'} rounded-full cursor-pointer hover:bg-gray-300 duration-300`}
                     style={{
-                      border: day === selDate ? `2px solid ${colorToHex(selectedColor)}` : '',
+                      border: day === selDate ? `2px solid ${colorToHex(color)}` : '',
                       backgroundColor: isToday(day) ? color : '',
                       color: isToday(day) ? 'white' : '',
                     }}
@@ -385,10 +396,16 @@ const Calendar: FC<ICalendarProps> = ({
                         style={{
                           color: isSameMonth(day, date) ? 'black' : '#969696',
                           backgroundColor: isSameMonth(day, date)
-                            ? colorToHex(item?.color) + '50'
+                            ? isSelectedEvent(item)
+                              ? colorToHex(selectedColor) + '70'
+                              : colorToHex(item?.color) + '50'
                             : '#E3E3E3',
                           borderRadius: borderRadius,
-                          borderLeftColor: isSameMonth(day, date) ? item?.color : '#C0C0C0',
+                          borderLeftColor: isSameMonth(day, date)
+                            ? isSelectedEvent(item)
+                              ? colorToHex(selectedColor)
+                              : colorToHex(item?.color)
+                            : '#C0C0C0',
                         }}
                         onClick={() => handleItemClick(item)}
                       >
