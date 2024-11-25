@@ -112,10 +112,10 @@ const Scheduler: FC<ISchedulerProps> = ({
     if (source.type === 'entitysel') {
       if (attrs.includes(startDate.split('.')[0])) {
         const { entitysel } = source as any;
-        const dataSetName = entitysel?.getServerRef();
         const queryStr = `${startDate} >= ${format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
+        const _settings = source.buildSelectionSettings();
         (source as any).entitysel = source.dataclass.query(queryStr, {
-          dataSetName,
+          ..._settings,
           filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
         });
 
@@ -553,6 +553,10 @@ const Scheduler: FC<ISchedulerProps> = ({
                   <td className="flex items-center justify-center">
                     <span
                       className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+                      style={{
+                        color:
+                          isToday(date) && isCurrentHour(checkHours(hour), minutes) ? color : '',
+                      }}
                     >
                       {timeFormat === '12'
                         ? format(
@@ -600,11 +604,11 @@ const Scheduler: FC<ISchedulerProps> = ({
                         style={{
                           backgroundColor:
                             isToday(day) && isCurrentHour(checkHours(hour), minutes)
-                              ? colorToHex(color) + '20'
+                              ? colorToHex(color) + '30'
                               : '',
                           borderTop:
                             isToday(day) && isCurrentHour(checkHours(hour), minutes)
-                              ? '2px solid ' + color
+                              ? '3px solid ' + color
                               : '',
                         }}
                       >
@@ -612,11 +616,11 @@ const Scheduler: FC<ISchedulerProps> = ({
                           {events.map((event, index) => (
                             <div
                               key={index}
-                              className={`event px-2 w-full border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer z-10`}
+                              className={`event px-2 border-t-4 overflow-y-auto h-full w-full flex flex-col gap-1 cursor-pointer z-10`}
                               style={{
                                 backgroundColor: isSelectedEvent(event)
-                                  ? colorToHex(selectedColor) + '40'
-                                  : colorToHex(event.color) + '40',
+                                  ? colorToHex(selectedColor) + '70'
+                                  : colorToHex(event.color) + '30',
                                 borderTopColor: isSelectedEvent(event)
                                   ? colorToHex(selectedColor)
                                   : colorToHex(event.color),

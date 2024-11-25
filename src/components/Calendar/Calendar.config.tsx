@@ -94,10 +94,10 @@ export default {
   },
   defaultProps: {
     weekStart: '1',
-    color: '#4169E1',
+    color: '#1a73e8',
     language: 'en',
     type: 'full',
-    selectedColor: '#4169E1',
+    selectedColor: '#C084FC',
     yearNav: true,
     borderRadius: '6px',
     rowHeight: '150px',

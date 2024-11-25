@@ -6,13 +6,13 @@ const commonSettings: TSetting[] = [
     key: 'color',
     label: 'Current Day Color',
     type: ESetting.COLOR_PICKER,
-    defaultValue: '#4169E1',
+    defaultValue: '#1a73e8',
   },
   {
     key: 'selectedColor',
-    label: 'Selected Day Color',
+    label: 'Selected Event Color',
     type: ESetting.COLOR_PICKER,
-    defaultValue: '#4169E1',
+    defaultValue: '#C084FC',
   },
   {
     key: 'weekStart',

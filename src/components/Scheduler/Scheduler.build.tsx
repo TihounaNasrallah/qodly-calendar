@@ -276,6 +276,10 @@ const Scheduler: FC<ISchedulerProps> = ({
                   <td className="flex items-center justify-center">
                     <span
                       className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+                      style={{
+                        color:
+                          isToday(date) && isCurrentHour(checkHours(hour), minutes) ? color : '',
+                      }}
                     >
                       {timeFormat === '12'
                         ? format(
@@ -295,11 +299,11 @@ const Scheduler: FC<ISchedulerProps> = ({
                       style={{
                         backgroundColor:
                           isToday(day) && isCurrentHour(checkHours(hour), minutes)
-                            ? colorToHex(color) + '20'
+                            ? colorToHex(color) + '30'
                             : '',
                         borderTop:
                           isToday(day) && isCurrentHour(checkHours(hour), minutes)
-                            ? '2px solid ' + color
+                            ? '3px solid ' + color
                             : '',
                       }}
                     >

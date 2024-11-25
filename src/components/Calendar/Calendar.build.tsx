@@ -9,8 +9,6 @@ import {
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 
-import { TinyColor } from '@ctrl/tinycolor';
-
 import {
   isEqual,
   startOfWeek,
@@ -27,6 +25,7 @@ import {
 import { fr, es, de, enUS } from 'date-fns/locale';
 
 import { ICalendarProps } from './Calendar.config';
+import { colorToHex } from '../shared/colorUtils';
 
 const Calendar: FC<ICalendarProps> = ({
   type,
@@ -36,6 +35,7 @@ const Calendar: FC<ICalendarProps> = ({
   property,
   rowHeight,
   color,
+  selectedColor,
   yearNav,
   borderRadius,
   style,
@@ -173,8 +173,8 @@ const Calendar: FC<ICalendarProps> = ({
                   className="element-container px-2 py-1 flex flex-col w-full border-l-4 text-black"
                   style={{
                     borderRadius: borderRadius,
-                    backgroundColor: new TinyColor('#C084FC').toHexString() + '50',
-                    borderLeftColor: new TinyColor('#C084FC').toHexString(),
+                    backgroundColor: colorToHex(selectedColor) + '50',
+                    borderLeftColor: colorToHex(selectedColor),
                   }}
                 >
                   <span

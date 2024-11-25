@@ -37,6 +37,7 @@ const DayView: FC<IDayViewProps> = ({
   startTime,
   endTime,
   color,
+  selectedColor,
   hours,
   minutes,
   timeFormat,
@@ -51,6 +52,7 @@ const DayView: FC<IDayViewProps> = ({
 
   const [date, setDate] = useState<Date>(new Date());
   const [selDate, setSelDate] = useState(new Date());
+  const [selEvent, setSelEvent] = useState<any>(null);
   const hasMounted = useRef(false);
   const path = useWebformPath();
   const [loading, setLoading] = useState(true);
@@ -85,10 +87,10 @@ const DayView: FC<IDayViewProps> = ({
     if (source.type === 'entitysel') {
       if (attrs.includes(eventDate.split('.')[0])) {
         const { entitysel } = source as any;
-        const dataSetName = entitysel?.getServerRef();
         const queryStr = `${eventDate} == ${format(date, 'yyyy-MM-dd')}`;
+        const _settings = source.buildSelectionSettings();
         (source as any).entitysel = source.dataclass.query(queryStr, {
-          dataSetName,
+          ..._settings,
           filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
         });
 
@@ -193,6 +195,16 @@ const DayView: FC<IDayViewProps> = ({
     return isEqual(date, selDate);
   };
 
+  const isSelectedEvent = (event: any) => {
+    return (
+      (event[property] === selEvent?.[property] &&
+        event[eventDate] === selEvent?.[eventDate] &&
+        event[startTime] === selEvent?.[startTime] &&
+        event[endTime] === selEvent?.[endTime]) ||
+      false
+    );
+  };
+
   let checkHours = (i: number) => {
     if (hours === 'work') {
       return i + 8;
@@ -275,6 +287,11 @@ const DayView: FC<IDayViewProps> = ({
     }
   }, [hours, minutes]);
 
+  const todayButt = () => {
+    dayQuery(datasource, new Date());
+    setDate(new Date());
+  };
+
   const handlePrevDay = () => {
     dayQuery(datasource, subDays(date, 1));
     setDate(subDays(date, 1));
@@ -306,6 +323,7 @@ const DayView: FC<IDayViewProps> = ({
   );
 
   const handleItemClick = async (item: { [key: string]: any }) => {
+    setSelEvent(item);
     if (!ce) return;
     switch (ce.type) {
       case 'scalar':
@@ -379,7 +397,7 @@ const DayView: FC<IDayViewProps> = ({
                     <MdKeyboardArrowLeft />
                   </button>
                   <button
-                    onClick={() => setDate(new Date())}
+                    onClick={todayButt}
                     className="today-button p-1 rounded-lg hover:bg-gray-300 duration-300"
                     style={{ display: todayButton ? 'block' : 'none' }}
                   >
@@ -462,6 +480,10 @@ const DayView: FC<IDayViewProps> = ({
                   <td className="flex items-center justify-center">
                     <span
                       className={`timeline text-gray-400 ${style?.fontSize ? style?.fontSize : 'text-[12px]'} ${style?.fontWeight ? style?.fontWeight : 'font-semibold'}`}
+                      style={{
+                        color:
+                          isToday(date) && isCurrentHour(checkHours(hour), minutes) ? color : '',
+                      }}
                     >
                       {timeFormat === '12'
                         ? format(
@@ -476,15 +498,15 @@ const DayView: FC<IDayViewProps> = ({
                   </td>
                   <td
                     key={format(date, 'yyyy-MM-dd') + '-' + hourIndex}
-                    className="border border-gray-200 p-1"
+                    className="time-cell border border-gray-200 p-1"
                     style={{
                       backgroundColor:
                         isToday(date) && isCurrentHour(checkHours(hour), minutes)
                           ? colorToHex(color) + '30'
                           : '',
-                      border:
+                      borderLeft:
                         isToday(date) && isCurrentHour(checkHours(hour), minutes)
-                          ? '2px solid ' + color
+                          ? '5px solid ' + color
                           : '',
                     }}
                   >
@@ -495,8 +517,12 @@ const DayView: FC<IDayViewProps> = ({
                           key={index}
                           className="event px-2 border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
                           style={{
-                            backgroundColor: colorToHex(event.color) + '40',
-                            borderTopColor: colorToHex(event.color),
+                            backgroundColor: isSelectedEvent(event)
+                              ? colorToHex(selectedColor) + '70'
+                              : colorToHex(event.color) + '30',
+                            borderTopColor: isSelectedEvent(event)
+                              ? colorToHex(selectedColor)
+                              : colorToHex(event.color),
                           }}
                           onClick={() => handleItemClick(event)}
                         >
