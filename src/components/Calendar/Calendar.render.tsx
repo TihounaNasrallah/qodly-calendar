@@ -3,7 +3,7 @@ import {
   isLocalArrayDataSource,
   splitDatasourceID,
   unsubscribeFromDatasource,
-  useDataLoader,
+  // useDataLoader,
   useRenderer,
   useSources,
   useWebformPath,
@@ -82,8 +82,9 @@ const Calendar: FC<ICalendarProps> = ({
     [datasource],
   );
 
-  let { entities, fetchIndex, setStep } = useDataLoader({ source: datasource });
-
+  let { entities, fetchIndex, setStep, query, loaderDatasource } = useDataLoader({
+    source: datasource,
+  });
   const colorgenerated = useMemo(
     () => generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor())),
     [entities.length, colors],
@@ -96,16 +97,22 @@ const Calendar: FC<ICalendarProps> = ({
     if (!source) return;
     if (source.type === 'entitysel') {
       if (attrs.includes(startDate.split('.')[0])) {
-        const { entitysel } = source as any;
-        const queryStr = `${startDate} >= ${format(startOfWeek(startOfMonth(newMonth), { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(endOfMonth(newMonth), { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
-        const _settings = source.buildSelectionSettings();
-        (source as any).entitysel = source.dataclass.query(queryStr, {
-          ..._settings,
-          filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
+        const startOfWeekDate = format(
+          startOfWeek(startOfMonth(newMonth), { weekStartsOn: 1 }),
+          'yyyy-MM-dd',
+        );
+        const endOfMonthDate = format(
+          endOfWeek(endOfMonth(newMonth), { weekStartsOn: 1 }),
+          'yyyy-MM-dd',
+        );
+
+        const queryStr = `${startDate} >= :1 AND ${startDate} <= :2`;
+        const placeholders = [startOfWeekDate, endOfMonthDate];
+
+        query.entitysel({
+          queryString: queryStr,
+          placeholders,
         });
-        let selLength = await source.getValue('length');
-        setStep({ start: 0, end: selLength });
-        await fetchIndex(0);
       } else {
         checkParams = `"${startDate}" does not exist as an attribute`;
       }
@@ -148,12 +155,15 @@ const Calendar: FC<ICalendarProps> = ({
     }
   }, [date]);
 
+  // first init for the calender.
   useEffect(() => {
-    if (!datasource) return;
+    if (!datasource || !(datasource as any).entitysel) {
+      setLoading(false);
+      return;
+    }
 
     const fetch = async () => {
-      await fetchIndex(0);
-      monthQuery(datasource, date);
+      monthQuery(loaderDatasource, date);
     };
 
     fetch();
@@ -163,13 +173,24 @@ const Calendar: FC<ICalendarProps> = ({
     if (!datasource) return;
 
     const cb = () => {
-      monthQuery(datasource, date);
+      console.log('callback');
+      monthQuery(loaderDatasource, date);
     };
     datasource.addListener('changed', cb);
     return () => {
       unsubscribeFromDatasource(datasource, cb);
     };
-  }, [datasource, date]);
+  }, [datasource, date, loaderDatasource, (datasource as any).entitysel]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let selLength = await loaderDatasource.getValue('length');
+      setStep({ start: 0, end: selLength });
+      await fetchIndex(0);
+    };
+
+    fetchData();
+  }, [loaderDatasource]);
 
   const isSelectedEvent = (event: any) => {
     return (
@@ -181,19 +202,19 @@ const Calendar: FC<ICalendarProps> = ({
   };
 
   const prevMonth = () => {
-    monthQuery(datasource, subMonths(date, 1));
+    monthQuery(loaderDatasource, subMonths(date, 1));
     setDate(subMonths(date, 1));
   };
   const nextMonth = () => {
-    monthQuery(datasource, addMonths(date, 1));
+    monthQuery(loaderDatasource, addMonths(date, 1));
     setDate(addMonths(date, 1));
   };
   const nextYear = () => {
-    monthQuery(datasource, addMonths(date, 12));
+    monthQuery(loaderDatasource, addMonths(date, 12));
     setDate(addMonths(date, 12));
   };
   const prevYear = () => {
-    monthQuery(datasource, subMonths(date, 12));
+    monthQuery(loaderDatasource, subMonths(date, 12));
     setDate(subMonths(date, 12));
   };
 
