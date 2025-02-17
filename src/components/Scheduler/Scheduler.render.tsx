@@ -93,7 +93,9 @@ const Scheduler: FC<ISchedulerProps> = ({
     [datasource],
   );
 
-  let { entities, fetchIndex, setStep } = useDataLoader({ source: datasource });
+  let { entities, fetchIndex, setStep, query, loaderDatasource } = useDataLoader({
+    source: datasource,
+  });
 
   function convertMilliseconds(ms: number): string {
     const seconds = Math.floor(ms / 1000);
@@ -111,16 +113,16 @@ const Scheduler: FC<ISchedulerProps> = ({
     if (!source) return;
     if (source.type === 'entitysel') {
       if (attrs.includes(startDate.split('.')[0])) {
-        const { entitysel } = source as any;
-        const queryStr = `${startDate} >= ${format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')} AND ${startDate} <= ${format(endOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')}`;
-        const _settings = source.buildSelectionSettings();
-        (source as any).entitysel = source.dataclass.query(queryStr, {
-          ..._settings,
-          filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
+        const startOfWeekDate = format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+        const endOfWeekDate = format(endOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+
+        const queryStr = `${startDate} >= :1 AND ${startDate} <= :2`;
+        const placeholders = [startOfWeekDate, endOfWeekDate];
+
+        query.entitysel({
+          queryString: queryStr,
+          placeholders,
         });
-        let selLength = await source.getValue('length');
-        setStep({ start: 0, end: selLength });
-        await fetchIndex(0);
       } else {
         checkParams = `"${startDate}" does not exist as an attribute`;
       }
@@ -170,11 +172,13 @@ const Scheduler: FC<ISchedulerProps> = ({
   }, [date]);
 
   useEffect(() => {
-    if (!datasource) return;
+    if (!datasource || !(datasource as any).entitysel) {
+      setLoading(false);
+      return;
+    }
 
     const fetch = async () => {
-      await fetchIndex(0);
-      weekQuery(datasource, date);
+      weekQuery(loaderDatasource, date);
     };
 
     fetch();
@@ -183,13 +187,23 @@ const Scheduler: FC<ISchedulerProps> = ({
   useEffect(() => {
     if (!datasource) return;
     const cb = () => {
-      weekQuery(datasource, date);
+      weekQuery(loaderDatasource, date);
     };
     datasource.addListener('changed', cb);
     return () => {
       unsubscribeFromDatasource(datasource, cb);
     };
-  }, [datasource, date]);
+  }, [datasource, date, loaderDatasource, (datasource as any).entitysel]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let selLength = await loaderDatasource.getValue('length');
+      setStep({ start: 0, end: selLength });
+      await fetchIndex(0);
+    };
+
+    fetchData();
+  }, [loaderDatasource]);
 
   const colorgenerated = useMemo(() => {
     return generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor()));

@@ -3,7 +3,7 @@ import {
   isLocalArrayDataSource,
   splitDatasourceID,
   unsubscribeFromDatasource,
-  // useDataLoader,
+  useDataLoader,
   useRenderer,
   useSources,
   useWebformPath,
@@ -173,7 +173,6 @@ const Calendar: FC<ICalendarProps> = ({
     if (!datasource) return;
 
     const cb = () => {
-      console.log('callback');
       monthQuery(loaderDatasource, date);
     };
     datasource.addListener('changed', cb);

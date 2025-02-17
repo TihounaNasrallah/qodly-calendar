@@ -68,7 +68,9 @@ const DayView: FC<IDayViewProps> = ({
     [datasource],
   );
 
-  let { entities, fetchIndex, setStep } = useDataLoader({ source: datasource });
+  let { entities, fetchIndex, setStep, query, loaderDatasource } = useDataLoader({
+    source: datasource,
+  });
 
   function convertMilliseconds(ms: number): string {
     const seconds = Math.floor(ms / 1000);
@@ -86,16 +88,13 @@ const DayView: FC<IDayViewProps> = ({
     if (!source) return;
     if (source.type === 'entitysel') {
       if (attrs.includes(eventDate.split('.')[0])) {
-        const { entitysel } = source as any;
-        const queryStr = `${eventDate} == ${format(date, 'yyyy-MM-dd')}`;
-        const _settings = source.buildSelectionSettings();
-        (source as any).entitysel = source.dataclass.query(queryStr, {
-          ..._settings,
-          filterAttributes: source.filterAttributesText || entitysel._private.filterAttributes,
+        const queryStr = `${eventDate} == :1`;
+        const placeholders = [format(date, 'yyyy-MM-dd')];
+
+        query.entitysel({
+          queryString: queryStr,
+          placeholders,
         });
-        let selLength = await source.getValue('length');
-        setStep({ start: 0, end: selLength });
-        await fetchIndex(0);
       } else {
         checkParams = `${eventDate} does not exist as an attribute`;
       }
@@ -146,11 +145,13 @@ const DayView: FC<IDayViewProps> = ({
   }, [date]);
 
   useEffect(() => {
-    if (!datasource) return;
+    if (!datasource || !(datasource as any).entitysel) {
+      setLoading(false);
+      return;
+    }
 
     const fetch = async () => {
-      await fetchIndex(0);
-      dayQuery(datasource, date);
+      dayQuery(loaderDatasource, date);
     };
 
     fetch();
@@ -159,13 +160,23 @@ const DayView: FC<IDayViewProps> = ({
   useEffect(() => {
     if (!datasource) return;
     const cb = () => {
-      dayQuery(datasource, date);
+      dayQuery(loaderDatasource, date);
     };
     datasource.addListener('changed', cb);
     return () => {
       unsubscribeFromDatasource(datasource, cb);
     };
-  }, [datasource, date]);
+  }, [datasource, date, loaderDatasource, (datasource as any).entitysel]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let selLength = await loaderDatasource.getValue('length');
+      setStep({ start: 0, end: selLength });
+      await fetchIndex(0);
+    };
+
+    fetchData();
+  }, [loaderDatasource]);
 
   const isCurrentHour = (hourIndex: number, mins: number) => {
     const currentHour = new Date().getHours();
@@ -287,17 +298,17 @@ const DayView: FC<IDayViewProps> = ({
   }, [hours, minutes]);
 
   const todayButt = () => {
-    dayQuery(datasource, new Date());
+    dayQuery(loaderDatasource, new Date());
     setDate(new Date());
   };
 
   const handlePrevDay = () => {
-    dayQuery(datasource, subDays(date, 1));
+    dayQuery(loaderDatasource, subDays(date, 1));
     setDate(subDays(date, 1));
   };
 
   const handleNextDay = () => {
-    dayQuery(datasource, addDays(date, 1));
+    dayQuery(loaderDatasource, addDays(date, 1));
     setDate(addDays(date, 1));
   };
 
