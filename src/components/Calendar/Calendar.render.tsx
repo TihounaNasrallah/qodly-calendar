@@ -75,9 +75,9 @@ const Calendar: FC<ICalendarProps> = ({
   const attrs = useMemo(
     () =>
       datasource?.type === 'entitysel'
-        ? Object.keys(datasource.dataclass)
+        ? datasource.filterAttributesText?.split(',')
         : isLocalArrayDataSource(datasource)
-          ? Object.keys((datasource as any).value[0])
+          ? Object.keys((datasource as any).value[0] || {})
           : [],
     [datasource],
   );
@@ -96,7 +96,7 @@ const Calendar: FC<ICalendarProps> = ({
     setLoading(true);
     if (!source) return;
     if (source.type === 'entitysel') {
-      if (attrs.includes(startDate.split('.')[0])) {
+      if (attrs?.includes(startDate.split('.')[0])) {
         const startOfWeekDate = format(
           startOfWeek(startOfMonth(newMonth), { weekStartsOn: 1 }),
           'yyyy-MM-dd',
@@ -130,17 +130,17 @@ const Calendar: FC<ICalendarProps> = ({
     }
     if (!property) {
       return 'Please set "Property"';
-    } else if (!attrs.includes(property)) {
+    } else if (!attrs?.includes(property)) {
       return `"${property}" does not exist as an attribute`;
     }
     if (!startDate) {
       return 'Please set the "Start Date"';
-    } else if (!attrs.includes(startDate)) {
+    } else if (!attrs?.includes(startDate)) {
       return `"${startDate}" does not exist as an attribute`;
     }
     if (!endDate) {
       return 'Please set the "End Date"';
-    } else if (!attrs.includes(endDate)) {
+    } else if (!attrs?.includes(endDate)) {
       return `"${endDate}" does not exist as an attribute`;
     }
     return '';
@@ -260,6 +260,8 @@ const Calendar: FC<ICalendarProps> = ({
             e[startDate] === item[startDate] &&
             e[endDate] === item[endDate],
         );
+        console.log(index);
+
         await updateEntity({ index, datasource, currentElement: selectedElement });
         emit('onItemClick', { selectedData: selectedElement });
         break;

@@ -86,9 +86,9 @@ const Scheduler: FC<ISchedulerProps> = ({
   const attrs = useMemo(
     () =>
       datasource?.type === 'entitysel'
-        ? Object.keys(datasource.dataclass)
+        ? datasource.filterAttributesText?.split(',')
         : isLocalArrayDataSource(datasource)
-          ? Object.keys((datasource as any).value[0])
+          ? Object.keys((datasource as any).value[0] || {})
           : [],
     [datasource],
   );
@@ -112,7 +112,7 @@ const Scheduler: FC<ISchedulerProps> = ({
     setLoading(true);
     if (!source) return;
     if (source.type === 'entitysel') {
-      if (attrs.includes(startDate.split('.')[0])) {
+      if (attrs?.includes(startDate.split('.')[0])) {
         const startOfWeekDate = format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd');
         const endOfWeekDate = format(endOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd');
 
@@ -140,22 +140,22 @@ const Scheduler: FC<ISchedulerProps> = ({
 
     if (!property) {
       return 'Please set "Property"';
-    } else if (!attrs.includes(property)) {
+    } else if (!attrs?.includes(property)) {
       return `${property} does not exist as an attribute`;
     }
     if (!startDate) {
       return 'Please set "event date"';
-    } else if (!attrs.includes(startDate)) {
+    } else if (!attrs?.includes(startDate)) {
       return `${startDate} does not exist as an attribute`;
     }
     if (!startTime) {
       return 'Please set "start time"';
-    } else if (!attrs.includes(startTime)) {
+    } else if (!attrs?.includes(startTime)) {
       return `${startTime} does not exist as an attribute`;
     }
     if (!endTime) {
       return 'Please set "end time"';
-    } else if (!attrs.includes(endTime)) {
+    } else if (!attrs?.includes(endTime)) {
       return `${endTime} does not exist as an attribute`;
     }
 
