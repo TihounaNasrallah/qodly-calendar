@@ -78,7 +78,10 @@ const Calendar: FC<ICalendarProps> = ({
       daysInMonth.filter((day) => {
         if (type === 'work') {
           const dayOfWeek = day.getDay();
-          return dayOfWeek >= 1 && dayOfWeek <= 5;
+          return (
+            (startOfWeekInt === 0 ? dayOfWeek >= 0 : dayOfWeek >= 1) &&
+            (startOfWeekInt === 0 ? dayOfWeek <= 4 : dayOfWeek <= 5)
+          );
         }
         return true;
       }),
