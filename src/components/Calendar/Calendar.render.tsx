@@ -64,6 +64,10 @@ const Calendar: FC<ICalendarProps> = ({
     sources: { datasource, currentElement: selectedElement },
   } = useSources();
 
+  let { entities, fetchIndex, setStep, query, loaderDatasource } = useDataLoader({
+    source: datasource,
+  });
+
   const [date, setDate] = useState(new Date());
   const [selDate, setSelDate] = useState(new Date());
   const [selEvent, setSelEvent] = useState<any>(null);
@@ -82,9 +86,6 @@ const Calendar: FC<ICalendarProps> = ({
     [datasource],
   );
 
-  let { entities, fetchIndex, setStep, query, loaderDatasource } = useDataLoader({
-    source: datasource,
-  });
   const colorgenerated = useMemo(
     () => generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor())),
     [entities.length, colors],
@@ -260,9 +261,11 @@ const Calendar: FC<ICalendarProps> = ({
             e[startDate] === item[startDate] &&
             e[endDate] === item[endDate],
         );
-        console.log(index);
-
-        await updateEntity({ index, datasource, currentElement: selectedElement });
+        await updateEntity({
+          index,
+          datasource: loaderDatasource,
+          currentElement: selectedElement,
+        });
         emit('onItemClick', { selectedData: selectedElement });
         break;
     }
