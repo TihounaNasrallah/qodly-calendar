@@ -50,6 +50,10 @@ const DayView: FC<IDayViewProps> = ({
     sources: { datasource, currentElement: ce },
   } = useSources();
 
+  let { entities, fetchIndex, setStep, query, loaderDatasource } = useDataLoader({
+    source: datasource,
+  });
+
   const [date, setDate] = useState<Date>(new Date());
   const [selDate, setSelDate] = useState(new Date());
   const [selEvent, setSelEvent] = useState<any>(null);
@@ -67,10 +71,6 @@ const DayView: FC<IDayViewProps> = ({
           : [],
     [datasource],
   );
-
-  let { entities, fetchIndex, setStep, query, loaderDatasource } = useDataLoader({
-    source: datasource,
-  });
 
   function convertMilliseconds(ms: number): string {
     const seconds = Math.floor(ms / 1000);
@@ -349,7 +349,7 @@ const DayView: FC<IDayViewProps> = ({
             e[startTime] === item[startTime] &&
             e[endTime] === item[endTime],
         );
-        await updateEntity({ index, datasource, currentElement: ce });
+        await updateEntity({ index, datasource: loaderDatasource, currentElement: ce });
         emit('onItemClick', { selectedData: ce });
         break;
     }
