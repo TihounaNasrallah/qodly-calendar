@@ -523,7 +523,7 @@ const DayView: FC<IDayViewProps> = ({
                   </td>
                   <td
                     key={format(date, 'yyyy-MM-dd') + '-' + hourIndex}
-                    className="time-cell border border-gray-200 p-1"
+                    className="time-cell border border-gray-200"
                     style={{
                       backgroundColor:
                         isToday(date) && isCurrentHour(checkHours(hour), minutes)
@@ -535,12 +535,12 @@ const DayView: FC<IDayViewProps> = ({
                           : '',
                     }}
                   >
-                    <div className="time-content flex flex-col flex-wrap w-full h-full gap-1 overflow-x-auto">
+                    <div className="time-content flex flex-col flex-wrap w-full h-full gap-0.5 overflow-x-auto">
                       {events.map((event, index) => (
                         <div
                           title={event[property]}
                           key={index}
-                          className="event px-2 border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer"
+                          className="event px-2 border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer z-10"
                           style={{
                             backgroundColor: isSelectedEvent(event)
                               ? colorToHex(selectedColor) + '70'

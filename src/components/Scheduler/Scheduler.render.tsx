@@ -628,7 +628,7 @@ const Scheduler: FC<ISchedulerProps> = ({
                     return (
                       <td
                         key={format(day, 'yyyy-MM-dd') + '-' + dayIndex}
-                        className="time-cell border border-gray-200 p-1"
+                        className="time-cell border border-gray-200"
                         style={{
                           backgroundColor:
                             isToday(day) && isCurrentHour(checkHours(hour), minutes)
@@ -640,11 +640,11 @@ const Scheduler: FC<ISchedulerProps> = ({
                               : '',
                         }}
                       >
-                        <div className="time-content flex w-full h-full gap-1 overflow-x-auto">
+                        <div className="time-content flex flex-col flex-wrap w-full h-full gap-0.5 overflow-auto">
                           {events.map((event, index) => (
                             <div
                               key={index}
-                              className={`event px-2 border-t-4 overflow-y-auto h-full w-full flex flex-col gap-1 cursor-pointer z-10`}
+                              className={`event px-2 border-t-4 overflow-y-auto h-full flex flex-col gap-1 cursor-pointer z-10`}
                               style={{
                                 backgroundColor: isSelectedEvent(event)
                                   ? colorToHex(selectedColor) + '70'
