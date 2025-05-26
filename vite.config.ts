@@ -46,7 +46,7 @@ export default defineConfig(({ mode = 'local' }) => {
     },
     optimizeDeps: {
       esbuildOptions: {
-        plugins: isDevEnv ? [importMetaUrlPlugin] : [],
+        // plugins: isDevEnv ? [importMetaUrlPlugin] : [],
       },
     },
     server: {

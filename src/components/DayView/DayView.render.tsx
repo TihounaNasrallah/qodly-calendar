@@ -72,6 +72,23 @@ const DayView: FC<IDayViewProps> = ({
     [datasource],
   );
 
+  let attributeList = attributes?.map((e) => e.Attribute);
+
+  const { id: propertyId } = splitDatasourceID(property);
+  property = propertyId;
+  const { id: eventDateId } = splitDatasourceID(eventDate);
+  eventDate = eventDateId;
+  const { id: startTimeId } = splitDatasourceID(startTime);
+  startTime = startTimeId;
+  const { id: endTimeId } = splitDatasourceID(endTime);
+  endTime = endTimeId;
+  const { id: colorPropId } = splitDatasourceID(colorProp);
+  colorProp = colorPropId;
+  for (let index = 0; index < attributeList.length; index++) {
+    const { id: attributeId } = splitDatasourceID(attributeList[index]);
+    attributeList[index] = attributeId;
+  }
+
   function convertMilliseconds(ms: number): string {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -145,7 +162,7 @@ const DayView: FC<IDayViewProps> = ({
   }, [date]);
 
   useEffect(() => {
-    if (!datasource || !(datasource as any).entitysel) {
+    if (!datasource || (datasource.type == 'entitysel' && !(datasource as any).entitysel)) {
       setLoading(false);
       return;
     }
@@ -316,8 +333,6 @@ const DayView: FC<IDayViewProps> = ({
     () => generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor())),
     [entities.length],
   );
-
-  let attributeList = attributes?.map((e) => e.Attribute);
 
   const data = useMemo(
     () =>

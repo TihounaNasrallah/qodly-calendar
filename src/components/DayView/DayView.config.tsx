@@ -59,37 +59,35 @@ export default {
           { path: datasource, iterable: true },
         ];
 
-        const { id: ds, namespace } = splitDatasourceID(datasource?.trim()) || {};
-
         if (property) {
-          const propertySrc = `${ds}.[].${property}`;
-          declarations.push({ path: namespace ? `${namespace}:${propertySrc}` : propertySrc });
+          const { id: propertySrc } = splitDatasourceID(property);
+          declarations.push({ path: `${datasource}.[].${propertySrc}` });
         }
 
         if (eventDate) {
-          const startDateSrc = `${ds}.[].${eventDate}`;
-          declarations.push({ path: namespace ? `${namespace}:${startDateSrc}` : startDateSrc });
+          const { id: eventDateSrc } = splitDatasourceID(eventDate);
+          declarations.push({ path: `${datasource}.[].${eventDateSrc}` });
         }
 
         if (startTime) {
-          const startTimeSrc = `${ds}.[].${startTime}`;
-          declarations.push({ path: namespace ? `${namespace}:${startTimeSrc}` : startTimeSrc });
+          const { id: startTimeSrc } = splitDatasourceID(startTime);
+          declarations.push({ path: `${datasource}.[].${startTimeSrc}` });
         }
 
         if (endTime) {
-          const endTimeSrc = `${ds}.[].${endTime}`;
-          declarations.push({ path: namespace ? `${namespace}:${endTimeSrc}` : endTimeSrc });
+          const { id: endTimeSrc } = splitDatasourceID(endTime);
+          declarations.push({ path: `${datasource}.[].${endTimeSrc}` });
         }
 
         if (colorProp) {
-          const colorPropSrc = `${ds}.[].${colorProp}`;
-          declarations.push({ path: namespace ? `${namespace}:${colorPropSrc}` : colorPropSrc });
+          const { id: colorPropSrc } = splitDatasourceID(colorProp);
+          declarations.push({ path: `${datasource}.[].${colorPropSrc}` });
         }
 
         if (attributes) {
           attributes.forEach((attr) => {
-            const attrSrc = `${ds}.[].${attr.Attribute}`;
-            declarations.push({ path: namespace ? `${namespace}:${attrSrc}` : attrSrc });
+            const { id: attrSrc } = splitDatasourceID(attr.Attribute);
+            declarations.push({ path: `${datasource}.[].${attrSrc}` });
           });
         }
 
