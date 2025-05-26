@@ -18,7 +18,6 @@ export default {
     },
     kind: EComponentKind.BASIC,
     props: {
-      name: '',
       classNames: [],
       events: [],
     },
@@ -59,35 +58,32 @@ export default {
           { path: datasource, iterable: true },
         ];
 
-        const { id: ds, namespace } = splitDatasourceID(datasource?.trim()) || {};
-
         if (property) {
-          const propertySrc = `${ds}.[].${property}`;
-          declarations.push({ path: namespace ? `${namespace}:${propertySrc}` : propertySrc });
+          const { id: propertySrc } = splitDatasourceID(property);
+          declarations.push({ path: `${datasource}.[].${propertySrc}` });
         }
 
         if (startDate) {
-          const startDateSrc = `${ds}.[].${startDate}`;
-          declarations.push({ path: namespace ? `${namespace}:${startDateSrc}` : startDateSrc });
+          const { id: startDateSrc } = splitDatasourceID(startDate);
+          declarations.push({ path: `${datasource}.[].${startDateSrc}` });
         }
 
         if (endDate) {
-          const endDateSrc = `${ds}.[].${endDate}`;
-          declarations.push({ path: namespace ? `${namespace}:${endDateSrc}` : endDateSrc });
+          const { id: endDateSrc } = splitDatasourceID(endDate);
+          declarations.push({ path: `${datasource}.[].${endDateSrc}` });
         }
 
         if (colorProp) {
-          const colorPropSrc = `${ds}.[].${colorProp}`;
-          declarations.push({ path: namespace ? `${namespace}:${colorPropSrc}` : colorPropSrc });
+          const { id: colorPropSrc } = splitDatasourceID(colorProp);
+          declarations.push({ path: `${datasource}.[].${colorPropSrc}` });
         }
 
         if (attributes) {
           attributes.forEach((attr) => {
-            const attrSrc = `${ds}.[].${attr.Attribute}`;
-            declarations.push({ path: namespace ? `${namespace}:${attrSrc}` : attrSrc });
+            const { id: attrSrc } = splitDatasourceID(attr.Attribute);
+            declarations.push({ path: `${datasource}.[].${attrSrc}` });
           });
         }
-
         return declarations;
       },
     },

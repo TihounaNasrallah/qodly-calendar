@@ -93,6 +93,19 @@ const Calendar: FC<ICalendarProps> = ({
 
   let attributeList = attributes?.map((e) => e.Attribute);
 
+  const { id: propertyId } = splitDatasourceID(property);
+  property = propertyId;
+  const { id: startDateId } = splitDatasourceID(startDate);
+  startDate = startDateId;
+  const { id: endDateId } = splitDatasourceID(endDate);
+  endDate = endDateId;
+  const { id: colorPropId } = splitDatasourceID(colorProp);
+  colorProp = colorPropId;
+  for (let index = 0; index < attributeList.length; index++) {
+    const { id: attributeId } = splitDatasourceID(attributeList[index]);
+    attributeList[index] = attributeId;
+  }
+
   const monthQuery = async (source: datasources.DataSource, newMonth: Date) => {
     setLoading(true);
     if (!source) return;
@@ -158,7 +171,7 @@ const Calendar: FC<ICalendarProps> = ({
 
   // first init for the calender.
   useEffect(() => {
-    if (!datasource || !(datasource as any).entitysel) {
+    if (!datasource || (datasource.type == 'entitysel' && !(datasource as any).entitysel)) {
       setLoading(false);
       return;
     }

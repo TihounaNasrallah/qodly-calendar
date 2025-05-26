@@ -108,6 +108,23 @@ const Scheduler: FC<ISchedulerProps> = ({
     return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
+  let attributeList = attributes?.map((e) => e.Attribute);
+
+  const { id: propertyId } = splitDatasourceID(property);
+  property = propertyId;
+  const { id: startDateId } = splitDatasourceID(startDate);
+  startDate = startDateId;
+  const { id: startTimeId } = splitDatasourceID(startTime);
+  startTime = startTimeId;
+  const { id: endTimeId } = splitDatasourceID(endTime);
+  endTime = endTimeId;
+  const { id: colorPropId } = splitDatasourceID(colorProp);
+  colorProp = colorPropId;
+  for (let index = 0; index < attributeList.length; index++) {
+    const { id: attributeId } = splitDatasourceID(attributeList[index]);
+    attributeList[index] = attributeId;
+  }
+
   const weekQuery = async (source: datasources.DataSource, date: Date) => {
     setLoading(true);
     if (!source) return;
@@ -172,7 +189,7 @@ const Scheduler: FC<ISchedulerProps> = ({
   }, [date]);
 
   useEffect(() => {
-    if (!datasource || !(datasource as any).entitysel) {
+    if (!datasource || (datasource.type == 'entitysel' && !(datasource as any).entitysel)) {
       setLoading(false);
       return;
     }
@@ -208,8 +225,6 @@ const Scheduler: FC<ISchedulerProps> = ({
   const colorgenerated = useMemo(() => {
     return generateColorPalette(entities.length, ...colors.map((e) => e.color || randomColor()));
   }, [entities.length]);
-
-  let attributeList = attributes?.map((e) => e.Attribute);
 
   const data = useMemo(() => {
     return (datasource.dataType === 'array' ? value : entities).map((obj: any, index) => ({

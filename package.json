@@ -2,7 +2,7 @@
   "app_id": "qodly_37629285cf887b8497da",
   "name": "qodly-calendar",
   "private": true,
-  "version": "0.5.7",
+  "version": "0.5.8",
   "type": "module",
   "author": {
     "name": "Qodly Team",
@@ -18,12 +18,12 @@
   },
   "dependencies": {
     "@ctrl/tinycolor": "^4.1.0",
-    "@ws-ui/webform-editor": "0.4.13",
+    "@ws-ui/webform-editor": "1.5.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@qodly/cli": "^0.3.1",
+    "@qodly/cli": "^0.3.2",
     "@types/react": "^18.2.65",
     "@types/react-dom": "^18.2.21",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
